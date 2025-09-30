@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 
 from db import init_db
 from models import StatusResponse
-from routes import users, predictions, chat
+from app.api.v1 import users
 
 # Set up environment variables
 os.environ.setdefault("OPENAI_API_KEY", "your-openai-api-key-here")
@@ -44,8 +44,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(users.router)
-app.include_router(predictions.router)
-app.include_router(chat.router)
 
 @app.get("/", response_model=StatusResponse)
 async def root():

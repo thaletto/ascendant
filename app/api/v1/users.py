@@ -1,5 +1,5 @@
 """
-User management routes for Horoscope AI Backend.
+User management API endpoints
 """
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,22 +7,22 @@ from sqlalchemy import select
 from typing import List
 from datetime import datetime
 
-from db import get_db, User
-from models import UserCreate, UserResponse
+from app.db import User, get_db
+from app.models.users import NewUser, UserResponse
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 @router.post("/", response_model=UserResponse, status_code=201)
-async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
-    """
+async def create_user(user_data: NewUser, db: AsyncSession = Depends(get_db)):
+    f"""
     Create a new user with birth information.
     
     Args:
-        user_data: User creation data including name, birth date, time, and place
+        user_data: {NewUser}
         db: Database session
     
     Returns:
-        Created user information
+        {UserResponse}
     """
     try:
         # Create new user
@@ -32,13 +32,12 @@ async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db))
             birth_time=user_data.birth_time,
             birth_place=user_data.birth_place
         )
-        
+
         db.add(db_user)
         await db.commit()
         await db.refresh(db_user)
-        
+
         return UserResponse.model_validate(db_user)
-        
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=f"Error creating user: {str(e)}")
@@ -57,7 +56,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
-    
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     

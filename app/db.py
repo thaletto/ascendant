@@ -1,10 +1,7 @@
 """
 Database configuration and models for Horoscope AI Backend.
 """
-import asyncio
-from datetime import datetime
-from typing import Optional
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, relationship
