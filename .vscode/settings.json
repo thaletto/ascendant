@@ -1,0 +1,10 @@
+{
+  "files.exclude": {
+    "__pycache__": true,
+    ".env": true,
+    ".env.{local, development}*": true,
+    ".gitignore": true,
+    ".venv": true,
+    ".vscode": true
+  }
+}
