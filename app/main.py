@@ -7,9 +7,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from db import init_db
-from models import StatusResponse
+from app.db import init_db
 from app.api.v1 import users
+from app.models import StatusResponse
 
 # Set up environment variables
 os.environ.setdefault("OPENAI_API_KEY", "your-openai-api-key-here")

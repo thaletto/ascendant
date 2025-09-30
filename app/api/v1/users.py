@@ -7,7 +7,8 @@ from sqlalchemy import select
 from typing import List
 from datetime import datetime
 
-from app.db import User, get_db
+from app.db import get_db
+from app.db.schema import User
 from app.models.users import NewUser, UserResponse
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
