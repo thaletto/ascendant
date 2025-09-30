@@ -9,7 +9,7 @@ from datetime import datetime
 
 from app.db import get_db
 from app.db.schema import User
-from app.models.users import NewUser, UserResponse
+from app.models.users import NewUser, UserResponse, UserUpdate
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -42,6 +42,45 @@ async def create_user(user_data: NewUser, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         await db.rollback()
         raise HTTPException(status_code=400, detail=f"Error creating user: {str(e)}")
+
+@router.put("/{user_id}", response_model=UserResponse)
+async def update_user(user_id: int, user_data: UserUpdate, db: AsyncSession = Depends(get_db)):
+    """
+    Update an existing user's details.
+
+    Args:
+        user_id: ID of the user to update
+        user_data: Updated user info
+        db: Database session
+
+    Returns:
+        Updated user as UserResponse
+    """
+    try:
+        result = await db.execute(select(User).where(User.id == user_id))
+        db_user = result.scalar_one_or_none()
+
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Update fields if provided
+        if user_data.name is not None:
+            db_user.name = user_data.name
+        if user_data.birth_date is not None:
+            db_user.birth_date = user_data.birth_date
+        if user_data.birth_time is not None:
+            db_user.birth_time = user_data.birth_time
+        if user_data.birth_place is not None:
+            db_user.birth_place = user_data.birth_place
+
+        await db.commit()
+        await db.refresh(db_user)
+
+        return UserResponse.model_validate(db_user)
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=400, detail=f"Error updating user: {str(e)}")
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
