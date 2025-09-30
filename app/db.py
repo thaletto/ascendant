@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import func
 
+from app.config import DATABASE_URL
+
 Base = declarative_base()
 
 class User(Base):
@@ -51,9 +53,6 @@ class ChatMessage(Base):
     
     # Relationship to user
     user = relationship("User")
-
-# Database configuration
-DATABASE_URL = "sqlite+aiosqlite:///./horoscope_ai.db"
 
 # Create async engine
 engine = create_async_engine(DATABASE_URL, echo=True)
