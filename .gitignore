@@ -1,6 +1,36 @@
-.venv/
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environment
 venv/
-__pycache__
-.env
-.env.local
+.env/
+.venv/
+
+# SQLite database
 *.db
+*.sqlite3
+
+# Environment variables
+.env.local
+.env.*.local
+.envrc
+.env
+
+# Logs
+*.log
+logs/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
