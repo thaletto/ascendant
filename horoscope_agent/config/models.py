@@ -1,5 +1,8 @@
 from google.adk.models.lite_llm import LiteLlm
 
-from config import BASE_MODEL
+from config import BASE_MODEL, OPENAI_API_KEY
 
-BASE_MODEL = LiteLlm(model=BASE_MODEL)
+BASE_MODEL = LiteLlm(
+    model=BASE_MODEL,
+    api_key=OPENAI_API_KEY
+)
