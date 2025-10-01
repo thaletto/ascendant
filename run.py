@@ -10,7 +10,7 @@ load_dotenv()
 
 if __name__ == "__main__":
     # Check if OpenAI API key is set
-    if not os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY") == "your-openai-api-key-here":
+    if not os.getenv("OPENAI_API_KEY"):
         print("⚠️  Warning: OPENAI_API_KEY not set. Please set it in your environment or .env file")
         print("   You can get an API key from: https://platform.openai.com/api-keys")
         print("   The application will still start but horoscope generation will fail.")
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     print()
     
     uvicorn.run(
-        "main:app",
+        "app.main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
