@@ -10,9 +10,8 @@ load_dotenv()
 
 if __name__ == "__main__":
     # Check if OpenAI API key is set
-    if not os.getenv("OPENAI_API_KEY"):
-        print("⚠️  Warning: OPENAI_API_KEY not set. Please set it in your environment or .env file")
-        print("   You can get an API key from: https://platform.openai.com/api-keys")
+    if not os.getenv("OPENROUTER_API_KEY"):
+        print("⚠️  Warning: OPENROUTER_API_KEY not set. Please set it in your environment or .env file")
         print("   The application will still start but horoscope generation will fail.")
         print()
     
