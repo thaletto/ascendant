@@ -5,8 +5,8 @@ aiosqlite==0.21.0
 pydantic==2.11.9
 google-adk==1.15.1
 litellm==1.77.5
-vedastro
 python-multipart==0.0.20
 python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.1.1
+kerykeion
