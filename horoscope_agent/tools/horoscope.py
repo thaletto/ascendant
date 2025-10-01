@@ -1,78 +1,89 @@
-from datetime import datetime
+from typing import Dict
 from kerykeion import AstrologicalSubject, Report
 
-
-# --- ADK Agent Tool Interface ---
+# ------------------------------
+# Horoscope Agent Tool
+# ------------------------------
 class AstrologyAgentTools:
     """
-    Tools class designed for Google ADK agents.
-    Methods here can be invoked remotely by an agent.
-    Uses Kerykeion's AstrologicalSubject and Report classes.
+    AstrologyAgentTools provides tools for generating horoscope reports 
+    in the Horoscope AI agent using primitive input types for ADK compatibility.
+
+    This class is designed to work with Google ADK automatic function calling. 
+    It avoids complex object inputs and only accepts strings, integers, and floats.
+
+    Usage:
+        tools = AstrologyAgentTools()
+        report = tools.generate_report(
+            name="Laxman",
+            year=2003,
+            month=8,
+            day=19,
+            hour=11,
+            minute=55,
+            tz_str="Asia/Kolkata",
+            city="Chennai",
+            lat=13.0827,
+            lng=80.2707
+        )
     """
 
     @staticmethod
-    def generate_subject(
-        name: str, birth_date: datetime, city: str, lat: float, lng: float
-    ) -> AstrologicalSubject:
+    def generate_report(
+        name: str,
+        year: int,
+        month: int,
+        day: int,
+        hour: int,
+        minute: int,
+        tz_str: str,
+        city: str,
+        lat: float,
+        lng: float
+    ) -> Dict:
         """
-        Creates a Kerykeion AstrologicalSubject object from user input.
+        Generates a horoscope report for a person using Kerykeion.
 
-        Args:
+        The function creates an AstrologicalSubject object from the provided
+        primitive inputs, generates a horoscope Report, and serializes it as a dictionary
+        suitable for use with Google ADK.
+
+        Parameters:
             name (str): Name of the person.
-            birth_date (datetime): Birth date and time with timezone info. eg: datetime(2003, 8, 19, 11, 55, tzinfo=ZoneInfo("Asia/Kolkata"))
+            year (int): Birth year.
+            month (int): Birth month (1-12).
+            day (int): Birth day (1-31).
+            hour (int): Birth hour in 24-hour format.
+            minute (int): Birth minute.
+            tz_str (str): Timezone string (e.g., "Asia/Kolkata").
             city (str): Birth city.
             lat (float): Latitude of the city.
             lng (float): Longitude of the city.
 
         Returns:
-            dict: Serialized AstrologicalSubject attributes suitable for ADK consumption.
+            Dict: Serialized horoscope report suitable for ADK consumption.
         """
+        # create subject
         subject = AstrologicalSubject(
             name=name,
-            year=birth_date.year,
-            month=birth_date.month,
-            day=birth_date.day,
-            hour=birth_date.hour,
-            minute=birth_date.minute,
+            year=year,
+            month=month,
+            day=day,
+            hour=hour,
+            minute=minute,
             city=city,
             nation="IN",
             lat=lat,
             lng=lng,
-            tz_str=birth_date.tzinfo.key,
+            tz_str=tz_str,
             online=False,
-            houses_system_identifier="W",  # Whole sign
+            houses_system_identifier="W",
             zodiac_type="Sidereal",
             sidereal_mode="LAHIRI",
         )
-        # Serialize subject for ADK
-        return subject
 
-    @staticmethod
-    def generate_report(subject: AstrologicalSubject) -> dict:
-        """
-        Generates a Kerykeion report object for a given subject.
-
-        Args:
-            subject (AstrologicalSubject): The subject for whom the report is generated.
-
-        Returns:
-            dict: Serialized report data suitable for ADK consumption.
-        """
+        # generate report
         report = Report(subject)
-        return report.to_dict() if hasattr(report, "to_dict") else report.__dict__
 
-    @staticmethod
-    def print_subject_report(subject: AstrologicalSubject) -> dict:
-        """
-        Generates and prints a report for a subject.
-        Returns the report as a dictionary for ADK agents.
-
-        Args:
-            subject (AstrologicalSubject): The subject for whom the report is generated.
-
-        Returns:
-            dict: Serialized report data.
-        """
-        report = Report(subject)
-        report.print_report()
-        return report.to_dict() if hasattr(report, "to_dict") else report.__dict__
+        # serialize as dict for ADK
+        return report.to_dict()
