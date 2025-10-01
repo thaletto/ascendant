@@ -1,6 +1,6 @@
 from google.adk import Agent
 
-from app.agents.models import BASE_MODEL
+from app.agents.config.models import BASE_MODEL
 
 horoscope_agent = Agent(
     name="Horoscope Agent",
