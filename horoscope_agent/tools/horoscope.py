@@ -86,4 +86,4 @@ class AstrologyAgentTools:
         report = Report(subject)
 
         # serialize as dict for ADK
-        return report.to_dict()
+        return {"report": report.get_full_report()}
