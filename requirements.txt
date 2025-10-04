@@ -11,3 +11,5 @@ passlib[bcrypt]==1.7.4
 python-dotenv==1.1.1
 kerykeion
 vedastro
+vedicastro
+tabulate
