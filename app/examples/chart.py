@@ -101,5 +101,3 @@ if __name__ == "__main__":
 
     print("\n=== D10 Chart ===")
     print(chart.get_d10())
-
-    input("\nPress Enter to exit...")
