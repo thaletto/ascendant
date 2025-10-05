@@ -5,9 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
-from datetime import datetime
 
-from app.db import get_db
+from app.db.client import get_db
 from app.db.schema import User
 from app.models.users import NewUser, UserResponse, UserUpdate
 
