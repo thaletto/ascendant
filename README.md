@@ -1,6 +1,6 @@
 # Horoscope AI Backend
 
-A prototype backend for AI-powered horoscope predictions and chat functionality built with FastAPI, SQLite, and LangGraph.
+A prototype backend for AI-powered horoscope predictions and chat functionality built with FastAPI, SQLite, and Google ADK.
 
 ## Features
 
@@ -9,7 +9,7 @@ A prototype backend for AI-powered horoscope predictions and chat functionality 
 - **Chat Functionality**: Interactive chat with streaming responses for astrology questions
 - **REST API**: Complete REST API with automatic documentation
 - **Database**: SQLite database with automatic initialization
-- **Agentic AI**: LangGraph-based horoscope generation pipeline
+- **Agentic AI**: Google ADK-based horoscope generation pipeline
 
 ## Quick Start
 
@@ -40,136 +40,38 @@ The API will be available at:
 - **Documentation**: http://localhost:8000/docs
 - **Alternative Docs**: http://localhost:8000/redoc
 
-## API Endpoints
-
-### Root & Health
-
-```bash
-# Check if API is running
-curl http://localhost:8000/
-
-# Health check
-curl http://localhost:8000/health
-```
-
-### User Management
-
-```bash
-# Create a new user
-curl -X POST "http://localhost:8000/users/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "birth_date": "1990-05-15T00:00:00",
-    "birth_time": "14:30",
-    "birth_place": "New York, NY"
-  }'
-
-# Get user by ID
-curl http://localhost:8000/users/1
-
-# List all users
-curl http://localhost:8000/users/
-
-# Delete user
-curl -X DELETE http://localhost:8000/users/1
-```
-
-### Horoscope Predictions
-
-```bash
-# Generate daily horoscope
-curl -X POST "http://localhost:8000/predict/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "prediction_type": "daily"
-  }'
-
-# Generate weekly horoscope for specific date
-curl -X POST "http://localhost:8000/predict/" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "prediction_type": "weekly",
-    "date": "2024-01-15T00:00:00"
-  }'
-
-# Get user's predictions
-curl http://localhost:8000/predict/user/1
-
-# Get predictions by type
-curl "http://localhost:8000/predict/user/1?prediction_type=daily&limit=5"
-
-# Get specific prediction
-curl http://localhost:8000/predict/1
-
-# Delete prediction
-curl -X DELETE http://localhost:8000/predict/1
-```
-
-### Chat Functionality
-
-```bash
-# Stream chat response (using curl with streaming)
-curl -X POST "http://localhost:8000/chat/stream" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "message": "What does my birth chart say about my career?"
-  }' \
-  --no-buffer
-
-# Get chat history
-curl http://localhost:8000/chat/history/1
-
-# Clear chat history
-curl -X DELETE http://localhost:8000/chat/history/1
-```
-
 ## Project Structure
 
 ```
-├── main.py                 # FastAPI application entry point
-├── db.py                   # Database models and connection
-├── models.py               # Pydantic models for API validation
-├── horoscope.py            # LangGraph-based horoscope generation
-├── routes/                 # API route modules
-│   ├── __init__.py
-│   ├── users.py           # User management endpoints
-│   ├── predictions.py     # Horoscope prediction endpoints
-│   └── chat.py            # Chat functionality endpoints
-├── requirements.txt        # Python dependencies
-├── run.py                 # Simple startup script
-├── env_example.txt        # Environment variables template
-└── README.md              # This file
+Ascendant-AI/
+├── app/
+│   ├── api/
+│   │   └── v1/
+│   │       ├── auth.py
+│   │       ├── prediction.py
+│   │       └── users.py
+│   ├── db/
+│   │   ├── client.py
+│   │   └── schema.py
+│   ├── main.py
+│   ├── models/
+│   │   └── users.py
+│   └── utils/
+│       ├── chart.py
+│       ├── dasha.py
+│       ├── planets.py
+│       └── yoga.py
+├── config.py
+├── horoscope_agent/
+│   ├── agent.py
+│   ├── config/
+│   │   └── models.py
+│   └── tools/
+│       └── horoscope.py
+├── README.md
+├── requirements.txt
+└── run.py
 ```
-
-## Example Usage Flow
-
-1. **Create a user**:
-
-   ```bash
-   curl -X POST "http://localhost:8000/users/" \
-     -H "Content-Type: application/json" \
-     -d '{"name": "Alice", "birth_date": "1995-03-20T00:00:00", "birth_time": "09:15", "birth_place": "Los Angeles, CA"}'
-   ```
-
-2. **Generate a horoscope**:
-
-   ```bash
-   curl -X POST "http://localhost:8000/predict/" \
-     -H "Content-Type: application/json" \
-     -d '{"user_id": 1, "prediction_type": "daily"}'
-   ```
-
-3. **Chat about astrology**:
-   ```bash
-   curl -X POST "http://localhost:8000/chat/stream" \
-     -H "Content-Type: application/json" \
-     -d '{"user_id": 1, "message": "Tell me about my sun sign"}' \
-     --no-buffer
-   ```
 
 ## Configuration
 
