@@ -118,6 +118,6 @@ Once the server is running, visit:
 
 ## Troubleshooting
 
-1. **OpenAI API Key Error**: Make sure you've set the `OPENAI_API_KEY` environment variable
+1. **OpenRouter API Key Error**: Make sure you've set the `OPENROUTER_API_KEY` environment variable
 2. **Database Errors**: Ensure the application has write permissions in the project directory
 3. **Import Errors**: Make sure all dependencies are installed with `pip install -r requirements.txt`
