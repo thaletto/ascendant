@@ -110,7 +110,7 @@ Once the server is running, visit:
 
 ## Notes
 
-- The horoscope generation uses OpenAI's GPT-3.5-turbo model
+- The horoscope generation uses xAI's grok-4-fast model
 - All horoscope predictions are stored in the database
 - Chat responses are streamed in real-time
 - The application is designed to be easily extensible for more complex astrological calculations
