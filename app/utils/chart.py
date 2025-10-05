@@ -61,8 +61,8 @@ class ChartGenerator:
     def _get_divisional_lagna_index(self, division: int) -> int:
         asc = self.chart.getAngle("Asc")
         lon = asc.lon
-        target_sign, _ = self._divisional_target(lon, division)
-        return target_sign
+        target_sign, degree_in_target = self._divisional_target(lon, division)
+        return target_sign, degree_in_target
 
     def _sign_type_start(self, sign_index: int) -> int:
         """
@@ -92,7 +92,10 @@ class ChartGenerator:
         fraction_within_part = offset_in_part / part_size  # 0..1
 
         # find the starting sign for the 1st part
-        start_sign = self._sign_type_start(sign_index)
+        if division != 1:
+            start_sign = self._sign_type_start(sign_index)
+        else:
+            start_sign = sign_index
 
         # target sign mapped by adding part_index (always forward order)
         target_sign = (start_sign + part_index) % 12
@@ -108,7 +111,7 @@ class ChartGenerator:
     # ----------------------------------------------------------
     def _generate_divisional_chart(self, division: int) -> str:
         table_data = []
-        lagna_sign_index = self._get_divisional_lagna_index(division)
+        asc_target_sign, asc_degree_in_target = self._get_divisional_lagna_index(division)
 
         for planet in self.planets:
             name = planet["name"]
@@ -118,28 +121,55 @@ class ChartGenerator:
             lon = planet["longitude"]
             target_sign, degree_in_target = self._divisional_target(lon, division)
 
-            house_number = ((target_sign - lagna_sign_index) % 12) + 1
+            house_number = ((target_sign - asc_target_sign) % 12) + 1
             display_name = self.NODE_MAP.get(name, name)
-            deg_str = f"{int(degree_in_target)}° {int((degree_in_target % 1) * 60)}'"
+
+            deg = int(degree_in_target)
+            minutes = (degree_in_target % 1) * 60
+            deg_float = round(deg + minutes / 60, 2)  # e.g., 123.45
+            div_lon = (target_sign * 30) + deg_float
+            rl_nl_data = self.horoscope.get_rl_nl_sl_data(div_lon)
 
             table_data.append([
                 display_name,
                 RASHIS[target_sign],
                 f"House {house_number}",
                 "Yes" if planet["is_retrograde"] else "",
-                deg_str
+                rl_nl_data["RasiLord"],
+                rl_nl_data["Nakshatra"],
+                rl_nl_data["NakshatraLord"],
+                rl_nl_data["Pada"]
             ])
 
         # Add Lagna row on top — show asc degree inside its Dn sign as well
-        asc = self.chart.getAngle("Asc")
-        lagna_rashi = RASHIS[lagna_sign_index]
-        _, asc_deg = self._divisional_target(asc.lon, division)
-        asc_deg_str = f"{round(asc_deg, 2)}°"
-        table_data.insert(0, ["Lagna", lagna_rashi, "House 1", "", asc_deg_str])
+        asc_deg = int(asc_degree_in_target)
+        asc_minutes = (asc_degree_in_target % 1) * 60
+        asc_deg_float = round(asc_deg + asc_minutes / 60, 2)  # e.g., 123.45
+        asc_div_lon = (asc_target_sign * 30) + asc_deg_float
+        asc_rl_nl_data = self.horoscope.get_rl_nl_sl_data(asc_div_lon)
+
+        table_data.insert(0, [
+            "Lagna", 
+            RASHIS[asc_target_sign], 
+            "House 1", 
+            "", 
+            asc_rl_nl_data["RasiLord"],
+            asc_rl_nl_data["Nakshatra"],
+            asc_rl_nl_data["NakshatraLord"],
+            asc_rl_nl_data["Pada"]])
 
         return tabulate(
             table_data,
-            headers=["Body", f"D{division} Sign", "House", "Retrograde", "Degree"],
+            headers=[
+                "Body",
+                f"D{division} Sign",
+                "House",
+                "Retrograde",
+                "Rashi Lord",
+                "Nakshatra",
+                "Nakshatra Lord",
+                "Nakshatra Pada"
+            ],
             tablefmt="simple_grid"
         )
 
