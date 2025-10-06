@@ -189,14 +189,14 @@ class ChartGenerator:
     # ----------------------------------------------------------
     # PUBLIC INTERFACE
     # ----------------------------------------------------------
-    def get_chart(self, name: str) -> Dict[str, Dict]:
+    def get_chart(self, division_name: str) -> Dict[str, Dict]:
         """
         Generalized access method.
         Example: get_chart("D7") or get_chart("D9")
         """
-        if name.upper() not in self.DIVISION_RANGES:
-            raise ValueError(f"Unsupported chart name: {name}")
-        division = self.DIVISION_RANGES[name]
+        if division_name.upper() not in self.DIVISION_RANGES:
+            raise ValueError(f"Unsupported chart name: {division_name}")
+        division = self.DIVISION_RANGES[division_name]
         return self._generate_divisional_chart(division)
 
     # Convenience aliases
