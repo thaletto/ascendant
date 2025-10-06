@@ -182,7 +182,7 @@ class ChartGenerator:
         Generalized access method.
         Example: get_chart("D7") or get_chart("D9")
         """
-        if name not in self.DIVISION_RANGES:
+        if name.upper() not in self.DIVISION_RANGES:
             raise ValueError(f"Unsupported chart name: {name}")
         division = self.DIVISION_RANGES[name]
         return self._generate_divisional_chart(division)
