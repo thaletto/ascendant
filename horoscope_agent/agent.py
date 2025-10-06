@@ -1,5 +1,5 @@
 from google.adk import Agent
-from config import BASE_MODEL
+from horoscope_agent.config.models import BASE_MODEL
 from horoscope_agent.tools.horoscope import AstrologyAgentTools
 
 astrology_agent_tools = AstrologyAgentTools()
