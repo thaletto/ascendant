@@ -1,89 +1,96 @@
-from typing import Dict
-from kerykeion import AstrologicalSubject, Report
+from vedicastro.VedicAstro import VedicHoroscopeData
+from app.utils.chart import ChartGenerator
 
-# ------------------------------
-# Horoscope Agent Tool
-# ------------------------------
+
 class AstrologyAgentTools:
     """
-    AstrologyAgentTools provides tools for generating horoscope reports 
-    in the Horoscope AI agent using primitive input types for ADK compatibility.
-
-    This class is designed to work with Google ADK automatic function calling. 
-    It avoids complex object inputs and only accepts strings, integers, and floats.
-
-    Usage:
-        tools = AstrologyAgentTools()
-        report = tools.generate_report(
-            name="Laxman",
-            year=2003,
-            month=8,
-            day=19,
-            hour=11,
-            minute=55,
-            tz_str="Asia/Kolkata",
-            city="Chennai",
-            lat=13.0827,
-            lng=80.2707
-        )
+    Tools for HoroscopeAgent.
+    LLM infers latitude, longitude, and UTC offset based on city name.
     """
 
-    @staticmethod
-    def generate_report(
+    def __init__(self):
+        self.horoscope = None
+        self.chart_gen = None
+        self.ayanamsa = "Lahiri"
+        self.house_system = "Whole Sign"
+
+    def _create_horoscope(
+        self,
         name: str,
-        year: int,
-        month: int,
-        day: int,
-        hour: int,
-        minute: int,
-        tz_str: str,
-        city: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
         lat: float,
-        lng: float
-    ) -> Dict:
-        """
-        Generates a horoscope report for a person using Kerykeion.
-
-        The function creates an AstrologicalSubject object from the provided
-        primitive inputs, generates a horoscope Report, and serializes it as a dictionary
-        suitable for use with Google ADK.
-
-        Parameters:
-            name (str): Name of the person.
-            year (int): Birth year.
-            month (int): Birth month (1-12).
-            day (int): Birth day (1-31).
-            hour (int): Birth hour in 24-hour format.
-            minute (int): Birth minute.
-            tz_str (str): Timezone string (e.g., "Asia/Kolkata").
-            city (str): Birth city.
-            lat (float): Latitude of the city.
-            lng (float): Longitude of the city.
-
-        Returns:
-            Dict: Serialized horoscope report suitable for ADK consumption.
-        """
-        # create subject
-        subject = AstrologicalSubject(
-            name=name,
-            year=year,
-            month=month,
-            day=day,
-            hour=hour,
-            minute=minute,
-            city=city,
-            nation="IN",
-            lat=lat,
-            lng=lng,
-            tz_str=tz_str,
-            online=False,
-            houses_system_identifier="W",
-            zodiac_type="Sidereal",
-            sidereal_mode="LAHIRI",
+        lng: float,
+        utc: float,
+    ):
+        """Initialize horoscope and chart generator using all parameters."""
+        self.horoscope = VedicHoroscopeData(
+            year=birth_year,
+            month=birth_month,
+            day=birth_day,
+            hour=birth_hour,
+            minute=birth_minute,
+            second=birth_second,
+            latitude=lat,
+            longitude=lng,
+            utc=utc,
+            ayanamsa=self.ayanamsa,
+            house_system=self.house_system,
         )
+        self.chart_gen = ChartGenerator(self.horoscope)
 
-        # generate report
-        report = Report(subject)
+    # ====== TOOL METHODS ======
 
-        # serialize as dict for ADK
-        return {"report": report.get_full_report()}
+    def get_chart(
+        self,
+        name: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
+        lat: float,
+        lng: float,
+        utc: float,
+        division: str,
+    ):
+        """
+        Generic chart generator.
+        The LLM provides city-derived (lat, lng, utc) automatically.
+        Example:
+            get_chart("Laxman", 2003, 8, 19, 11, 55, 0, 13.08, 80.27, 5.5, "D9")
+        """
+        self._create_horoscope(
+            name,
+            birth_year,
+            birth_month,
+            birth_day,
+            birth_hour,
+            birth_minute,
+            birth_second,
+            lat,
+            lng,
+            utc,
+        )
+        return self.chart_gen.get_chart(division)
+
+    def get_d1(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        return self.chart_gen.get_d1()
+
+    def get_d7(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        return self.chart_gen.get_d7()
+
+    def get_d9(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        return self.chart_gen.get_d9()
+
+    def get_d10(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        return self.chart_gen.get_d10()
