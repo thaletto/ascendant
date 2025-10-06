@@ -4,6 +4,7 @@ from vedicastro.VedicAstro import VedicHoroscopeData
 from typing import List, Dict
 from tabulate import tabulate
 
+
 class PlanetaryAspects:
     """
     Class to fetch and process planetary aspects from a Vedic horoscope,
@@ -29,7 +30,11 @@ class PlanetaryAspects:
         if not self._aspects:
             self.fetch_aspects()
         table_data = self._format_table_data(self._aspects)
-        return tabulate(table_data, headers=["Planet 1", "Planet 2", "AspectType"], tablefmt="simple_grid")
+        return tabulate(
+            table_data,
+            headers=["Planet 1", "Planet 2", "AspectType"],
+            tablefmt="simple",
+        )
 
     def filter_by_planets(self, planets: List[str]) -> str:
         """Return aspects where either planet matches the provided list, formatted as table."""
@@ -39,7 +44,11 @@ class PlanetaryAspects:
             a for a in self._aspects if a["P1"] in planets or a["P2"] in planets
         ]
         table_data = self._format_table_data(filtered)
-        return tabulate(table_data, headers=["Planet 1", "Planet 2", "AspectType"], tablefmt="simple_grid")
+        return tabulate(
+            table_data,
+            headers=["Planet 1", "Planet 2", "AspectType"],
+            tablefmt="simple",
+        )
 
     def filter_by_aspect_type(self, aspect_types: List[str]) -> str:
         """Return aspects that match the specified aspect types, formatted as table."""
@@ -47,4 +56,8 @@ class PlanetaryAspects:
             self.fetch_aspects()
         filtered = [a for a in self._aspects if a["AspectType"] in aspect_types]
         table_data = self._format_table_data(filtered)
-        return tabulate(table_data, headers=["Planet 1", "Planet 2", "AspectType"], tablefmt="simple_grid")
+        return tabulate(
+            table_data,
+            headers=["Planet 1", "Planet 2", "AspectType"],
+            tablefmt="simple",
+        )

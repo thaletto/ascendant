@@ -2,6 +2,7 @@ from typing import Dict, List, Tuple
 from vedicastro.VedicAstro import VedicHoroscopeData, RASHIS
 from tabulate import tabulate
 
+
 class ChartGenerator:
     """
     ChartGenerator handles generation of divisional charts (D1–D24)
@@ -13,31 +14,35 @@ class ChartGenerator:
 
     DIVISION_RANGES = {
         "D1": 1,
-        "D2": 2,   # Hora
-        "D3": 3,   # Drekkana
-        "D4": 4,   # Chaturthamsha
-        "D7": 7,   # Saptamsha
-        "D9": 9,   # Navamsha
-        "D10": 10, # Dasamsha
-        "D12": 12, # Dwadashamsha
-        "D16": 16, # Shodashamsha
-        "D20": 20, # Vimsamsha
-        "D24": 24, # Chaturvimshamsha
+        "D2": 2,  # Hora
+        "D3": 3,  # Drekkana
+        "D4": 4,  # Chaturthamsha
+        "D7": 7,  # Saptamsha
+        "D9": 9,  # Navamsha
+        "D10": 10,  # Dasamsha
+        "D12": 12,  # Dwadashamsha
+        "D16": 16,  # Shodashamsha
+        "D20": 20,  # Vimsamsha
+        "D24": 24,  # Chaturvimshamsha
     }
 
     SELECTED_PLANETS = [
-        "Sun", "Moon", "Mars", "Mercury", "Jupiter",
-        "Venus", "Saturn", "North Node", "South Node"
+        "Sun",
+        "Moon",
+        "Mars",
+        "Mercury",
+        "Jupiter",
+        "Venus",
+        "Saturn",
+        "North Node",
+        "South Node",
     ]
 
-    NODE_MAP = {
-        "North Node": "Rahu",
-        "South Node": "Ketu"
-    }
+    NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
 
-    MOVABLE = {0, 3, 6, 9}   # Aries, Cancer, Libra, Capricorn
-    FIXED   = {1, 4, 7, 10}  # Taurus, Leo, Scorpio, Aquarius
-    DUAL    = {2, 5, 8, 11}  # Gemini, Virgo, Sagittarius, Pisces
+    MOVABLE = {0, 3, 6, 9}  # Aries, Cancer, Libra, Capricorn
+    FIXED = {1, 4, 7, 10}  # Taurus, Leo, Scorpio, Aquarius
+    DUAL = {2, 5, 8, 11}  # Gemini, Virgo, Sagittarius, Pisces
 
     def __init__(self, horoscope: VedicHoroscopeData):
         self.horoscope = horoscope
@@ -53,11 +58,11 @@ class ChartGenerator:
             {
                 "name": planet.id,
                 "longitude": planet.lon,
-                "is_retrograde": planet.isRetrograde()
+                "is_retrograde": planet.isRetrograde(),
             }
             for planet in self.chart.objects
         ]
-    
+
     def _get_divisional_lagna_index(self, division: int) -> int:
         asc = self.chart.getAngle("Asc")
         lon = asc.lon
@@ -72,22 +77,22 @@ class ChartGenerator:
         if sign_index in self.MOVABLE:
             return sign_index
         if sign_index in self.FIXED:
-            return (sign_index + 8) % 12   # 9th from itself
+            return (sign_index + 8) % 12  # 9th from itself
         if sign_index in self.DUAL:
-            return (sign_index + 4) % 12   # 5th from itself
+            return (sign_index + 4) % 12  # 5th from itself
         # fallback
         return sign_index
-    
+
     def _divisional_target(self, longitude: float, division: int) -> Tuple[int, float]:
         """
         Given absolute longitude (0..360) and division (e.g., 9 for Navamsa),
         returns (target_sign_index, degree_in_target_sign)
         degree_in_target_sign is 0..30 (float)
         """
-        sign_index = int(longitude // 30)             # 0..11
-        pos_in_sign = longitude % 30                  # 0..30
-        part_size = 30.0 / division                   # size of each part
-        part_index = int(pos_in_sign // part_size)    # which part (0..division-1)
+        sign_index = int(longitude // 30)  # 0..11
+        pos_in_sign = longitude % 30  # 0..30
+        part_size = 30.0 / division  # size of each part
+        part_index = int(pos_in_sign // part_size)  # which part (0..division-1)
         offset_in_part = pos_in_sign - (part_index * part_size)
         fraction_within_part = offset_in_part / part_size  # 0..1
 
@@ -111,7 +116,9 @@ class ChartGenerator:
     # ----------------------------------------------------------
     def _generate_divisional_chart(self, division: int) -> str:
         table_data = []
-        asc_target_sign, asc_degree_in_target = self._get_divisional_lagna_index(division)
+        asc_target_sign, asc_degree_in_target = self._get_divisional_lagna_index(
+            division
+        )
 
         for planet in self.planets:
             name = planet["name"]
@@ -130,16 +137,18 @@ class ChartGenerator:
             div_lon = (target_sign * 30) + deg_float
             rl_nl_data = self.horoscope.get_rl_nl_sl_data(div_lon)
 
-            table_data.append([
-                display_name,
-                RASHIS[target_sign],
-                f"House {house_number}",
-                "Yes" if planet["is_retrograde"] else "",
-                rl_nl_data["RasiLord"],
-                rl_nl_data["Nakshatra"],
-                rl_nl_data["NakshatraLord"],
-                rl_nl_data["Pada"]
-            ])
+            table_data.append(
+                [
+                    display_name,
+                    RASHIS[target_sign],
+                    f"House {house_number}",
+                    "Yes" if planet["is_retrograde"] else "",
+                    rl_nl_data["RasiLord"],
+                    rl_nl_data["Nakshatra"],
+                    rl_nl_data["NakshatraLord"],
+                    rl_nl_data["Pada"],
+                ]
+            )
 
         # Add Lagna row on top — show asc degree inside its Dn sign as well
         asc_deg = int(asc_degree_in_target)
@@ -148,15 +157,19 @@ class ChartGenerator:
         asc_div_lon = (asc_target_sign * 30) + asc_deg_float
         asc_rl_nl_data = self.horoscope.get_rl_nl_sl_data(asc_div_lon)
 
-        table_data.insert(0, [
-            "Lagna", 
-            RASHIS[asc_target_sign], 
-            "House 1", 
-            "", 
-            asc_rl_nl_data["RasiLord"],
-            asc_rl_nl_data["Nakshatra"],
-            asc_rl_nl_data["NakshatraLord"],
-            asc_rl_nl_data["Pada"]])
+        table_data.insert(
+            0,
+            [
+                "Lagna",
+                RASHIS[asc_target_sign],
+                "House 1",
+                "",
+                asc_rl_nl_data["RasiLord"],
+                asc_rl_nl_data["Nakshatra"],
+                asc_rl_nl_data["NakshatraLord"],
+                asc_rl_nl_data["Pada"],
+            ],
+        )
 
         return tabulate(
             table_data,
@@ -168,11 +181,10 @@ class ChartGenerator:
                 "Rashi Lord",
                 "Nakshatra",
                 "Nakshatra Lord",
-                "Nakshatra Pada"
+                "Nakshatra Pada",
             ],
-            tablefmt="simple_grid"
+            tablefmt="simple",
         )
-
 
     # ----------------------------------------------------------
     # PUBLIC INTERFACE
@@ -188,7 +200,14 @@ class ChartGenerator:
         return self._generate_divisional_chart(division)
 
     # Convenience aliases
-    def get_d1(self): return self.get_chart("D1")
-    def get_d7(self): return self.get_chart("D7")
-    def get_d9(self): return self.get_chart("D9")
-    def get_d10(self): return self.get_chart("D10")
+    def get_d1(self):
+        return self.get_chart("D1")
+
+    def get_d7(self):
+        return self.get_chart("D7")
+
+    def get_d9(self):
+        return self.get_chart("D9")
+
+    def get_d10(self):
+        return self.get_chart("D10")

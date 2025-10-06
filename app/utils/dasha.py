@@ -33,12 +33,14 @@ class DashaFinder:
         timeline = []
         for maha, details in vimshottari_dasa.items():
             for bhukti, period in details["bhuktis"].items():
-                timeline.append({
-                    "mahadasha": maha,
-                    "bhukti": bhukti,
-                    "start": self._parse_date(period["start"]),
-                    "end": self._parse_date(period["end"])
-                })
+                timeline.append(
+                    {
+                        "mahadasha": maha,
+                        "bhukti": bhukti,
+                        "start": self._parse_date(period["start"]),
+                        "end": self._parse_date(period["end"]),
+                    }
+                )
 
         # Sort by start date
         timeline.sort(key=lambda x: x["start"])
@@ -53,7 +55,7 @@ class DashaFinder:
     def pretty_table(self) -> str:
         """Return formatted Vimshottari Dasha table."""
         timeline = self.get_vimshottari_timeline()
-        return tabulate(timeline, headers="keys", tablefmt="simple_grid")
+        return tabulate(timeline, headers="keys", tablefmt="simple")
 
     # ----------------------------------------------------------
     # ADVANCED METHODS
@@ -70,14 +72,17 @@ class DashaFinder:
 
         # Convert string dates back to datetime for comparison
         parsed = [
-            {**t, "start": self._parse_date(t["start"]), "end": self._parse_date(t["end"])}
+            {
+                **t,
+                "start": self._parse_date(t["start"]),
+                "end": self._parse_date(t["end"]),
+            }
             for t in timeline
         ]
 
         # Find current index
         current_index = next(
-            (i for i, t in enumerate(parsed) if t["start"] <= now <= t["end"]),
-            None
+            (i for i, t in enumerate(parsed) if t["start"] <= now <= t["end"]), None
         )
 
         if current_index is None:
