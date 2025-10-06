@@ -45,6 +45,7 @@ class AstrologyAgentTools:
 
     # ====== TOOL METHODS ======
 
+
     def get_chart(
         self,
         name: str,
@@ -58,13 +59,8 @@ class AstrologyAgentTools:
         lng: float,
         utc: float,
         division: str,
-    ):
-        """
-        Generic chart generator.
-        The LLM provides city-derived (lat, lng, utc) automatically.
-        Example:
-            get_chart("Laxman", 2003, 8, 19, 11, 55, 0, 13.08, 80.27, 5.5, "D9")
-        """
+    ) -> dict:
+        """Generic chart generator returning dict for ADK."""
         self._create_horoscope(
             name,
             birth_year,
@@ -77,20 +73,78 @@ class AstrologyAgentTools:
             lng,
             utc,
         )
-        return self.chart_gen.get_chart(division)
+        result = self.chart_gen.get_chart(division)
+        return {f"{division}_chart": result}  # wrap in dict
 
-    def get_d1(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
-        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
-        return self.chart_gen.get_d1()
 
-    def get_d7(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+    def get_d1(
+        self,
+        name: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
+        lat: float,
+        lng: float,
+        utc: float,
+    ) -> dict:
         self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
-        return self.chart_gen.get_d7()
+        result = self.chart_gen.get_d1()
+        return {"d1_chart": result}
 
-    def get_d9(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
-        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
-        return self.chart_gen.get_d9()
 
-    def get_d10(self, name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc):
+    def get_d7(
+        self,
+        name: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
+        lat: float,
+        lng: float,
+        utc: float,
+    ) -> dict:
         self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
-        return self.chart_gen.get_d10()
+        result = self.chart_gen.get_d7()
+        return {"d7_chart": result}
+
+
+    def get_d9(
+        self,
+        name: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
+        lat: float,
+        lng: float,
+        utc: float,
+    ) -> dict:
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        result = self.chart_gen.get_d9()
+        return {"d9_chart": result}
+
+
+    def get_d10(
+        self,
+        name: str,
+        birth_year: int,
+        birth_month: int,
+        birth_day: int,
+        birth_hour: int,
+        birth_minute: int,
+        birth_second: int,
+        lat: float,
+        lng: float,
+        utc: float,
+    ) -> dict:
+        self._create_horoscope(name, birth_year, birth_month, birth_day, birth_hour, birth_minute, birth_second, lat, lng, utc)
+        result = self.chart_gen.get_d10()
+        return {"d10_chart": result}
+
