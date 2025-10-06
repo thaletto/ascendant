@@ -25,7 +25,7 @@ class DashaFinder:
     # ----------------------------------------------------------
     # CORE METHODS
     # ----------------------------------------------------------
-    def get_vimshottari_timeline(self) -> List[Dict]:
+    def _get_vimshottari_timeline(self) -> List[Dict]:
         """Compute flattened Vimshottari Dasha timeline (Maha + Bhukti)."""
         vhd = self.horoscope
         vimshottari_dasa = vhd.compute_vimshottari_dasa(self.chart)
@@ -52,7 +52,7 @@ class DashaFinder:
 
         return timeline
 
-    def pretty_table(self) -> str:
+    def get_vimshottari_dasha(self) -> str:
         """Return formatted Vimshottari Dasha table."""
         timeline = self.get_vimshottari_timeline()
         return tabulate(timeline, headers="keys", tablefmt="simple")
@@ -60,7 +60,7 @@ class DashaFinder:
     # ----------------------------------------------------------
     # ADVANCED METHODS
     # ----------------------------------------------------------
-    def get_dasha_by_index(self, n: int = 0) -> Dict:
+    def get_bhuthi_by_index(self, n: int = 0) -> Dict:
         """
         Return the current (+n or -n) Dasha period.
         n = 0 → current dasha
