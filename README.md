@@ -110,7 +110,7 @@ Once the server is running, visit:
 
 ## Notes
 
-- The horoscope generation uses xAI's grok-4-fast model
+- OpenRouter acts as the model provider
 - All horoscope predictions are stored in the database
 - Chat responses are streamed in real-time
 - The application is designed to be easily extensible for more complex astrological calculations
