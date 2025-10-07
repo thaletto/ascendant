@@ -11,9 +11,6 @@ from app.api.v1 import users
 from app.db.client import init_db
 from app.models import StatusResponse
 
-# Set up environment variables
-os.environ.setdefault("OPENAI_API_KEY", "your-openai-api-key-here")
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager for startup and shutdown events."""
