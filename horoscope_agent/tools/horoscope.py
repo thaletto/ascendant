@@ -56,13 +56,36 @@ def _reconstruct_astrology_objects(birth_data: Dict):
     return horoscope, chart, dasha
 
 
+def _cleanup_astrology_objects(horoscope, chart, dasha):
+    """Helper function to clean up astrology objects and free memory."""
+    try:
+        # Clear references to help garbage collection
+        if hasattr(horoscope, "chart"):
+            horoscope.chart = None
+        if hasattr(chart, "chart"):
+            chart.chart = None
+        if hasattr(chart, "planets"):
+            chart.planets = None
+        if hasattr(dasha, "chart"):
+            dasha.chart = None
+        # Force garbage collection of these objects
+        del horoscope, chart, dasha
+    except Exception:
+        # Ignore cleanup errors to avoid affecting the main functionality
+        pass
+
+
 def get_chart(tool_context: ToolContext, division: str) -> Dict:
     birth_data = tool_context.state.get("birth_data")
     if not birth_data:
         return {"message": "birth data is not in context, call handle_user_input first"}
 
-    _, chart, _ = _reconstruct_astrology_objects(birth_data)
-    return {f"{division}_chart": chart.get_chart(division_name=division)}
+    horoscope, chart, dasha = _reconstruct_astrology_objects(birth_data)
+    try:
+        result = {f"{division}_chart": chart.get_chart(division_name=division)}
+        return result
+    finally:
+        _cleanup_astrology_objects(horoscope, chart, dasha)
 
 
 def get_d1(tool_context: ToolContext) -> Dict:
@@ -70,8 +93,12 @@ def get_d1(tool_context: ToolContext) -> Dict:
     if not birth_data:
         return {"message": "birth data is not in context, call handle_user_input first"}
 
-    _, chart, _ = _reconstruct_astrology_objects(birth_data)
-    return {"D1_chart": chart.get_d1()}
+    horoscope, chart, dasha = _reconstruct_astrology_objects(birth_data)
+    try:
+        result = {"D1_chart": chart.get_d1()}
+        return result
+    finally:
+        _cleanup_astrology_objects(horoscope, chart, dasha)
 
 
 def get_d7(tool_context: ToolContext) -> Dict:
@@ -79,8 +106,12 @@ def get_d7(tool_context: ToolContext) -> Dict:
     if not birth_data:
         return {"message": "birth data is not in context, call handle_user_input first"}
 
-    _, chart, _ = _reconstruct_astrology_objects(birth_data)
-    return {"D7_chart": chart.get_d7()}
+    horoscope, chart, dasha = _reconstruct_astrology_objects(birth_data)
+    try:
+        result = {"D7_chart": chart.get_d7()}
+        return result
+    finally:
+        _cleanup_astrology_objects(horoscope, chart, dasha)
 
 
 def get_d9(tool_context: ToolContext) -> Dict:
@@ -88,8 +119,12 @@ def get_d9(tool_context: ToolContext) -> Dict:
     if not birth_data:
         return {"message": "birth data is not in context, call handle_user_input first"}
 
-    _, chart, _ = _reconstruct_astrology_objects(birth_data)
-    return {"D9_chart": chart.get_d9()}
+    horoscope, chart, dasha = _reconstruct_astrology_objects(birth_data)
+    try:
+        result = {"D9_chart": chart.get_d9()}
+        return result
+    finally:
+        _cleanup_astrology_objects(horoscope, chart, dasha)
 
 
 def get_d10(tool_context: ToolContext) -> Dict:
@@ -97,5 +132,9 @@ def get_d10(tool_context: ToolContext) -> Dict:
     if not birth_data:
         return {"message": "birth data is not in context, call handle_user_input first"}
 
-    _, chart, _ = _reconstruct_astrology_objects(birth_data)
-    return {"D10_chart": chart.get_d10()}
+    horoscope, chart, dasha = _reconstruct_astrology_objects(birth_data)
+    try:
+        result = {"D10_chart": chart.get_d10()}
+        return result
+    finally:
+        _cleanup_astrology_objects(horoscope, chart, dasha)
