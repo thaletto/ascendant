@@ -54,7 +54,7 @@ class DashaFinder:
 
     def get_vimshottari_dasha(self) -> str:
         """Return formatted Vimshottari Dasha table."""
-        timeline = self.get_vimshottari_timeline()
+        timeline = self._get_vimshottari_timeline()
         return tabulate(timeline, headers="keys", tablefmt="simple")
 
     # ----------------------------------------------------------
@@ -67,7 +67,7 @@ class DashaFinder:
         n = 1 → next dasha
         n = -1 → previous dasha
         """
-        timeline = self.get_vimshottari_timeline()
+        timeline = self._get_vimshottari_timeline()
         now = datetime.now()
 
         # Convert string dates back to datetime for comparison
