@@ -197,17 +197,20 @@ Once the server is running, visit:
 ## Key Features
 
 ### Modular Agent Architecture
+
 - **Root Agent**: Coordinates all specialized agents for comprehensive analysis
 - **ChartAgent**: Handles divisional charts (D1, D7, D9, D10, custom divisions)
 - **DashaAgent**: Manages Vimshottari Dasha analysis and planetary periods
 - **PlanetAgent**: Analyzes planetary positions, aspects, and relationships
 
 ### Memory Efficiency
+
 - On-demand object reconstruction from serialized birth data
 - Automatic cleanup to prevent memory leaks
 - Efficient resource management across all agents
 
 ### Specialized Predictions
+
 - Health, Career, Wealth, Marriage, Family, Emotion, Love, Children
 - Domain-specific endpoints for targeted astrological insights
 - Session-based context management
