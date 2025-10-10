@@ -2,13 +2,9 @@ from typing import Dict
 from google.adk import Agent
 from google.adk.tools import ToolContext
 from horoscope_agent.config.models import BASE_MODEL
-from horoscope_agent.tools.horoscope import (
-    get_chart,
-    get_d1,
-    get_d10,
-    get_d7,
-    get_d9,
-)
+from horoscope_agent.agents.chart_agent import chart_agent
+from horoscope_agent.agents.dasha_agent import dasha_agent
+from horoscope_agent.agents.planet_agent import planet_agent
 
 
 def create_astrology_subject(
@@ -24,6 +20,7 @@ def create_astrology_subject(
     longitude: float,
     utc: str,
 ) -> Dict:
+    """Create and store birth data for astrology analysis."""
     # Store only the essential birth data that can be serialized
     birth_data = {
         "name": name,
@@ -42,59 +39,51 @@ def create_astrology_subject(
 
     tool_context.state["birth_data"] = birth_data
     return {
-        "message": "birth data has been stored in context and can be used to generate charts"
+        "message": "Birth data has been stored and is ready for astrology analysis",
+        "birth_data": birth_data,
     }
 
 
-handle_user_input = Agent(
-    name="HandleUserInput",
+# Root Agent - General Reasoning & Context Manager
+root_agent = Agent(
+    name="AscendantRootAgent",
     model=BASE_MODEL,
-    description="Collects and prepares the user's birth details for horoscope computation.",
+    description="Root agent for the Ascendant astrology intelligence system - coordinates specialized agents for comprehensive astrological analysis",
     instruction="""
-        Politely ask the user for their:
-        - full name
-        - date of birth (DD-MM-YYYY)
-        - time of birth (24-hour format)
-        - city of birth
+        You are the Ascendant Root Agent, the main coordinator of a modular astrology intelligence system.
 
-        Once all are provided, resolve that city to latitude, longitude, and UTC offset
-        (use your internal knowledge or geolocation database).
+        Your role is to:
+        1. **Context Management**: Ensure birth data is available before delegating to specialists
+        2. **Agent Coordination**: Route requests to the appropriate specialized agents
+        3. **Synthesis**: Combine insights from multiple agents for comprehensive analysis
+        4. **User Experience**: Provide clear, coherent responses that integrate multiple perspectives
 
-        Then create and store the required horoscope-related objects (VedicHoroscopeData, ChartGenerator, etc.)
-        by calling the `create_astrology_subject` tool. 
+        **Available Specialized Agents:**
+        - **ChartAgent**: Handles divisional charts (D1, D7, D9, D10, etc.)
+        - **DashaAgent**: Manages Vimshottari Dasha analysis and planetary periods
+        - **PlanetAgent**: Analyzes planetary positions, aspects, and relationships
 
-        Do not perform any predictions or chart generation here — only gather and initialize data.
+        **Workflow:**
+        1. Always start by greeting the user warmly
+        2. Check if birth data exists in session state
+        3. If not, invoke create_astrology_subject to collect birth details
+        4. Once data is available, route requests to appropriate specialized agents
+        5. Synthesize results from multiple agents when needed
+        6. Provide comprehensive, easy-to-understand explanations
+
+        **Specialization Areas:**
+        - **Chart Requests**: Delegate to ChartAgent for D1, D7, D9, D10 charts
+        - **Dasha Analysis**: Delegate to DashaAgent for planetary periods
+        - **Planet Analysis**: Delegate to PlanetAgent for positions and aspects
+        - **Comprehensive Analysis**: Coordinate multiple agents for holistic insights
+
+        Always explain what you're doing and provide clear, actionable insights.
+        Integrate information from multiple agents to give complete astrological perspectives.
     """,
     tools=[create_astrology_subject],
-)
-
-
-horoscope_agent = Agent(
-    name="HoroscopeAgent",
-    model=BASE_MODEL,
-    description="An agent that provides personalised horoscope predictions and divisional charts.",
-    instruction="""
-        You are HoroscopeAgent, responsible for generating and explaining divisional charts like D1, D7, D9, and D10.
-
-        Always start by greeting the user warmly.
-
-        Then, before calling any chart-related tool (`get_chart`, `get_d1`, `get_d7`, `get_d9`, or `get_d10`):
-        1. Check if birth data exists in the session state (under 'birth_data').
-        2. If not present, invoke the `HandleUserInput` sub agent 
-           to collect missing information and store the birth data.
-        3. Once data is available, call the appropriate chart tool based on user's request.
-
-        Always tell the user what you're doing (for example: “Let me fetch your birth data first…” or “Now generating your D9 chart…”).
-        Then summarize and explain the chart result clearly in simple terms.
-    """,
-    tools=[
-        get_chart,
-        get_d1,
-        get_d7,
-        get_d9,
-        get_d10,
+    sub_agents=[
+        chart_agent,
+        dasha_agent,
+        planet_agent,
     ],
-    sub_agents=[handle_user_input],
 )
-
-root_agent = horoscope_agent
