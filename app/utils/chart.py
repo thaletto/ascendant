@@ -5,7 +5,7 @@ from tabulate import tabulate
 
 class ChartGenerator:
     """
-    ChartGenerator handles generation of divisional charts (D1–D24)
+    ChartGenerator handles generation of divisional charts (D1-D24)
     using an existing VedicHoroscopeData object.
 
     It uses the planetary longitudes from D1 and applies the standard
