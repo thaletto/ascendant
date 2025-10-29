@@ -5,7 +5,7 @@ Prediction API endpoints for Ascendant astrology intelligence system.
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException
 from google.adk import Runner
-from horoscope_agent.agent import root_agent
+from agent import agent
 from app.models import (
     PredictionRequest,
     PredictionResponse,
@@ -42,7 +42,7 @@ async def predict(request: PredictionRequest):
 
         # Initialize runner properly (no args)
         runner = Runner()
-        runner.root_agent = root_agent  # assign root agent manually
+        runner.agent = agent  # assign root agent manually
 
         # If birth_data is provided, store it in session
         if request.birth_data:
