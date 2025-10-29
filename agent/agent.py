@@ -1,10 +1,10 @@
 from typing import Dict
 from google.adk import Agent
 from google.adk.tools import ToolContext
-from horoscope_agent.config.models import BASE_MODEL
-from horoscope_agent.agents.chart_agent import chart_agent
-from horoscope_agent.agents.dasha_agent import dasha_agent
-from horoscope_agent.agents.planet_agent import planet_agent
+from agent.config import BASE_MODEL
+from agent.agents import chart_agent
+from agent.agents import dasha_agent
+from agent.agents import planet_agent
 
 
 def create_astrology_subject(
