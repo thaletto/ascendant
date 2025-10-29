@@ -1,3 +1,11 @@
+"""Utilities to compute divisional (varga) placements for a given horoscope.
+
+This module exposes a small helper function and a `Chart` class that maps
+absolute longitudes from a base chart into target signs and degrees for
+various vargas (D1, D9, D10, etc.). The results can be assembled into a
+house-keyed dictionary via `Chart.generate_varga_chart`.
+"""
+
 from typing import Dict, List, Tuple
 from vedicastro.VedicAstro import RASHIS, VedicHoroscopeData
 
@@ -16,45 +24,88 @@ SELECTED_PLANETS = [
 
 NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
 
-MOVABLE = [0, 3, 6, 9] # Ar, Cn, Li, Cp
-FIXED = [1, 4, 7, 10] # Ta, Le, Sc, Aq
-DUAL = [2, 5, 8, 11] # Ge, Vi, Sg, Pi
+MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
+FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
+DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
+
 
 def isSignOdd(n: int) -> bool:
+    """Return True if the rashi index is odd-numbered per this module's scheme.
+
+    Note: In this context, a return value of True corresponds to signs the
+    code treats as "odd" for certain divisional rules.
+    """
     return n % 2 == 0
 
+
 class Chart:
+    """Compute varga placements and assemble divisional chart data.
+
+    Attributes:
+        horoscope: The `VedicHoroscopeData` instance used to derive base chart
+            angles and planetary longitudes.
+        chart: The underlying generated chart object from `horoscope`.
+        planets: A list of dictionaries with planet name, absolute longitude,
+            and retrograde flag, extracted from `chart`.
+    """
+
     def __init__(self, horoscope: VedicHoroscopeData):
         self.horoscope = horoscope
         self.chart = horoscope.generate_chart()
         self.planets = self.extract_planet_data()
-    
+
     def extract_planet_data(self) -> List[Dict]:
+        """Extract planet identification, longitude, and retrograde state.
+
+        Returns:
+            A list of dictionaries, one per planet in the base chart, with
+            keys `name`, `longitude`, and `is_retrograde`.
+        """
         return [
             {
                 "name": planet.id,
                 "longitude": planet.lon,
-                "is_retrograde": planet.isRetrograde()
+                "is_retrograde": planet.isRetrograde(),
             }
             for planet in self.chart.objects
         ]
-    
-    def _get_divisional_lagna_index(self, division: int) -> int:
+
+    def _get_divisional_lagna(self, division: int) -> int:
+        """Compute the lagna mapping for the specified division.
+
+        Args:
+            division: The varga division (e.g., 1 for D1, 9 for D9).
+
+        Returns:
+            A tuple ``(target_sign_index, degree_in_target_sign)`` where
+            ``target_sign_index`` is 0..11 and ``degree_in_target_sign`` is 0..30.
+        """
         asc = self.chart.getAngle("Asc")
         lon = asc.lon
         target_sign, degree_in_target = self._divisional_target(lon, division)
         return target_sign, degree_in_target
 
-    def _sign_type_start(self, sign_index: int) -> int:
-        if sign_index in self.MOVABLE:
-            return sign_index
-        if sign_index in self.FIXED:
-            return (sign_index + 8) % 12  # 9th from itself
-        if sign_index in self.DUAL:
-            return (sign_index + 4) % 12  # 5th from itself
-        return sign_index
-
     def _divisional_target(self, longitude: float, division: int) -> Tuple[int, float]:
+        """Map an absolute longitude into a target sign/degree for a varga.
+
+        This routine contains specific mapping rules for commonly used vargas
+        (D2, D3, D4, D7, D9, D10, D12, D16, D20, D24, D27, D30, D40, D45, D60).
+        For D1, a fast path returns the natal sign and intra-sign degree.
+
+        Args:
+            longitude: Absolute ecliptic longitude in degrees (0..360).
+            division: The varga division number (e.g., 1, 9, 10, ...).
+
+        Returns:
+            A tuple ``(target_sign_index, degree_in_target_sign)`` where
+            ``target_sign_index`` is 0..11 and ``degree_in_target_sign`` is 0..30.
+        """
+        # Fast path for D1: target sign is the natal sign and degree is within that sign
+        if division == 1:
+            sign_index = int(longitude // 30)
+            degree_in_target = longitude % 30
+            return sign_index, degree_in_target
+
         sign_index = int(longitude // 30)  # 0..11
         pos_in_sign = longitude % 30  # 0..30
         part_size = 30.0 / division  # size of each part
@@ -67,142 +118,171 @@ class Chart:
 
         # =====D2=====
         if division == 2:
-            target_sign = (sign_index + part_index) % 12
-        
+            if sign_index <= 5:
+                target_sign = sign_index * 2 + part_index
+            else:
+                target_sign = (sign_index - 6) * 2 + part_index
+
         # =====D3=====
         elif division == 3:
-            if part_index == 0:
-                target_sign = sign_index
-            elif part_index == 1:
-                target_sign = (sign_index + 4) % 12
-            else:
-                target_sign = (sign_index + 8) % 12
-        
+            offsets = [0, 4, 8]
+            target_sign = (sign_index + offsets[part_index]) % 12
+
         # =====D4=====
         elif division == 4:
             offsets = [0, 3, 6, 9]
             target_sign = (sign_index + offsets[part_index]) % 12
-        
+
+        # =====D7=====
         elif division == 7:
             if isSignOdd(sign_index):
                 target_sign = (sign_index + part_index) % 12
             else:
-                target_sign = (sign_index + 6 + part_index) % 12
-        
+                target_sign = (
+                    sign_index + 6 + part_index
+                ) % 12  # Starts from 7th sign from it
+
+        # =====D9=====
         elif division == 9:
+            division_start = {
+                "movable": lambda idx: idx,
+                "fixed": lambda idx: (idx + 8) % 12,
+                "dual": lambda idx: (idx + 4) % 12,
+            }
             if sign_index in MOVABLE:
-                start = sign_index
+                sign_type = "movable"
             elif sign_index in FIXED:
-                start = (sign_index + 8) % 12 # 9th from it.
+                sign_type = "fixed"
             else:
-                start = (sign_index + 4) % 12 # 5th from it.
+                sign_type = "dual"
+            start = division_start[sign_type](sign_index)
             target_sign = (start + part_index) % 12
-        
+
+        # =====D10=====
         elif division == 10:
-            if isSignOdd(sign_index):
-                start = sign_index
-            else:
-                start = (sign_index + 8) % 12
+            start = sign_index if isSignOdd(sign_index) else (sign_index + 8) % 12
             target_sign = (start + part_index) % 12
-        
+
+        # =====D12=====
         elif division == 12:
             target_sign = (sign_index + part_index) % 12
-        
+
+        # =====D16=====
         elif division == 16:
+            start_sign_map = {
+                "movable": 0,  # Ar
+                "fixed": 4,  # Le
+                "dual": 8,  # Sg
+            }
             if sign_index in MOVABLE:
-                start = 0
+                sign_type = "movable"
             elif sign_index in FIXED:
-                start = 4
+                sign_type = "fixed"
             else:
-                start = 8
+                sign_type = "dual"
+            start = start_sign_map[sign_type]
             target_sign = (start + part_index) % 12
-        
+
+        # =====D20=====
         elif division == 20:
+            start_sign_map = {
+                "movable": 0,  # Ar
+                "fixed": 8,  # Sg
+                "dual": 4,  # Le
+            }
             if sign_index in MOVABLE:
-                start = 0  # Ar
+                sign_type = "movable"
             elif sign_index in FIXED:
-                start = 8  # Sg
+                sign_type = "fixed"
             else:
-                start = 4  # Le
+                sign_type = "dual"
+            start = start_sign_map[sign_type]
             target_sign = (start + part_index) % 12
 
-        # ---- D24 ChaturVimsamsa ----
+        # =====D24=====
         elif division == 24:
-            if sign_index % 2 == 0:  # odd signs
-                start = 4  # Leo
+            if isSignOdd(sign_index):  # odd signs
+                start = 4  # Le
             else:
-                start = 3  # Cancer
+                start = 3  # Cn
             target_sign = (start + part_index) % 12
 
-        # ---- D27 SaptaVimsamsa ----
+        # =====D27=====
         elif division == 27:
             if sign_index in [0, 4, 8]:  # fiery
-                start = 0
+                start = 0  # Ar
             elif sign_index in [1, 5, 9]:  # earthy
-                start = 3
+                start = 3  # Cn
             elif sign_index in [2, 6, 10]:  # airy
-                start = 6
+                start = 6  # Li
             else:  # watery
-                start = 9
+                start = 9  # Cp
             target_sign = (start + part_index) % 12
 
-        # ---- D30 Trimsamsa ----
+        # =====D30=====
         elif division == 30:
-            if sign_index % 2 == 0:  # odd sign index (0-based = odd zodiac)
-                # Odd signs: Mars–Sat–Jup–Merc–Ven
-                if pos_in_sign < 5:
-                    target_sign = 0  # Aries
-                elif pos_in_sign < 10:
-                    target_sign = 10  # Aquarius
-                elif pos_in_sign < 18:
-                    target_sign = 8  # Sagittarius
-                elif pos_in_sign < 25:
-                    target_sign = 2  # Gemini
-                else:
-                    target_sign = 6  # Libra
+            # Trimsamsa: map pos_in_sign to target_sign via table for odd/even signs
+            if isSignOdd(sign_index):  # odd sign index
+                # Ma–Sa–Ju–Me–Ve -> [Ar, Aq, Sg, Ge, Li]
+                targets = [0, 10, 8, 2, 6]
+                edges = [5, 10, 18, 25]
             else:
-                # Even signs: Ven–Merc–Jup–Sat–Mars
-                if pos_in_sign < 5:
-                    target_sign = 1  # Taurus
-                elif pos_in_sign < 12:
-                    target_sign = 5  # Virgo
-                elif pos_in_sign < 20:
-                    target_sign = 11  # Pisces
-                elif pos_in_sign < 25:
-                    target_sign = 9  # Capricorn
-                else:
-                    target_sign = 7  # Scorpio
+                # Ve–Me–Ju–Sa–Ma -> [Ta, Vi, Pi, Cp, Sc]
+                targets = [1, 5, 11, 9, 7]
+                edges = [5, 12, 20, 25]
+            for i, edge in enumerate(edges):
+                if pos_in_sign < edge:
+                    target_sign = targets[i]
+                    break
+            else:
+                target_sign = targets[-1]
 
-        # ---- D40 KhaVedamsa ----
+        # =====D40=====
         elif division == 40:
-            start = 0 if sign_index % 2 == 0 else 6  # odd→Ar, even→Li
+            start = 0 if isSignOdd(sign_index) else 6  # odd -> Ar, even -> Li
             target_sign = (start + part_index) % 12
 
-        # ---- D45 AkshaVedamsa ----
+        # =====D45=====
         elif division == 45:
+            start_sign_map = {
+                "movable": 0,  # Ar
+                "fixed": 4,  # Le
+                "dual": 8,  # Sg
+            }
             if sign_index in MOVABLE:
-                start = 0  # Aries
+                sign_type = "movable"
             elif sign_index in FIXED:
-                start = 4  # Leo
+                sign_type = "fixed"
             else:
-                start = 8  # Sagittarius
+                sign_type = "dual"
+            start = start_sign_map[sign_type]
             target_sign = (start + part_index) % 12
 
-        # ---- D60 Shastiamsa ----
+        # =====D60=====
         elif division == 60:
             target_sign = (sign_index + part_index) % 12
 
         return target_sign, degree_in_target
-    
+
     def generate_varga_chart(self, division: int) -> dict:
+        """Generate a simple divisional chart representation for the given varga.
+
+        The result is a dictionary keyed by ``house_1``..``house_12``. Each
+        entry includes the sign label and a nested mapping of placed bodies
+        (Lagna and selected planets), with additional contextual data pulled
+        from ``get_rl_nl_sl_data`` at the computed divisional longitudes.
+
+        Args:
+            division: The varga division number to generate (e.g., 1, 9, 10).
+
+        Returns:
+            A dictionary with house keys containing sign and planet placements.
+        """
         chart_data = {}
 
         # Get Lagna details
-        asc_target_sign, asc_degree_in_target = self._get_divisional_lagna_index(division)
-        asc_deg = int(asc_degree_in_target)
-        asc_minutes = (asc_degree_in_target % 1) * 60
-        asc_deg_float = round(asc_deg + asc_minutes / 60, 2)
-        asc_div_lon = (asc_target_sign * 30) + asc_deg_float
+        asc_target_sign, asc_degree_in_target = self._get_divisional_lagna(division)
+        asc_div_lon = (asc_target_sign * 30) + asc_degree_in_target
         asc_rl_nl_data = self.horoscope.get_rl_nl_sl_data(asc_div_lon)
 
         # Insert Lagna into House 1
@@ -223,19 +303,16 @@ class Chart:
         # Loop through planets
         for planet in self.planets:
             name = planet["name"]
-            if name not in self.SELECTED_PLANETS:
+            if name not in SELECTED_PLANETS:
                 continue
 
             lon = planet["longitude"]
             target_sign, degree_in_target = self._divisional_target(lon, division)
 
             house_number = ((target_sign - asc_target_sign) % 12) + 1
-            display_name = self.NODE_MAP.get(name, name)
+            display_name = NODE_MAP.get(name, name)
 
-            deg = int(degree_in_target)
-            minutes = (degree_in_target % 1) * 60
-            deg_float = round(deg + minutes / 60, 2)
-            div_lon = round((target_sign * 30) + deg_float, 2)
+            div_lon = (target_sign * 30) + degree_in_target
             rl_nl_data = self.horoscope.get_rl_nl_sl_data(div_lon)
 
             house_key = f"house_{house_number}"
@@ -247,6 +324,7 @@ class Chart:
 
             chart_data[house_key]["planets"][display_name] = {
                 "longitude": div_lon,
+                "degree": degree_in_target,
                 "retrograde": planet["is_retrograde"],
                 "rashi_lord": rl_nl_data["RasiLord"],
                 "nakshatra": rl_nl_data["Nakshatra"],
