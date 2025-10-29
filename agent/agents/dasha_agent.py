@@ -1,6 +1,6 @@
 from google.adk import Agent
-from horoscope_agent.config.models import BASE_MODEL
-from horoscope_agent.tools.horoscope import (
+from agent.config import BASE_MODEL
+from agent.tools.horoscope import (
     get_vimshottari_dasha,
     get_current_dasha,
     get_next_dasha,
