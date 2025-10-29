@@ -1,8 +1,8 @@
 from typing import Dict, List
 from google.adk.tools import ToolContext
 from vedicastro.VedicAstro import VedicHoroscopeData
-from app.utils.chart import ChartGenerator
-from app.utils.dasha import DashaFinder
+from ascendant.chart import Chart
+from ascendant.dasha import DashaFinder
 from app.utils.planets import PlanetaryAspects
 
 
@@ -33,7 +33,7 @@ class AstrologyObjects:
             ayanamsa="Lahiri",
             house_system="Whole Sign",
         )
-        self.chart = ChartGenerator(self.horoscope)
+        self.chart = Chart(self.horoscope)
         self.dasha = DashaFinder(self.horoscope)
 
 
@@ -52,7 +52,7 @@ def _reconstruct_astrology_objects(birth_data: Dict):
         ayanamsa=birth_data["ayanamsa"],
         house_system=birth_data["house_system"],
     )
-    chart = ChartGenerator(horoscope)
+    chart = Chart(horoscope)
     dasha = DashaFinder(horoscope)
     return horoscope, chart, dasha
 
