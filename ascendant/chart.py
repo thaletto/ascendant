@@ -1,33 +1,7 @@
 from typing import Dict, List, Tuple
 from vedicastro.VedicAstro import RASHIS, VedicHoroscopeData
 
-
-SELECTED_PLANETS = [
-    "Sun",
-    "Moon",
-    "Mars",
-    "Mercury",
-    "Jupiter",
-    "Venus",
-    "Saturn",
-    "North Node",
-    "South Node",
-]
-
-NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
-
-MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
-FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
-DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
-
-
-def isSignOdd(n: int) -> bool:
-    """Return True if the rashi index is odd-numbered per this module's scheme.
-
-    Note: In this context, a return value of True corresponds to signs the
-    code treats as "odd" for certain divisional rules.
-    """
-    return n % 2 == 0
+from ascendant import ALLOWED_DIVISIONS, FIXED, MOVABLE, NODE_MAP, SELECTED_PLANETS, isSignOdd
 
 
 class Chart:
@@ -40,9 +14,9 @@ class Chart:
     def __init__(self, horoscope: VedicHoroscopeData):
         self.horoscope = horoscope
         self.chart = horoscope.generate_chart()
-        self.planets = self.extract_planet_data()
+        self.planets = self._extract_planet_data()
 
-    def extract_planet_data(self) -> List[Dict]:
+    def _extract_planet_data(self) -> List[Dict]:
         """Extract planet identification, longitude, and retrograde state.
 
         Returns:
@@ -266,6 +240,11 @@ class Chart:
         Returns:
             A dictionary with house keys containing sign and planet placements.
         """
+        if division not in ALLOWED_DIVISIONS:
+            raise ValueError(
+                f"Unsupported division '{division}'. Allowed divisions: {ALLOWED_DIVISIONS}"
+            )
+
         chart_data = {}
 
         # Get Lagna details
