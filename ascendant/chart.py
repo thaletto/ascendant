@@ -1,11 +1,3 @@
-"""Utilities to compute divisional (varga) placements for a given horoscope.
-
-This module exposes a small helper function and a `Chart` class that maps
-absolute longitudes from a base chart into target signs and degrees for
-various vargas (D1, D9, D10, etc.). The results can be assembled into a
-house-keyed dictionary via `Chart.generate_varga_chart`.
-"""
-
 from typing import Dict, List, Tuple
 from vedicastro.VedicAstro import RASHIS, VedicHoroscopeData
 
@@ -39,14 +31,10 @@ def isSignOdd(n: int) -> bool:
 
 
 class Chart:
-    """Compute varga placements and assemble divisional chart data.
+    """Represents the birth chart and divisional charts.
 
-    Attributes:
-        horoscope: The `VedicHoroscopeData` instance used to derive base chart
-            angles and planetary longitudes.
-        chart: The underlying generated chart object from `horoscope`.
-        planets: A list of dictionaries with planet name, absolute longitude,
-            and retrograde flag, extracted from `chart`.
+    Args:
+        horoscope: `VedicHoroscopeData`
     """
 
     def __init__(self, horoscope: VedicHoroscopeData):
