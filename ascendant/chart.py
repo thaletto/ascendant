@@ -1,7 +1,13 @@
 from typing import Dict, List, Tuple
 from vedicastro.VedicAstro import RASHIS, VedicHoroscopeData
-
-from ascendant import ALLOWED_DIVISIONS, FIXED, MOVABLE, NODE_MAP, SELECTED_PLANETS, isSignOdd
+from ascendant import (
+    ALLOWED_DIVISIONS,
+    FIXED,
+    MOVABLE,
+    NODE_MAP,
+    SELECTED_PLANETS,
+    isSignOdd,
+)
 
 
 class Chart:
@@ -245,26 +251,29 @@ class Chart:
                 f"Unsupported division '{division}'. Allowed divisions: {ALLOWED_DIVISIONS}"
             )
 
-        chart_data = {}
-
         # Get Lagna details
         asc_target_sign, asc_degree_in_target = self._get_divisional_lagna(division)
         asc_div_lon = (asc_target_sign * 30) + asc_degree_in_target
         asc_rl_nl_data = self.horoscope.get_rl_nl_sl_data(asc_div_lon)
 
+        # Initialize all 12 houses with their signs
+        chart_data = {}
+        for house_num in range(1, 13):
+            # Calculate which sign is in this house (houses are numbered from ascendant)
+            sign_index = (asc_target_sign + house_num - 1) % 12
+            chart_data[f"house_{house_num}"] = {
+                "sign": RASHIS[sign_index],
+                "planets": {},
+            }
+
         # Insert Lagna into House 1
-        chart_data["house_1"] = {
-            "sign": RASHIS[asc_target_sign],
-            "planets": {
-                "lagna": {
-                    "longitude": asc_div_lon,
-                    "retrograde": False,
-                    "rashi_lord": asc_rl_nl_data["RasiLord"],
-                    "nakshatra": asc_rl_nl_data["Nakshatra"],
-                    "nakshatra_lord": asc_rl_nl_data["NakshatraLord"],
-                    "pada": asc_rl_nl_data["Pada"],
-                }
-            },
+        chart_data["house_1"]["planets"]["lagna"] = {
+            "longitude": asc_div_lon,
+            "retrograde": False,
+            "rashi_lord": asc_rl_nl_data["RasiLord"],
+            "nakshatra": asc_rl_nl_data["Nakshatra"],
+            "nakshatra_lord": asc_rl_nl_data["NakshatraLord"],
+            "pada": asc_rl_nl_data["Pada"],
         }
 
         # Loop through planets
@@ -283,12 +292,7 @@ class Chart:
             rl_nl_data = self.horoscope.get_rl_nl_sl_data(div_lon)
 
             house_key = f"house_{house_number}"
-            if house_key not in chart_data:
-                chart_data[house_key] = {
-                    "sign": RASHIS[target_sign],
-                    "planets": {},
-                }
-
+            # Note: All houses are already initialized, so we can directly add planets
             chart_data[house_key]["planets"][display_name] = {
                 "longitude": div_lon,
                 "degree": degree_in_target,
