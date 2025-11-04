@@ -13,6 +13,10 @@ SELECTED_PLANETS: List[str] = [
     "South Node",
 ]
 
+BENEFIC_PLANETS: List[str] = ["Mercury", "Jupiter", "Venus"]
+
+MALEFIC_PLANETS: List[str] = ["Mars", "Saturn", "Rahu", "Ketu"]
+
 ALLOWED_DIVISIONS: List[int] = [
     1,
     2,
