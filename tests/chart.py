@@ -1,6 +1,5 @@
 from ascendant import ALLOWED_DIVISIONS
 import pytest
-
 from ascendant.chart import Chart
 from tests.horoscope import my_horoscope
 
@@ -173,8 +172,6 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    print(
-        "\nNon allowed divisions unexpectedly succeeded: ", len(non_allowed_errors)
-    )
+    print("\nNon allowed divisions unexpectedly succeeded: ", len(non_allowed_errors))
     for line in non_allowed_errors:
         print(line)
