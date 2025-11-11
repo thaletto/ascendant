@@ -5,6 +5,7 @@
     ".gitignore": true,
     ".venv": true,
     ".vscode": true,
-    "**/__pycache__": true
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
   }
 }
