@@ -345,16 +345,33 @@ def kahala_yoga(yoga: Yoga):
         "details": f"Lord of 4th house {lord_of_4} in {house_of_lord_of_4} house & Lord of 9th house {lord_of_9} in {house_of_lord_of_9} house.",
     }
 
+
 @register_yoga("Vesi Yoga")
 def vesi_yoga(yoga: Yoga):
     """
     Planets other than Mo occupy 2nd house from Su.
     """
     planets = yoga.planets_in_relative_house("Sun", 2)
-    
+
     present = any(planet for planet in planets not in ["Moon"])
     return {
         "name": "Vesi Yoga",
         "present": present,
-        "details": f"Planets in 2nd house from Sun are {planets}"
+        "details": f"Planets in 2nd house from Sun are {planets}",
     }
+
+
+@register_yoga("Vasi Yoga")
+def vasi_yoga(yoga: Yoga):
+    """
+    Planets other than Mo occupy 12th house from Su.
+    """
+    planets = yoga.planets_in_relative_house("Sun", 12)
+
+    present = any(planet for planet in planets not in ["Moon"])
+    return {
+        "name": "Vesi Yoga",
+        "present": present,
+        "details": f"Planets in 2nd house from Sun are {planets}",
+    }
+
