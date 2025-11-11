@@ -372,5 +372,5 @@ def vasi_yoga(yoga: Yoga):
     return {
         "name": "Vasi Yoga",
         "present": present,
-        "details": f"Planets in 2nd house from Sun are {planets}",
+        "details": f"Planets in 12th house from Sun are {planets}",
     }
