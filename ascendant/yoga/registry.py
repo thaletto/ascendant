@@ -328,9 +328,9 @@ def parvata_yoga(yoga: Yoga):
 
 
 @register_yoga("Kahala Yoga")
-def function_name(yoga: Yoga):
+def kahala_yoga(yoga: Yoga):
     """
-    Lords of fourth and ninth houses in kendras from each other
+    Lords of fourth and ninth houses in kendras from each other.
     """
     lord_of_4 = yoga.get_lord_of_house(4)
     lord_of_9 = yoga.get_lord_of_house(9)
@@ -343,4 +343,18 @@ def function_name(yoga: Yoga):
         "name": "Kahala Yoga",
         "present": present,
         "details": f"Lord of 4th house {lord_of_4} in {house_of_lord_of_4} house & Lord of 9th house {lord_of_9} in {house_of_lord_of_9} house.",
+    }
+
+@register_yoga("Vesi Yoga")
+def vesi_yoga(yoga: Yoga):
+    """
+    Planets other than Mo occupy 2nd house from Su.
+    """
+    planets = yoga.planets_in_relative_house("Sun", 2)
+    
+    present = any(planet for planet in planets not in ["Moon"])
+    return {
+        "name": "Vesi Yoga",
+        "present": present,
+        "details": f"Planets in 2nd house from Sun are {planets}"
     }
