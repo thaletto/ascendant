@@ -374,3 +374,20 @@ def vasi_yoga(yoga: Yoga):
         "present": present,
         "details": f"Planets in 12th house from Sun are {planets}",
     }
+
+
+@register_yoga("Obhayachari Yoga")
+def obhayachari_yoga(yoga: Yoga):
+    """
+    Planets other than Mo are on either side of the Su.
+    """
+    planets = yoga.planets_in_relative_house("Sun", 2) + yoga.planets_in_relative_house(
+        "Sun", 12
+    )
+
+    present = any(planet for planet in planets not in ["Moon"])
+    return {
+        "name": "Obhayachari Yoga",
+        "present": present,
+        "details": f"Planets in 2nd and 12th houses from Sun are {planets}",
+    }
