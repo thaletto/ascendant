@@ -370,8 +370,7 @@ def vasi_yoga(yoga: Yoga):
 
     present = any(planet for planet in planets not in ["Moon"])
     return {
-        "name": "Vesi Yoga",
+        "name": "Vasi Yoga",
         "present": present,
         "details": f"Planets in 2nd house from Sun are {planets}",
     }
-
