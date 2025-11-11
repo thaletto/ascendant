@@ -46,6 +46,16 @@ class Yoga:
             self.chart.get(f"house_{target_house}", {}).get("planets", {}).keys()
         )
 
+    def get_lord_of_house(self, house_number: int) -> str:
+        """Return House Lord for give house number"""
+        for house, data in self.chart.items():
+            if house == f'house_{house_number}':
+                planets = data.get("planets", {})
+                for planet in planets.keys():
+                    return planet['rashi_lord']
+                    break
+
+
     def compute_all(self) -> List[Dict]:
         """Compute all registered yogas"""
         results = []
