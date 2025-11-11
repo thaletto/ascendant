@@ -325,3 +325,22 @@ def parvata_yoga(yoga: Yoga):
         "present": present,
         "details": details,
     }
+
+
+@register_yoga("Kahala Yoga")
+def function_name(yoga: Yoga):
+    """
+    Lords of fourth and ninth houses in kendras from each other
+    """
+    lord_of_4 = yoga.get_lord_of_house(4)
+    lord_of_9 = yoga.get_lord_of_house(9)
+
+    house_of_lord_of_4 = yoga.get_house_of_planet(lord_of_4)
+    house_of_lord_of_9 = yoga.get_house_of_planet(lord_of_9)
+
+    present = yoga.planet_in_kendra_from(house_of_lord_of_4, house_of_lord_of_9)
+    return {
+        "name": "Kahala Yoga",
+        "present": present,
+        "details": f"Lord of 4th house {lord_of_4} in {house_of_lord_of_4} house & Lord of 9th house {lord_of_9} in {house_of_lord_of_9} house.",
+    }
