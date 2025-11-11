@@ -270,7 +270,7 @@ def sakata_yoga(yoga: Yoga):
 @register_yoga("Amala Yoga")
 def amala_yoga(yoga: Yoga):
     """
-    10th house from Moon or Ascendant occupied by any benefic planet.
+    10th house from Mo or Asc occupied by any benefic planet.
     """
 
     from_moon = yoga.planets_in_relative_house("Moon", 10)
@@ -296,6 +296,7 @@ def amala_yoga(yoga: Yoga):
         "present": present,
         "details": details,
     }
+
 
 @register_yoga("Parvata Yoga")
 def parvata_yoga(yoga: Yoga):
@@ -324,4 +325,3 @@ def parvata_yoga(yoga: Yoga):
         "present": present,
         "details": details,
     }
-
