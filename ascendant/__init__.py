@@ -1,5 +1,7 @@
 from typing import List
 
+from ascendant.types import HouseNumber
+
 
 SELECTED_PLANETS: List[str] = [
     "Sun",
@@ -12,6 +14,10 @@ SELECTED_PLANETS: List[str] = [
     "North Node",
     "South Node",
 ]
+
+NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
+
+PLANETS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]
 
 BENEFIC_PLANETS: List[str] = ["Mercury", "Jupiter", "Venus"]
 
@@ -36,17 +42,11 @@ ALLOWED_DIVISIONS: List[int] = [
     60,
 ]
 
-NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
-
 MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
 FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
 DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
 
 
-def isSignOdd(n: int) -> bool:
-    """Return True if the rashi index is odd-numbered per this module's scheme.
-
-    Note: In this context, a return value of True corresponds to signs the
-    code treats as "odd" for certain divisional rules.
-    """
+def isSignOdd(n: HouseNumber) -> bool:
+    """Return True if the rashi index is odd-numbered per this module's scheme."""
     return n % 2 == 0
