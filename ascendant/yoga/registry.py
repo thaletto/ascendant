@@ -392,18 +392,44 @@ def obhayachari_yoga(yoga: Yoga):
         "details": f"Planets in 2nd and 12th houses from Sun are {planets}",
     }
 
+
 @register_yoga("Hamsa Yoga")
 def hamsa_yoga(yoga: Yoga):
     """
     Ju occupies a kendra of his own house or exalation sign.
     """
-    Cn_house = yoga.get_house_of_rashi('Cancer')
-    Sg_house = yoga.get_house_of_rashi('Sagittarius')
-    Pi_house = yoga.get_house_of_rashi('Pisces')
-    Ju_house = yoga.get_house_of_planet('Jupiter')
-    present = yoga.planet_in_kendra_from(Cn_house, 'Jupiter') or yoga.planet_in_kendra_from(Sg_house, 'Jupiter') or yoga.planet_in_kendra_from(Pi_house, 'Jupiter')
+    Cn_house = yoga.get_house_of_rashi("Cancer")
+    Sg_house = yoga.get_house_of_rashi("Sagittarius")
+    Pi_house = yoga.get_house_of_rashi("Pisces")
+    Ju_house = yoga.get_house_of_planet("Jupiter")
+    present = (
+        yoga.planet_in_kendra_from(Cn_house, "Jupiter")
+        or yoga.planet_in_kendra_from(Sg_house, "Jupiter")
+        or yoga.planet_in_kendra_from(Pi_house, "Jupiter")
+    )
     return {
         "name": "Hamsa Yoga",
         "present": present,
-        "details": f"Ju house is {Ju_house}, Cn house is {Cn_house}, Sg house is {Sg_house} and Pi house is {Pi_house}"
+        "details": f"Ju house is {Ju_house}, Cn house is {Cn_house}, Sg house is {Sg_house} and Pi house is {Pi_house}",
+    }
+
+
+@register_yoga("Malavya Yoga")
+def malavya_yoga(yoga: Yoga):
+    """
+    Ve occupies a kendra of his own house or exalation sign.
+    """
+    Ta_house = yoga.get_house_of_rashi("Taurus")
+    Li_house = yoga.get_house_of_rashi("Libra")
+    Pi_house = yoga.get_house_of_rashi("Pisces")
+    Ve_house = yoga.get_house_of_planet("Venus")
+    present = (
+        yoga.planet_in_kendra_from(Ta_house, "Venus")
+        or yoga.planet_in_kendra_from(Li_house, "Venus")
+        or yoga.planet_in_kendra_from(Pi_house, "Venus")
+    )
+    return {
+        "name": "Malavya Yoga",
+        "present": present,
+        "details": f"Ve house is {Ve_house}, Ta house is {Ta_house}, Li house is {Li_house} and Li house is {Li_house}",
     }
