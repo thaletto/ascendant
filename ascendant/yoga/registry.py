@@ -391,3 +391,19 @@ def obhayachari_yoga(yoga: Yoga):
         "present": present,
         "details": f"Planets in 2nd and 12th houses from Sun are {planets}",
     }
+
+@register_yoga("Hamsa Yoga")
+def hamsa_yoga(yoga: Yoga):
+    """
+    Ju occupies a kendra of his own house or exalation sign.
+    """
+    Cn_house = yoga.get_house_of_rashi('Cancer')
+    Sg_house = yoga.get_house_of_rashi('Sagittarius')
+    Pi_house = yoga.get_house_of_rashi('Pisces')
+    Ju_house = yoga.get_house_of_planet('Jupiter')
+    present = yoga.planet_in_kendra_from(Cn_house, 'Jupiter') or yoga.planet_in_kendra_from(Sg_house, 'Jupiter') or yoga.planet_in_kendra_from(Pi_house, 'Jupiter')
+    return {
+        "name": "Hamsa Yoga",
+        "present": present,
+        "details": f"Ju house is {Ju_house}, Cn house is {Cn_house}, Sg house is {Sg_house} and Pi house is {Pi_house}"
+    }
