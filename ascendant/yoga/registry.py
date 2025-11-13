@@ -433,3 +433,24 @@ def malavya_yoga(yoga: Yoga):
         "present": present,
         "details": f"Ve house is {Ve_house}, Ta house is {Ta_house}, Li house is {Li_house} and Li house is {Li_house}",
     }
+
+
+@register_yoga("Sasa Yoga")
+def sasa_yoga(yoga: Yoga):
+    """
+    Sa occupies a kendra of his own house or exalation sign.
+    """
+    Li_house = yoga.get_house_of_rashi("Libra")
+    Cp_house = yoga.get_house_of_rashi("Capricorn")
+    Aq_house = yoga.get_house_of_rashi("Aquarius")
+    Sa_house = yoga.get_house_of_planet("Saturn")
+    present = (
+        yoga.planet_in_kendra_from(Li_house, "Saturn")
+        or yoga.planet_in_kendra_from(Cp_house, "Saturn")
+        or yoga.planet_in_kendra_from(Aq_house, "Saturn")
+    )
+    return {
+        "name": "Sasa Yoga",
+        "present": present,
+        "details": f"Sa house is {Sa_house}, Li house is {Li_house}, Cp house is {Cp_house} and Aq house is {Aq_house}",
+    }
