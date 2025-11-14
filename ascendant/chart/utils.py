@@ -1,9 +1,10 @@
+from typing import Tuple
 from ascendant.const import FIXED, MOVABLE
 from ascendant.utils import isSignOdd
-from ascendant.types import ALLOWED_DIVISIONS
+from ascendant.types import ALLOWED_DIVISIONS, HOUSES
 
 
-def get_divisional_target(longitude: float, division: ALLOWED_DIVISIONS):
+def get_divisional_target(longitude: float, division: ALLOWED_DIVISIONS) -> Tuple[HOUSES, float]:
     """Map an absolute longitude into a target sign/degree for a varga"""
 
     # Fast path for D1
