@@ -84,7 +84,9 @@ class PlanetType(TypedDict):
     name: PLANETS
     longitude: float
     is_retrograde: bool
-    inSign: Literal["Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"]
+    inSign: Literal[
+        "Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"
+    ]
     sign: PlanetOrLagnaSignType
 
 
@@ -111,3 +113,20 @@ class YogaType(TypedDict):
     name: str
     present: bool
     details: str
+
+
+class AntarDashaType(TypedDict):
+    mahadasha: PLANETS
+    antardasha: PLANETS
+    start: str
+    end: str
+
+
+class MahaDashaType(TypedDict):
+    mahadasha: PLANETS
+    start: str
+    end: str
+    antardashas: List[AntarDashaType]
+
+
+DashasType = List[MahaDashaType]
