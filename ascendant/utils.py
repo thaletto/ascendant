@@ -1,15 +1,31 @@
-from typing import Literal
+from datetime import datetime, timezone
+from typing import Literal, Union
 from ascendant.types import HOUSES, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 
 
 def isSignOdd(n: HOUSES) -> bool:
     """Return True if the rashi index is odd-numbered per this module's scheme."""
+    if not n:
+        return None
     return n % 2 == 0
 
 
 def getSignName(n: HOUSES) -> RASHIS:
+    if not n:
+        return None
     return RASHI_MAP[n]
+
+
+def parse_date(s: Union[str, datetime]) -> datetime:
+    if not s:
+        return None
+    if isinstance(s, datetime):
+        if s.tzinfo is None:
+            return s.replace(tzinfo=timezone.utc)
+        return s.astimezone(timezone.utc)
+    dt = datetime.strptime(s, "%d-%m-%Y")
+    return dt.replace(tzinfo=timezone.utc)
 
 
 def PlanetSignRelation(
