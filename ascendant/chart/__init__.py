@@ -36,6 +36,15 @@ class Chart:
         self.chart = self.get_rasi_chart()
 
     def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType:
+        """
+        Retrieves the list of planets for a specified divisional chart (varga).
+
+        Args:
+            n: The divisional chart number (e.g., 1 for Rasi, 9 for Navamsa). Defaults to 1.
+
+        Returns:
+            A list of PlanetType objects, or None if the division is not allowed.
+        """
         if n not in DIVISIONS:
             return None
 
@@ -69,6 +78,15 @@ class Chart:
         return planets
 
     def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType:
+        """
+        Retrieves the Lagna (Ascendant) for a specified divisional chart (varga).
+
+        Args:
+            n: The divisional chart number. Defaults to 1.
+
+        Returns:
+            A LagnaType object, or None if the division is not allowed.
+        """
         if n not in DIVISIONS:
             return None
 
@@ -95,6 +113,12 @@ class Chart:
         return lagna
 
     def get_rasi_chart(self) -> ChartType:
+        """
+        Generates the Rasi (D1) chart based on the Lagna and planet positions.
+
+        Returns:
+            A ChartType object representing the Rasi chart.
+        """
         chart: ChartType = {}
 
         lagna_sign = self.lagna["sign"]["name"]
@@ -116,6 +140,15 @@ class Chart:
         return chart
 
     def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType:
+        """
+        Generates a specific divisional chart (varga chakra) based on the given division number.
+
+        Args:
+            n: The divisional chart number.
+
+        Returns:
+            A ChartType object representing the specified divisional chart, or None if the division is not allowed.
+        """
         if n not in DIVISIONS:
             return None
 
@@ -145,6 +178,17 @@ class Chart:
     def graha_drishti(
         self, n: ALLOWED_DIVISIONS, planet: PLANETS | None = None
     ) -> List[AspectType]:
+        """
+        Calculates and returns the planetary aspects (graha drishti) for a given divisional chart.
+
+        Args:
+            n: The divisional chart number.
+            planet: Optional. If provided, returns aspects only for this specific planet.
+
+        Returns:
+            A list of AspectType objects, each detailing a planet's aspects and the planets in aspected houses.
+            Returns None if the division is not allowed.
+        """
         if n not in DIVISIONS:
             return None
 
