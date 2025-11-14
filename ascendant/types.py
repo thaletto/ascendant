@@ -68,46 +68,46 @@ PADA = Literal[1, 2, 3, 4]
 ALLOWED_DIVISIONS = Literal[1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]
 
 
-class Nakshatra(TypedDict):
+class NakshatraType(TypedDict):
     name: NAKSHATRAS
     lord: PLANETS
     pada: PADA
 
 
-class PlanetOrLagnaSignData(TypedDict):
+class PlanetOrLagnaSignType(TypedDict):
     name: RASHIS
     lord: RASHI_LORDS
-    nakshatra: Nakshatra
+    nakshatra: NakshatraType
 
 
-class Planet(TypedDict):
+class PlanetType(TypedDict):
     name: PLANETS
     longitude: float
     is_retrograde: bool
     inSign: Literal["Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"]
-    sign: PlanetOrLagnaSignData
+    sign: PlanetOrLagnaSignType
 
 
-class Lagna(TypedDict):
+class LagnaType(TypedDict):
     name: LAGNA
     longitude: float
     is_retrograde: Literal[False]
-    sign: PlanetOrLagnaSignData
+    sign: PlanetOrLagnaSignType
 
 
-Planets = List[Planet]
+PlanetsType = List[PlanetType]
 
 
-class House(TypedDict):
+class HouseType(TypedDict):
     sign: RASHIS
-    planets: Planets
-    lagna: Optional[Lagna]
+    planets: PlanetsType
+    lagna: Optional[LagnaType]
 
 
-Chart = Dict[HOUSES, House]
+ChartType = Dict[HOUSES, HouseType]
 
 
-class Yoga(TypedDict):
+class YogaType(TypedDict):
     name: str
     present: bool
     details: str
