@@ -130,3 +130,9 @@ class MahaDashaType(TypedDict):
 
 
 DashasType = List[MahaDashaType]
+
+
+class AspectType(TypedDict):
+    planet: PLANETS
+    from_house: HOUSES
+    aspect_houses: List[Dict[HOUSES, List[PLANETS]]]
