@@ -1,9 +1,17 @@
 from vedicastro.VedicAstro import VedicHoroscopeData
-from ascendant.chart.utils import get_divisional_target
-from ascendant.const import NODE_MAP, SELECTED_PLANETS, RASHIS
+from ascendant.chart.utils import aspect_offsets_for_planet, get_divisional_target
+from ascendant.const import (
+    NODE_MAP,
+    SELECTED_PLANETS,
+    RASHIS,
+    ALLOWED_DIVISIONS as DIVISIONS,
+)
+from typing import List
 from ascendant.types import (
     ALLOWED_DIVISIONS,
     HOUSES,
+    PLANETS,
+    AspectType,
     ChartType,
     LagnaType,
     PlanetType,
@@ -28,7 +36,11 @@ class Chart:
         self.chart = self.get_rasi_chart()
 
     def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType:
+        if n not in DIVISIONS:
+            return None
+
         planets: PlanetsType = []
+
         for _planet in self.__chart__.objects:
             name = _planet.id
             if name not in SELECTED_PLANETS:
@@ -57,6 +69,9 @@ class Chart:
         return planets
 
     def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType:
+        if n not in DIVISIONS:
+            return None
+
         asc = self.__chart__.getAngle("Asc")
         lon: float = asc.lon
         data = self.__horoscope__.get_rl_nl_sl_data(lon)
@@ -101,6 +116,9 @@ class Chart:
         return chart
 
     def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType:
+        if n not in DIVISIONS:
+            return None
+
         chart: ChartType = {}
 
         lagna = self.get_lagna(n)
@@ -123,3 +141,54 @@ class Chart:
             }
 
         return chart
+
+    def graha_drishti(
+        self, n: ALLOWED_DIVISIONS, planet: PLANETS | None = None
+    ) -> List[AspectType]:
+        if n not in DIVISIONS:
+            return None
+
+        chart = self.get_varga_chakra_chart(n)
+
+        # Pre-process chart to create mappings for quick lookups
+        planet_to_house = {}
+        house_to_planets = {h: [] for h in range(1, 13)}
+
+        for house_num in range(1, 13):
+            house = chart.get(house_num)
+            if not house:
+                continue
+            for p in house.get("planets", []):
+                planet_name = p["name"]
+                house_to_planets[house_num].append(planet_name)
+                if planet_name != "Ketu":
+                    planet_to_house[planet_name] = house_num
+
+        # Determine which planets to process
+        planets_to_process = {}
+        if planet:
+            if planet in planet_to_house:
+                planets_to_process = {planet: planet_to_house[planet]}
+        else:
+            planets_to_process = planet_to_house
+
+        # Build results using the pre-processed mappings
+        results: List[AspectType] = []
+        for planet_name, from_house in planets_to_process.items():
+            aspected_houses = [
+                (from_house - 1 + offset) % 12 + 1
+                for offset in aspect_offsets_for_planet(planet_name)
+            ]
+
+            aspected_houses_info = [
+                {house: house_to_planets.get(house, [])} for house in aspected_houses
+            ]
+
+            aspect_data: AspectType = {
+                "planet": planet_name,
+                "from_house": from_house,
+                "aspect_houses": aspected_houses_info,
+            }
+            results.append(aspect_data)
+
+        return results
