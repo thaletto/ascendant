@@ -34,3 +34,6 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Sample Files
+sample/
