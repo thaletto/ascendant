@@ -1,10 +1,28 @@
-from typing import Tuple
+from typing import List, Tuple
 from ascendant.const import FIXED, MOVABLE
 from ascendant.utils import isSignOdd
-from ascendant.types import ALLOWED_DIVISIONS, HOUSES
+from ascendant.types import ALLOWED_DIVISIONS, HOUSES, PLANETS
 
 
-def get_divisional_target(longitude: float, division: ALLOWED_DIVISIONS) -> Tuple[HOUSES, float]:
+def aspect_offsets_for_planet(planet_name: PLANETS) -> List[int]:
+    """Returns the house offsets for a planet's aspects (e.g., 7th house aspect is an offset of 6)."""
+    # All planets aspect the 7th house from their position.
+    offsets: List[int] = [6]
+    if planet_name == "Mars":
+        # Mars also aspects the 4th and 8th houses.
+        offsets += [3, 7]
+    elif planet_name == "Jupiter" or planet_name == "Rahu":
+        # Jupiter and Rahu also aspect the 5th and 9th houses.
+        offsets += [4, 8]
+    elif planet_name == "Saturn":
+        # Saturn also aspects the 3rd and 10th houses.
+        offsets += [2, 9]
+    return offsets
+
+
+def get_divisional_target(
+    longitude: float, division: ALLOWED_DIVISIONS
+) -> Tuple[HOUSES, float]:
     """Map an absolute longitude into a target sign/degree for a varga"""
 
     # Fast path for D1
