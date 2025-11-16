@@ -163,10 +163,10 @@ def chatussagara_yoga(yoga: Yoga):
 
     # Show only counts
     details = (
-        f"Planet counts — 1st: {len(house_1)}, "
-        f"4th: {len(house_4)}, "
-        f"7th: {len(house_7)}, "
-        f"10th: {len(house_10)}."
+        f"Planet counts — 1st house: {len(house_1)}, "
+        f"4th house: {len(house_4)}, "
+        f"7th house: {len(house_7)}, "
+        f"10th house: {len(house_10)}."
     )
 
     return {
