@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import List, Union
 from vedicastro.VedicAstro import VedicHoroscopeData
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType
-from ascendant.utils import parse_date
+from ascendant.utils import parseDate
 
 
 class Dasha:
@@ -73,8 +73,8 @@ class Dasha:
     ):
         """Return index where date lies between start and end."""
         for idx, item in enumerate(items):
-            start = parse_date(item.get(start_key))
-            end = parse_date(item.get(end_key))
+            start = parseDate(item.get(start_key))
+            end = parseDate(item.get(end_key))
             if start and end and start <= date <= end:
                 return idx
         return None
@@ -102,7 +102,7 @@ class Dasha:
             return None
 
         if date:
-            target_date = parse_date(date)
+            target_date = parseDate(date)
         else:
             target_date = datetime.now(timezone.utc)
 
@@ -135,7 +135,7 @@ class Dasha:
             return None
 
         if date:
-            target_date = parse_date(date)
+            target_date = parseDate(date)
         else:
             target_date = datetime.now(timezone.utc)
 

@@ -17,7 +17,7 @@ def getSignName(n: HOUSES) -> RASHIS:
     return RASHI_MAP[n]
 
 
-def parse_date(s: Union[str, datetime]) -> datetime:
+def parseDate(s: Union[str, datetime]) -> datetime:
     if not s:
         return None
     if isinstance(s, datetime):
