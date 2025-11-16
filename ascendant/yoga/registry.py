@@ -46,10 +46,11 @@ def anapha_yoga(yoga: Yoga):
     """
     planets = yoga.planets_in_relative_house("Moon", -1)
     present = len(planets) > 0
+    names = ", ".join(map(lambda p: p["name"], planets))
     return {
         "name": "Anapha Yoga",
         "present": present,
-        "details": f"Planets in 12th house from Moon are {planets}",
+        "details": f"Planets in 12th house from Moon are {names}",
     }
 
 
