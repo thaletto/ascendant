@@ -12,7 +12,7 @@ def isSignOdd(n: HOUSES) -> bool:
 
 
 def getSignName(n: HOUSES) -> RASHIS:
-    if not n:
+    if not n and n != 0:
         return None
     return RASHI_MAP[n]
 
