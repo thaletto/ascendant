@@ -45,4 +45,19 @@ MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
 FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
 DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
 
+RASHI_LORD_MAP = {
+    "Aries": "Mars",
+    "Taurus": "Venus",
+    "Gemini": "Mercury",
+    "Cancer": "Moon",
+    "Leo": "Sun",
+    "Virgo": "Mercury",
+    "Libra": "Venus",
+    "Scorpio": "Mars",
+    "Sagittarius": "Jupiter",
+    "Capricorn": "Saturn",
+    "Aquarius": "Saturn",
+    "Pisces": "Jupiter",
+}
+
 HOUSES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
