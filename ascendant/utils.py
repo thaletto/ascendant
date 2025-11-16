@@ -28,7 +28,7 @@ def parseDate(s: Union[str, datetime]) -> datetime:
     return dt.replace(tzinfo=timezone.utc)
 
 
-def PlanetSignRelation(
+def planetSignRelation(
     planet: PLANETS, sign: RASHIS
 ) -> Literal[
     "Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"

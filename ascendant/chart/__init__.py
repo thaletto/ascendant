@@ -17,7 +17,7 @@ from ascendant.types import (
     PlanetType,
     PlanetsType,
 )
-from ascendant.utils import PlanetSignRelation, getSignName
+from ascendant.utils import planetSignRelation, getSignName
 
 
 class Chart:
@@ -63,7 +63,7 @@ class Chart:
                 "name": NODE_MAP.get(name, name),
                 "longitude": lon,
                 "is_retrograde": _planet.isRetrograde(),
-                "inSign": PlanetSignRelation(name, sign),
+                "inSign": planetSignRelation(name, sign),
                 "sign": {
                     "name": sign,
                     "lord": data.get("RasiLord", ""),
