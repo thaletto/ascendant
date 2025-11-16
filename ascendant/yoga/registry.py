@@ -129,28 +129,16 @@ def chandra_adhi_yoga(yoga: Yoga):
 @register_yoga("Lagna Adhi Yoga")
 def lagna_adhi_yoga(yoga: Yoga):
     """
-    Benefics in the 6th, 7th and 8th houses from the Ascendant.
+    All Benefics are in 6th, 7th & 8th houses from the Asc
     """
-    planets = (
+    planets: PlanetsType = (
         yoga.planets_in_relative_house("Lagna", 6)
         + yoga.planets_in_relative_house("Lagna", 7)
         + yoga.planets_in_relative_house("Lagna", 8)
     )
-
-    present = all(p["name"] in BENEFIC_PLANETS for p in planets)
-
-    if present:
-        benefics = ", ".join(p["name"] for p in planets)
-        details = f"Benefic planets placed in the 6th, 7th and 8th houses from the Lagna: {benefics}."
-    else:
-        non_benefics = ", ".join(
-            p["name"] for p in planets if p["name"] not in BENEFIC_PLANETS
-        )
-        details = (
-            f"Non-benefic planets found in the 6th, 7th or 8th houses from the Lagna: {non_benefics}."
-            if non_benefics
-            else "No benefic influence on the Lagna from the 6th, 7th or 8th houses."
-        )
+    planets_names = [p["name"] for p in planets]
+    present = all(benefic in planets_names for benefic in BENEFIC_PLANETS)
+    details = f"{', '.join(planets_names)} in 6th, 7th and 8th houses from the Lagna"
 
     return {
         "name": "Lagna Adhi Yoga",
