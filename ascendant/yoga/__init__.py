@@ -92,7 +92,6 @@ class Yoga:
         results = []
         for name, func in YOGA_REGISTRY.items():
             result = func(self)
-            print(f"{name} {result["present"]}")
             results.append(result)
 
         return results
