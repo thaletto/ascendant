@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, TypedDict
+from typing import Dict, List, Literal, Optional, TypedDict, Union
 
 PLANETS = Literal[
     "Sun",
@@ -28,6 +28,8 @@ RASHIS = Literal[
 ]
 
 LAGNA = Literal["Lagna"]
+
+PLANETS_LAGNA = Union[PLANETS, LAGNA]
 
 HOUSES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
@@ -109,12 +111,6 @@ class HouseType(TypedDict):
 ChartType = Dict[HOUSES, HouseType]
 
 
-class YogaType(TypedDict):
-    name: str
-    present: bool
-    details: str
-
-
 class AntarDashaType(TypedDict):
     mahadasha: PLANETS
     antardasha: PLANETS
@@ -136,3 +132,12 @@ class AspectType(TypedDict):
     planet: PLANETS
     from_house: HOUSES
     aspect_houses: List[Dict[HOUSES, List[PLANETS]]]
+
+
+class YogaType(TypedDict):
+    id: str
+    name: str
+    present: bool
+    strength: float
+    details: str
+    type: Literal["Positive", "Neutral", "Negative"]

@@ -72,7 +72,7 @@ def test_yoga_computation():
 def show_yogas():
     """Display all yogas for the horoscope"""
     results = yoga.compute_all()
-
+    
     # Separate present and absent yogas
     present_yogas = [r for r in results if r.get("present", False)]
     absent_yogas = [r for r in results if not r.get("present", False)]

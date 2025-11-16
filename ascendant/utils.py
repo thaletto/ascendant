@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import re
 from typing import Literal, Union
 from ascendant.types import HOUSES, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
@@ -185,3 +186,12 @@ def planetSignRelation(
                     return "Friend"
                 case "Moon" | "Saturn":
                     return "Neutral"
+
+
+def yogaNameToId(name: str) -> str:
+    name = name.lower()  # Lowercase
+    name = re.sub(
+        r"[^a-z0-9]+", "_", name
+    )  # Replace any non-alphanumeric group with underscore
+    name = name.strip("_")  # Remove leading/trailing underscores
+    return name
