@@ -31,10 +31,11 @@ def sunapha_yoga(yoga: Yoga):
     planets = yoga.planets_in_relative_house("Moon", 2)
     planets = [p for p in planets if p["name"] != "Sun"]
     present = len(planets) > 0
+    names = ", ".join(map(lambda p: p["name"], planets))
     return {
         "name": "Sunapha Yoga",
         "present": present,
-        "details": f"Planets (except Sun) in 2nd house from Moon are {planets}",
+        "details": f"Planets (except Sun) in 2nd house from Moon are {names}",
     }
 
 
