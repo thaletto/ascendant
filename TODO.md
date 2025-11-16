@@ -4,6 +4,7 @@
 - [ ] Add types to `class Yoga`
 - [ ] Update the logic of Hamsa Yoga, Malavya Yoga and Sasa Yoga
 - [ ] Add all yogas
+- [ ] Enhance the detail in yoga functions
 
 ### Test
 
