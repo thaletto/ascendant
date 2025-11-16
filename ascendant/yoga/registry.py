@@ -1,5 +1,6 @@
-from . import register_yoga, Yoga
-from ascendant import BENEFIC_PLANETS
+from ascendant.types import PlanetsType
+from ascendant.yoga import register_yoga, Yoga
+from ascendant.const import BENEFIC_PLANETS
 
 
 @register_yoga("Gajakesari Yoga")
@@ -29,7 +30,7 @@ def sunapha_yoga(yoga: Yoga):
     Any planets (except Su) in the 2nd house from Mo
     """
     planets = yoga.planets_in_relative_house("Moon", 2)
-    planets = [p for p in planets if p != "Sun"]
+    planets = [p for p in planets if p["name"] != "Sun"]
     present = len(planets) > 0
     return {
         "name": "Sunapha Yoga",
@@ -41,7 +42,7 @@ def sunapha_yoga(yoga: Yoga):
 @register_yoga("Anapha Yoga")
 def anapha_yoga(yoga: Yoga):
     """
-    Any planets in the 12th house from Moon
+    Any planets in the 12th house from Mo
     """
     planets = yoga.planets_in_relative_house("Moon", -1)
     present = len(planets) > 0
@@ -53,12 +54,15 @@ def dhurdhua_yoga(yoga: Yoga):
     """
     Any planets on either side of the Mo
     """
-    planets = yoga.planets_in_relative_house(
-        "Moon", -1
-    ) + yoga.planets_in_relative_house("Moon", 2)
-    present = len(planets) > 0
+    p12 = yoga.planets_in_relative_house("Moon", -1)
+    p2 = yoga.planets_in_relative_house("Moon", 2)
+    if len(p12) > 0 or len(p2) > 0:
+        present = True
+    else:
+        present = False
+    planets = [p["name"] for p in p12] + [p["name"] for p in p2]
     return {
-        "name": "Dhurdhura Yoga",
+        "name": "Dhurdhua Yoga",
         "present": present,
         "details": f"Planets: {planets}",
     }
@@ -69,10 +73,13 @@ def kemadurga_yoga(yoga: Yoga):
     """
     No planets on both side of the Mo
     """
-    planets = yoga.planets_in_relative_house(
-        "Moon", -1
-    ) + yoga.planets_in_relative_house("Moon", 2)
-    present = len(planets) == 0
+    p12 = yoga.planets_in_relative_house("Moon", -1)
+    p2 = yoga.planets_in_relative_house("Moon", 2)
+    if len(p12) == 0 and len(p2) == 0:
+        present = True
+    else:
+        present = False
+    planets = [p["name"] for p in p12] + [p["name"] for p in p2]
     return {
         "name": "Kemadurga Yoga",
         "present": present,
@@ -89,7 +96,7 @@ def chandra_mangala_yoga(yoga: Yoga):
     moon_house = yoga.get_house_of_planet("Moon")
     present = mars_house == moon_house
     return {
-        "name": "Chandra Managala Yoga",
+        "name": "Chandra Mangala Yoga",
         "present": present,
         "details": f"Mars in {mars_house}, Moon in {moon_house}",
     }
@@ -98,19 +105,29 @@ def chandra_mangala_yoga(yoga: Yoga):
 @register_yoga("Chandra Adhi Yoga")
 def chandra_adhi_yoga(yoga: Yoga):
     """
-    Benefics in sixth, seventh and eight houses from the Mo
+    Benefics in sixth, seventh and eight houses from the Moon.
     """
-    planets = (
+    planets: PlanetsType = (
         yoga.planets_in_relative_house("Moon", 6)
         + yoga.planets_in_relative_house("Moon", 7)
         + yoga.planets_in_relative_house("Moon", 8)
     )
-    present = all(planet in planets for planet in BENEFIC_PLANETS)
-    details = (
-        f"Benefic planets influencing the Moon are: {', '.join(BENEFIC_PLANETS)}."
-        if present
-        else "No benefic planets in 6th, 7th, or 8th houses from the Moon."
-    )
+
+    present = all(p["name"] in BENEFIC_PLANETS for p in planets)
+
+    if present:
+        benefics = ", ".join(p["name"] for p in planets)
+        details = f"Benefic planets placed in the 6th, 7th and 8th houses from the Moon: {benefics}."
+    else:
+        non_benefics = ", ".join(
+            p["name"] for p in planets if p["name"] not in BENEFIC_PLANETS
+        )
+        details = (
+            f"Non-benefic planets found in the 6th, 7th or 8th houses from the Moon: {non_benefics}."
+            if non_benefics
+            else "No benefic influence on the Moon from the 6th, 7th or 8th houses."
+        )
+
     return {
         "name": "Chandra Adhi Yoga",
         "present": present,
@@ -121,19 +138,29 @@ def chandra_adhi_yoga(yoga: Yoga):
 @register_yoga("Lagna Adhi Yoga")
 def lagna_adhi_yoga(yoga: Yoga):
     """
-    Benefics in sixth, seventh and eight houses from the Asc
+    Benefics in the 6th, 7th and 8th houses from the Ascendant.
     """
     planets = (
         yoga.planets_in_relative_house("Lagna", 6)
         + yoga.planets_in_relative_house("Lagna", 7)
         + yoga.planets_in_relative_house("Lagna", 8)
     )
-    present = all(planet in planets for planet in BENEFIC_PLANETS)
-    details = (
-        f"Benefic planets influencing the Lagna are: {', '.join(BENEFIC_PLANETS)}."
-        if present
-        else "No benefic planets in 6th, 7th, or 8th houses from the Lagna."
-    )
+
+    present = all(p["name"] in BENEFIC_PLANETS for p in planets)
+
+    if present:
+        benefics = ", ".join(p["name"] for p in planets)
+        details = f"Benefic planets placed in the 6th, 7th and 8th houses from the Lagna: {benefics}."
+    else:
+        non_benefics = ", ".join(
+            p["name"] for p in planets if p["name"] not in BENEFIC_PLANETS
+        )
+        details = (
+            f"Non-benefic planets found in the 6th, 7th or 8th houses from the Lagna: {non_benefics}."
+            if non_benefics
+            else "No benefic influence on the Lagna from the 6th, 7th or 8th houses."
+        )
+
     return {
         "name": "Lagna Adhi Yoga",
         "present": present,
@@ -144,7 +171,7 @@ def lagna_adhi_yoga(yoga: Yoga):
 @register_yoga("Chatussagara Yoga")
 def chatussagara_yoga(yoga: Yoga):
     """
-    All kendras (1st, 4th, 7th, 10th houses) are occupied by planets.
+    All kendras (1st, 4th, 7th, 10th houses) must be occupied by planets.
     """
 
     house_1 = yoga.planets_in_relative_house("Lagna", 1)
@@ -152,13 +179,15 @@ def chatussagara_yoga(yoga: Yoga):
     house_7 = yoga.planets_in_relative_house("Lagna", 7)
     house_10 = yoga.planets_in_relative_house("Lagna", 10)
 
-    present = all([house_1, house_4, house_7, house_10])
+    # Each house must have at least one planet
+    present = all(len(h) > 0 for h in [house_1, house_4, house_7, house_10])
 
+    # Show only counts
     details = (
-        f"Planets found — 1st: {', '.join(house_1) or 'None'}, "
-        f"4th: {', '.join(house_4) or 'None'}, "
-        f"7th: {', '.join(house_7) or 'None'}, "
-        f"10th: {', '.join(house_10) or 'None'}."
+        f"Planet counts — 1st: {len(house_1)}, "
+        f"4th: {len(house_4)}, "
+        f"7th: {len(house_7)}, "
+        f"10th: {len(house_10)}."
     )
 
     return {
@@ -191,9 +220,11 @@ def vasumathi_yoga(yoga: Yoga):
         + yoga.planets_in_relative_house("Lagna", 11)
     )
 
-    # Benefic planets in either reference
-    benefics_moon = [p for p in BENEFIC_PLANETS if p in moon_upachayas]
-    benefics_lagna = [p for p in BENEFIC_PLANETS if p in lagna_upachayas]
+    moon_names = [p["name"] for p in moon_upachayas]
+    lagna_names = [p["name"] for p in lagna_upachayas]
+
+    benefics_moon = [name for name in moon_names if name in BENEFIC_PLANETS]
+    benefics_lagna = [name for name in lagna_names if name in BENEFIC_PLANETS]
 
     present = bool(benefics_moon or benefics_lagna)
 
@@ -219,24 +250,22 @@ def vasumathi_yoga(yoga: Yoga):
 @register_yoga("Rajalakshana Yoga")
 def rajalakshana_yoga(yoga: Yoga):
     """
-    Jupiter, Venus, Mercury, and Moon should be in Ascendant or in any Kendra (1, 4, 7, 10).
+    Ju, Ve, Me, and Mo should be in the Ascendant or any Kendra (1, 4, 7, 10).
     """
-
-    required_planets = ["Jupiter", "Venus", "Mercury", "Moon"]
     kendras = [1, 4, 7, 10]
 
-    # Collect all planets in kendras
     planets_in_kendras = []
     for house in kendras:
         planets_in_kendras += yoga.planets_in_relative_house("Lagna", house)
 
-    present = all(p in planets_in_kendras for p in required_planets)
+    kendra_names = [p["name"] for p in planets_in_kendras]
 
-    details = (
-        f"Planets in Kendras: {', '.join(planets_in_kendras)}."
-        if planets_in_kendras
-        else "No planets found in kendras."
-    )
+    present = all(rp in kendra_names for rp in BENEFIC_PLANETS)
+
+    if planets_in_kendras:
+        details = f"Planets in Kendras: {', '.join(kendra_names)}."
+    else:
+        details = "No planets found in kendras."
 
     return {
         "name": "Rajalakshana Yoga",
@@ -276,17 +305,17 @@ def amala_yoga(yoga: Yoga):
     from_moon = yoga.planets_in_relative_house("Moon", 10)
     from_lagna = yoga.planets_in_relative_house("Lagna", 10)
 
-    benefics_moon = [p for p in BENEFIC_PLANETS if p in from_moon]
-    benefics_lagna = [p for p in BENEFIC_PLANETS if p in from_lagna]
+    benefics_moon = [p for p in from_moon if p["name"] in BENEFIC_PLANETS]
+    benefics_lagna = [p for p in from_lagna if p["name"] in BENEFIC_PLANETS]
 
     present = bool(benefics_moon or benefics_lagna)
 
     if present:
         details = []
         if benefics_moon:
-            details.append(f"From Moon: {', '.join(benefics_moon)} in 10th.")
+            details.append(f"From Moon: {', '.join([p['name'] for p in benefics_moon])} in 10th.")
         if benefics_lagna:
-            details.append(f"From Ascendant: {', '.join(benefics_lagna)} in 10th.")
+            details.append(f"From Ascendant: {', '.join([p['name'] for p in benefics_lagna])} in 10th.")
         details = " ".join(details)
     else:
         details = "No benefic planets occupy the 10th house from Moon or Ascendant."
@@ -316,8 +345,8 @@ def parvata_yoga(yoga: Yoga):
     present = house_6_ok and house_8_ok
 
     details = (
-        f"6th house: {', '.join(house_6) or 'Empty'}; "
-        f"8th house: {', '.join(house_8) or 'Empty'}."
+        f"6th house: {', '.join([p['name'] for p in house_6]) or 'Empty'}; "
+        f"8th house: {', '.join([p['name'] for p in house_8]) or 'Empty'}."
     )
 
     return {
@@ -353,11 +382,11 @@ def vesi_yoga(yoga: Yoga):
     """
     planets = yoga.planets_in_relative_house("Sun", 2)
 
-    present = any(planet for planet in planets not in ["Moon"])
+    present = any(p["name"] != "Moon" for p in planets)
     return {
         "name": "Vesi Yoga",
         "present": present,
-        "details": f"Planets in 2nd house from Sun are {planets}",
+        "details": f"Planets in 2nd house from Sun are {[p['name'] for p in planets]}",
     }
 
 
@@ -368,11 +397,11 @@ def vasi_yoga(yoga: Yoga):
     """
     planets = yoga.planets_in_relative_house("Sun", 12)
 
-    present = any(planet for planet in planets not in ["Moon"])
+    present = any(p["name"] != "Moon" for p in planets)
     return {
         "name": "Vasi Yoga",
         "present": present,
-        "details": f"Planets in 12th house from Sun are {planets}",
+        "details": f"Planets in 12th house from Sun are {[p['name'] for p in planets]}",
     }
 
 
@@ -385,18 +414,18 @@ def obhayachari_yoga(yoga: Yoga):
         "Sun", 12
     )
 
-    present = any(planet for planet in planets not in ["Moon"])
+    present = any(p["name"] != "Moon" for p in planets)
     return {
         "name": "Obhayachari Yoga",
         "present": present,
-        "details": f"Planets in 2nd and 12th houses from Sun are {planets}",
+        "details": f"Planets in 2nd and 12th houses from Sun are {[p['name'] for p in planets]}",
     }
 
 
 @register_yoga("Hamsa Yoga")
 def hamsa_yoga(yoga: Yoga):
     """
-    Ju occupies a kendra of his own house or exalation sign.
+    Ju must be in Sg, Pi or Cn and must be place in a Kendra from Asc.
     """
     Cn_house = yoga.get_house_of_rashi("Cancer")
     Sg_house = yoga.get_house_of_rashi("Sagittarius")
