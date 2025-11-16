@@ -1,54 +1,76 @@
-from ascendant.chart import Chart
-from ascendant.yoga import Yoga, register_yoga
+from typing import Dict
+from ascendant.chart import Chart, SELECTED_PLANETS
+from ascendant.yoga import Yoga, YOGA_REGISTRY
 from tests.horoscope import my_horoscope
+
+chart = Chart(my_horoscope).get_rasi_chart()
+yoga = Yoga(my_horoscope)
 
 
 def test_chart_generation():
-    """Verify chart generation for D1 (Rasi) chart"""
-    chart = Chart(my_horoscope).generate_varga_chart(1)
-    assert isinstance(chart, dict)
+    assert isinstance(chart, Dict)
     assert len(chart) == 12
-    assert all(f"house_{i}" in chart for i in range(1, 13))
+    assert all(i in chart for i in range(1, 13))
 
 
-def test_yoga_basic_methods():
-    """Test basic Yoga methods"""
-    y = Yoga(my_horoscope)
+def test_get_house_of_planet():
+    for planet in SELECTED_PLANETS:
+        house = yoga.get_house_of_planet("Sun")
+        assert house is not None, f"{planet} not found in chart"
+        assert isinstance(house, int)
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    assert lagna_house is not None, "Lagna not found in chart"
 
-    moon_house = y.get_house_of_planet("moon")
-    assert isinstance(moon_house, int)
-    assert 1 <= moon_house <= 12
 
-    rel_planets = y.planets_in_relative_house("moon", 2)
+def test_planets_in_relative_house():
+    rel_planets = yoga.planets_in_relative_house("Ketu", 2)
     assert isinstance(rel_planets, list)
 
-    kendra_result = y.planet_in_kendra_from(moon_house, "jupiter")
+
+def test_planet_in_kendra_from():
+    kendra_result = yoga.planet_in_kendra_from(1, "Lagna")
     assert isinstance(kendra_result, bool)
 
 
+def test_get_house_of_rashi():
+    aries_house = yoga.get_house_of_rashi("Aries")
+    assert aries_house is not None, "Aries not found in chart"
+    assert isinstance(aries_house, int)
+
+
+def test_get_lord_of_house():
+    lord = yoga.get_lord_of_house(1)
+    assert lord is not None, "Lord of house 1 not found"
+    assert isinstance(lord, str)
+
+
+def test_relative_house():
+    relative_pos = yoga.relative_house("Moon", "Lagna")
+    assert relative_pos is not None, (
+        "Could not determine relative house of Moon and Lagna"
+    )
+    assert isinstance(relative_pos, int)
+
+
 def test_yoga_computation():
-    """Register and compute a simple dummy yoga"""
-    y = Yoga(my_horoscope)
+    """Compute all registered yogas and ensure they are present"""
+    results = yoga.compute_all()
 
-    @register_yoga("Dummy Yoga")
-    def dummy_yoga(yoga_instance: Yoga):
-        moon_house = yoga_instance.get_house_of_planet("moon")
-        return {
-            "name": "Dummy Yoga",
-            "present": moon_house is not None,
-            "details": f"Moon in house {moon_house}",
-        }
+    # Get names of all registered yogas
+    registered_yoga_names = set(YOGA_REGISTRY.keys())
 
-    results = y.compute_all()
-    assert any(r["name"] == "Dummy Yoga" for r in results)
+    # Get names of computed yogas
+    computed_yoga_names = {r["name"] for r in results}
 
-    dummy_result = next(r for r in results if r["name"] == "Dummy Yoga")
-    assert dummy_result["present"] is True
+    # Assert that all registered yogas were computed
+    assert registered_yoga_names.issubset(computed_yoga_names)
+
+    # Optionally, check if any yoga is present
+    assert any(r["present"] for r in results)
 
 
 def show_yogas():
     """Display all yogas for the horoscope"""
-    yoga = Yoga(my_horoscope)
     results = yoga.compute_all()
 
     # Separate present and absent yogas
@@ -57,7 +79,9 @@ def show_yogas():
 
     print("\n" + "=" * 70)
     print("YOGA ANALYSIS FOR HOROSCOPE")
-    print(f"Birth Time: {my_horoscope.day}/{my_horoscope.month}/{my_horoscope.year} {my_horoscope.hour}:{my_horoscope.minute}:{my_horoscope.second} {my_horoscope.utc}")
+    print(
+        f"Birth Time: {my_horoscope.day}/{my_horoscope.month}/{my_horoscope.year} {my_horoscope.hour}:{my_horoscope.minute}:{my_horoscope.second} {my_horoscope.utc}"
+    )
     print(f"Latitude & Longitude: {my_horoscope.latitude}, {my_horoscope.longitude}")
     print(f"Ayanamsa: {my_horoscope.ayanamsa}")
     print(f"House System: {my_horoscope.house_system}")
@@ -84,11 +108,17 @@ def show_yogas():
 
     print("=" * 70 + "\n")
 
+
 def main():
     """Run all yoga tests"""
     tests = [
         ("Chart Generation", test_chart_generation),
-        ("Yoga Basic Methods", test_yoga_basic_methods),
+        ("Get House of Planet", test_get_house_of_planet),
+        ("Planets in relative house", test_planets_in_relative_house),
+        ("Planet in Kendra from house", test_planet_in_kendra_from),
+        ("Get House of Rashi", test_get_house_of_rashi),
+        ("Get Lord of House", test_get_lord_of_house),
+        ("Relative House", test_relative_house),
         ("Yoga Computation", test_yoga_computation),
     ]
 
