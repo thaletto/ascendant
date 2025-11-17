@@ -58,12 +58,13 @@ class Chart:
             data = self.__horoscope__.get_rl_nl_sl_data(lon)
             target_sign, _ = get_divisional_target(lon, n)
             sign = getSignName(target_sign)
+            mapped_name = NODE_MAP.get(name, name)
 
             planet: PlanetType = {
-                "name": NODE_MAP.get(name, name),
+                "name": mapped_name,
                 "longitude": lon,
                 "is_retrograde": _planet.isRetrograde(),
-                "inSign": planetSignRelation(name, sign, lon),
+                "inSign": planetSignRelation(mapped_name, sign, lon),
                 "sign": {
                     "name": sign,
                     "lord": data.get("RasiLord", ""),
