@@ -1,3 +1,5 @@
+import functools
+import time
 from ascendant.const import ALLOWED_DIVISIONS
 from ascendant.chart import Chart
 from tests.horoscope import my_horoscope
@@ -5,6 +7,79 @@ from tests.horoscope import my_horoscope
 chart = Chart(my_horoscope)
 
 
+def timeit_individual_divisions(func):
+    """Decorator to measure execution time of individual division chart generations"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Store original get_varga_chakra_chart method
+        original_get_varga_chakra_chart = chart.get_varga_chakra_chart
+
+        # Create a timed version that tracks division timings
+        division_timings = []
+        original_results = {}
+
+        def timed_get_varga_chakra_chart(n):
+            start = time.perf_counter()
+            result = original_get_varga_chakra_chart(n)
+            elapsed = time.perf_counter() - start
+            division_timings.append((n, elapsed))
+            original_results[n] = result
+            return result
+
+        # Temporarily replace get_varga_chakra_chart with timed version
+        chart.get_varga_chakra_chart = timed_get_varga_chakra_chart
+
+        try:
+            total_start = time.perf_counter()
+            # Execute the test function
+            result = func(*args, **kwargs)
+            total_elapsed = time.perf_counter() - total_start
+
+            # Print timing summary
+            if division_timings:
+                print(f"\n{'=' * 70}")
+                print("CHART DIVISION TIMING SUMMARY")
+                print(f"{'=' * 70}")
+                print(f"Total time: {total_elapsed:.4f} seconds")
+                print(f"Number of divisions: {len(division_timings)}\n")
+
+                # Sort by time (slowest first)
+                division_timings.sort(key=lambda x: x[1], reverse=True)
+                print("Top 10 slowest divisions:")
+                print("-" * 70)
+                for division, elapsed in division_timings[:10]:
+                    percentage = (elapsed / total_elapsed) * 100
+                    print(
+                        f"  Division {division:2d}: {elapsed:8.6f} seconds ({percentage:5.2f}%)"
+                    )
+
+                if len(division_timings) > 10:
+                    print(f"\n... and {len(division_timings) - 10} more divisions\n")
+                else:
+                    print()
+
+                # Print statistics
+                times = [t[1] for t in division_timings]
+                avg_time = sum(times) / len(times) if times else 0
+                min_time = min(times) if times else 0
+                max_time = max(times) if times else 0
+
+                print("Statistics:")
+                print(f"\nAverage time per division: {avg_time:.6f} seconds")
+                print(f"\nFastest division: {min_time:.6f} seconds")
+                print(f"\nSlowest division: {max_time:.6f} seconds")
+                print(f"{'=' * 70}\n")
+
+            return result
+        finally:
+            # Restore original get_varga_chakra_chart method
+            chart.get_varga_chakra_chart = original_get_varga_chakra_chart
+
+    return wrapper
+
+
+@timeit_individual_divisions
 def test_generate_varga_chart_runs_for_allowed_divisions():
     """Test that varga charts can be generated for all allowed divisions"""
     for division in ALLOWED_DIVISIONS:
