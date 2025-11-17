@@ -1,3 +1,5 @@
+import functools
+import time
 from datetime import datetime
 
 from ascendant.dasha import Dasha
@@ -6,6 +8,175 @@ from tests.horoscope import my_horoscope
 dasha = Dasha(my_horoscope)
 
 
+def timeit_individual_dashas(func):
+    """Decorator to measure execution time of dasha operations"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Store original methods
+        original_get_dasha_timeline = dasha.get_dasha_timeline
+        original_get_antardasha_by_index = dasha.get_antardasha_by_index
+
+        # Track timings
+        get_dasha_timeline_calls = []
+        get_antardasha_timings = []
+
+        def timed_get_dasha_timeline():
+            start = time.perf_counter()
+            result = original_get_dasha_timeline()
+            elapsed = time.perf_counter() - start
+            get_dasha_timeline_calls.append(elapsed)
+
+            # Time individual mahadashas (by measuring each entry processing)
+            if result:
+                mahadasha_timings = []
+                for entry in result:
+                    mahadasha_start = time.perf_counter()
+                    # Simulate processing time by accessing all fields
+                    _ = entry.get("mahadasha")
+                    _ = entry.get("start")
+                    _ = entry.get("end")
+                    _ = len(entry.get("antardashas", []))
+                    mahadasha_elapsed = time.perf_counter() - mahadasha_start
+                    mahadasha_timings.append(
+                        (entry.get("mahadasha"), mahadasha_elapsed)
+                    )
+
+                # Store mahadasha timings for later display
+                if mahadasha_timings:
+                    wrapper._mahadasha_timings = mahadasha_timings
+
+                # Time individual antardashas
+                antardasha_timings = []
+                for entry in result:
+                    mahadasha = entry.get("mahadasha")
+                    for antardasha in entry.get("antardashas", []):
+                        antardasha_start = time.perf_counter()
+                        _ = antardasha.get("antardasha")
+                        _ = antardasha.get("start")
+                        _ = antardasha.get("end")
+                        antardasha_elapsed = time.perf_counter() - antardasha_start
+                        antardasha_timings.append(
+                            (
+                                mahadasha,
+                                antardasha.get("antardasha"),
+                                antardasha_elapsed,
+                            )
+                        )
+
+                # Store antardasha timings for later display
+                if antardasha_timings:
+                    wrapper._antardasha_timings = antardasha_timings
+
+            return result
+
+        def timed_get_antardasha_by_index(n):
+            start = time.perf_counter()
+            result = original_get_antardasha_by_index(n)
+            elapsed = time.perf_counter() - start
+            get_antardasha_timings.append((n, elapsed))
+            return result
+
+        # Temporarily replace methods with timed versions
+        dasha.get_dasha_timeline = timed_get_dasha_timeline
+        dasha.get_antardasha_by_index = timed_get_antardasha_by_index
+
+        try:
+            total_start = time.perf_counter()
+            # Execute the test function
+            result = func(*args, **kwargs)
+            total_elapsed = time.perf_counter() - total_start
+
+            # Print timing summary
+            if get_dasha_timeline_calls or get_antardasha_timings:
+                print(f"\n{'=' * 70}")
+                print("DASHA TIMING SUMMARY")
+                print(f"{'=' * 70}")
+                print(f"Total test time: {total_elapsed:.4f} seconds\n")
+
+                # Display get_dasha_timeline timing
+                if get_dasha_timeline_calls:
+                    timeline_time = sum(get_dasha_timeline_calls)
+                    print(
+                        f"get_dasha_timeline() calls: {len(get_dasha_timeline_calls)}"
+                    )
+                    print(
+                        f"Total timeline computation time: {timeline_time:.4f} seconds"
+                    )
+                    print(
+                        f"Average per call: {timeline_time / len(get_dasha_timeline_calls):.6f} seconds"
+                    )
+
+                    # Display mahadasha timings if available
+                    if (
+                        hasattr(wrapper, "_mahadasha_timings")
+                        and wrapper._mahadasha_timings
+                    ):
+                        print(
+                            f"\nMahadashas processed: {len(wrapper._mahadasha_timings)}"
+                        )
+                        mahadasha_times = [t[1] for t in wrapper._mahadasha_timings]
+                        avg_maha = (
+                            sum(mahadasha_times) / len(mahadasha_times)
+                            if mahadasha_times
+                            else 0
+                        )
+                        print(
+                            f"Average mahadasha processing time: {avg_maha:.6f} seconds"
+                        )
+
+                    # Display antardasha timings if available
+                    if (
+                        hasattr(wrapper, "_antardasha_timings")
+                        and wrapper._antardasha_timings
+                    ):
+                        print(
+                            f"\nAntardashas processed: {len(wrapper._antardasha_timings)}"
+                        )
+                        antardasha_times = [t[2] for t in wrapper._antardasha_timings]
+                        avg_antar = (
+                            sum(antardasha_times) / len(antardasha_times)
+                            if antardasha_times
+                            else 0
+                        )
+                        min_antar = min(antardasha_times) if antardasha_times else 0
+                        max_antar = max(antardasha_times) if antardasha_times else 0
+                        print(
+                            f"Average antardasha processing time: {avg_antar:.6f} seconds"
+                        )
+                        print(f"Fastest antardasha: {min_antar:.6f} seconds")
+                        print(f"Slowest antardasha: {max_antar:.6f} seconds")
+
+                # Display get_antardasha_by_index timings
+                if get_antardasha_timings:
+                    print(
+                        f"\nget_antardasha_by_index() calls: {len(get_antardasha_timings)}"
+                    )
+                    antar_index_times = [t[1] for t in get_antardasha_timings]
+                    total_antar_index = sum(antar_index_times)
+                    avg_antar_index = (
+                        total_antar_index / len(antar_index_times)
+                        if antar_index_times
+                        else 0
+                    )
+                    print(f"Total index lookup time: {total_antar_index:.6f} seconds")
+                    print(f"Average per lookup: {avg_antar_index:.6f} seconds")
+                    print("\nIndividual lookup timings:")
+                    for idx, elapsed in get_antardasha_timings:
+                        print(f"  Index {idx:4d}: {elapsed:.6f} seconds")
+
+                print(f"{'=' * 70}\n")
+
+            return result
+        finally:
+            # Restore original methods
+            dasha.get_dasha_timeline = original_get_dasha_timeline
+            dasha.get_antardasha_by_index = original_get_antardasha_by_index
+
+    return wrapper
+
+
+@timeit_individual_dashas
 def test_get_vimshottari_dasha_returns_list():
     """Test that get_dasha_timeline returns a list of dictionaries."""
     result = dasha.get_dasha_timeline()
@@ -14,6 +185,7 @@ def test_get_vimshottari_dasha_returns_list():
     assert len(result) > 0
 
 
+@timeit_individual_dashas
 def test_get_vimshottari_dasha_structure():
     """Test the structure of each element in Vimshottari Dasha result."""
     result = dasha.get_dasha_timeline()
