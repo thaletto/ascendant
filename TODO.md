@@ -9,7 +9,6 @@
 
 ### Test
 
-- [ ] Update `tests/dasha.py`
 - [ ] Use PyTest
 - [ ] Measure the latency
 
