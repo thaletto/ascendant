@@ -1,6 +1,6 @@
-from typing import Dict
+from typing import Dict, List
 from ascendant.const import BENEFIC_PLANETS
-from ascendant.types import PLANETS, YogaType
+from ascendant.types import PLANETS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
@@ -848,6 +848,52 @@ def Sasa(yoga: Yoga) -> YogaType:
         kendra_pos = (sa_house - lagna_house + 12) % 12 + 1
         strength = kendra_strength_map.get(kendra_pos, 0.5)
         if sa_rashi == exaltation_sign:
+            strength *= 1.2
+        result["strength"] = min(1.0, strength)
+
+    return result
+
+
+@register_yoga("Ruchaka")
+def Ruchaka(yoga: Yoga) -> YogaType:
+    """
+    Ma must be in Ar, Sc or Cp and must be place in a Kendra from Asc
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Ruchaka",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    ma_house = yoga.get_house_of_planet("Mars")
+    if not ma_house:
+        result["details"] = "Mars not found."
+        return result
+
+    ma_rashi = yoga.get_rashi_of_house(ma_house)
+
+    own_signs: List[RASHIS] = ["Aries", "Scorpio"]
+    exaltation_sign: RASHIS = "Capricorn"
+
+    in_own_or_exalted_sign = ma_rashi in own_signs or ma_rashi == exaltation_sign
+
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    in_kendra = False
+    if lagna_house:
+        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Mars")
+
+    result["present"] = in_own_or_exalted_sign and in_kendra
+
+    result["details"] = f"Mars is in {ma_rashi} (house {ma_house})."
+
+    if result["present"] and lagna_house:
+        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
+        kendra_pos = (ma_house - lagna_house + 12) % 12 + 1
+        strength = kendra_strength_map.get(kendra_pos, 0.5)
+        if ma_rashi == exaltation_sign:
             strength *= 1.2
         result["strength"] = min(1.0, strength)
 
