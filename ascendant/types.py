@@ -69,6 +69,16 @@ PADA = Literal[1, 2, 3, 4]
 
 ALLOWED_DIVISIONS = Literal[1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]
 
+PLANET_SIGN_RELATION = Literal[
+    "Exalted",
+    "Moola Trikona",
+    "Own",
+    "Friend",
+    "Neutral",
+    "Enemy",
+    "Debilitated",
+]
+
 
 class NakshatraType(TypedDict):
     name: NAKSHATRAS
@@ -86,9 +96,7 @@ class PlanetType(TypedDict):
     name: PLANETS
     longitude: float
     is_retrograde: bool
-    inSign: Literal[
-        "Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"
-    ]
+    inSign: List[PLANET_SIGN_RELATION]
     sign: PlanetOrLagnaSignType
 
 
