@@ -10,7 +10,6 @@
 ### Test
 
 - [ ] Use PyTest
-- [ ] Measure the latency
 
 ### API
 
