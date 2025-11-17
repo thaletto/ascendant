@@ -63,7 +63,7 @@ class Chart:
                 "name": NODE_MAP.get(name, name),
                 "longitude": lon,
                 "is_retrograde": _planet.isRetrograde(),
-                "inSign": planetSignRelation(name, sign),
+                "inSign": planetSignRelation(name, sign, lon),
                 "sign": {
                     "name": sign,
                     "lord": data.get("RasiLord", ""),
