@@ -737,8 +737,8 @@ def Hamsa(yoga: Yoga) -> YogaType:
 
     ju_rashi = yoga.get_rashi_of_house(ju_house)
 
-    own_signs = ["Sagittarius", "Pisces"]
-    exaltation_sign = "Cancer"
+    own_signs: List[RASHIS] = ["Sagittarius", "Pisces"]
+    exaltation_sign: RASHIS = "Cancer"
 
     in_own_or_exalted_sign = ju_rashi in own_signs or ju_rashi == exaltation_sign
 
@@ -783,8 +783,8 @@ def Malavya(yoga: Yoga) -> YogaType:
 
     ve_rashi = yoga.get_rashi_of_house(ve_house)
 
-    own_signs = ["Taurus", "Libra"]
-    exaltation_sign = "Pisces"
+    own_signs: List[RASHIS] = ["Taurus", "Libra"]
+    exaltation_sign: RASHIS = "Pisces"
 
     in_own_or_exalted_sign = ve_rashi in own_signs or ve_rashi == exaltation_sign
 
@@ -829,8 +829,8 @@ def Sasa(yoga: Yoga) -> YogaType:
 
     sa_rashi = yoga.get_rashi_of_house(sa_house)
 
-    own_signs = ["Capricorn", "Aquarius"]
-    exaltation_sign = "Libra"
+    own_signs: List[RASHIS] = ["Capricorn", "Aquarius"]
+    exaltation_sign: RASHIS = "Libra"
 
     in_own_or_exalted_sign = sa_rashi in own_signs or sa_rashi == exaltation_sign
 
