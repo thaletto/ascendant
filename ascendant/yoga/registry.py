@@ -898,3 +898,49 @@ def Ruchaka(yoga: Yoga) -> YogaType:
         result["strength"] = min(1.0, strength)
 
     return result
+
+
+@register_yoga("Bhadra")
+def Bhadra(yoga: Yoga) -> YogaType:
+    """
+    Ma must be in Ge or Vi and must be place in a Kendra from Asc
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Bhadra",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    me_house = yoga.get_house_of_planet("Mercury")
+    if not me_house:
+        result["details"] = "Mercury not found."
+        return result
+
+    me_rashi = yoga.get_rashi_of_house(me_house)
+
+    own_signs: List[RASHIS] = ["Gemini", "Virgo"]
+    exaltation_sign: RASHIS = "Virgo"
+
+    in_own_or_exalted_sign = me_house in own_signs or me_rashi == exaltation_sign
+
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    in_kendra = False
+    if lagna_house:
+        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Mercury")
+
+    result["present"] = in_own_or_exalted_sign and in_kendra
+
+    result["details"] = f"Mars is in {me_rashi} (house {me_house})."
+
+    if result["present"] and lagna_house:
+        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
+        kendra_pos = (me_house - lagna_house + 12) % 12 + 1
+        strength = kendra_strength_map.get(kendra_pos, 0.5)
+        if me_rashi == exaltation_sign:
+            strength *= 1.2
+        result["strength"] = min(1.0, strength)
+
+    return result
