@@ -1,6 +1,8 @@
 ## Ascendant
 
 - [ ] Add all yogas
+- [ ] Optimise the yoga registry functions.
+    - Skip yogas based on predefined calculations
 
 ### Test
 
