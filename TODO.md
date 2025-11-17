@@ -8,7 +8,6 @@
 
 ### Test
 
-- [ ] Update `tests/chart.py`
 - [ ] Update `tests/dasha.py`
 - [ ] Use PyTest
 - [ ] Measure the latency
