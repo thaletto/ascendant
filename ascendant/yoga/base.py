@@ -5,10 +5,11 @@ from ascendant.types import (
     PLANETS_LAGNA,
     RASHI_LORDS,
     RASHIS,
+    PlanetType,
     PlanetsType,
     YogaType,
 )
-from ascendant.const import RASHI_LORD_MAP
+from ascendant.const import RASHI_LORD_MAP, MALEFIC_PLANETS
 from ascendant.utils import yogaNameToId
 
 YogaFunction = Callable[["Yoga"], YogaType]
@@ -33,7 +34,8 @@ class Yoga:
     def __init__(self, horoscope: VedicHoroscopeData):
         from ascendant.chart import Chart
 
-        self.chart = Chart(horoscope).get_rasi_chart()
+        self.__chart__ = Chart(horoscope)
+        self.chart = self.__chart__.get_rasi_chart()
 
     def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES:
         """Return house number where planet is located in the chart"""
@@ -107,3 +109,32 @@ class Yoga:
             results.append(result)
 
         return results
+
+    def is_planet_unafflicted(self, planet: PlanetType, planet_house: HOUSES) -> bool:
+        """
+        Check if a benefic planet is unafflicted.
+        A planet is unafflicted if:
+        - It's not debilitated
+        - It's not in enemy sign
+        - It's not aspected by malefics
+        """
+
+        if any(status in planet["inSign"] for status in ["Debilitated", "Enemy"]):
+            return False
+
+        # Check if aspected by malefics
+        chart = self.__chart__
+        for malefic in MALEFIC_PLANETS:
+            try:
+                malefic_aspects = chart.graha_drishti(n=1, planet=malefic)
+                if malefic_aspects:
+                    aspect_data = malefic_aspects[0]
+                    aspect_houses = aspect_data.get("aspect_houses", [])
+
+                    for house_dict in aspect_houses:
+                        if planet_house in house_dict:
+                            return False
+            except (KeyError, IndexError, TypeError):
+                continue
+
+        return True
