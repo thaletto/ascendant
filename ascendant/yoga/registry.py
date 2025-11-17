@@ -944,3 +944,24 @@ def Bhadra(yoga: Yoga) -> YogaType:
         result["strength"] = min(1.0, strength)
 
     return result
+
+
+@register_yoga("BuddhaAditya")
+def BuddhaAditya(yoga: Yoga) -> YogaType:
+    """
+    Me combines with the Su
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "BuddhaAditya",
+        "present": False,
+        "strength": 1.0,
+        "details": "",
+        "type": "Positive",
+    }
+    me_house = yoga.get_house_of_planet("Mercury")
+    su_house = yoga.get_house_of_planet("Sun")
+    result["present"] = me_house == su_house
+    result["details"] = f"Mercury is in house {me_house} and Sun is in house {su_house}"
+
+    return result
