@@ -1,3 +1,5 @@
+import functools
+import time
 from typing import Dict
 from ascendant.chart import Chart, SELECTED_PLANETS
 from ascendant.yoga import Yoga, YOGA_REGISTRY
@@ -52,6 +54,80 @@ def test_relative_house():
     assert isinstance(relative_pos, int)
 
 
+def timeit_individual_yogas(func):
+    """Decorator to measure execution time of individual yoga computations"""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # Store original compute_all method
+        original_compute_all = yoga.compute_all
+
+        # Create a timed version of compute_all
+        def timed_compute_all():
+            total_start = time.perf_counter()
+
+            # Time individual yoga computations
+            yoga_timings = []
+            results = []
+
+            for name, func in YOGA_REGISTRY.items():
+                start = time.perf_counter()
+                result = func(yoga)
+                elapsed = time.perf_counter() - start
+                yoga_timings.append((name, elapsed))
+                results.append(result)
+
+            total_elapsed = time.perf_counter() - total_start
+
+            # Print timing summary
+            print(f"\n{'=' * 70}")
+            print("YOGA TIMING SUMMARY")
+            print(f"{'=' * 70}")
+            print(f"Total time: {total_elapsed:.4f} seconds")
+            print(f"Number of yogas: {len(yoga_timings)}\n")
+
+            # Sort by time (slowest first)
+            yoga_timings.sort(key=lambda x: x[1], reverse=True)
+            print("Top 10 slowest yogas:")
+            print("-" * 70)
+            for name, elapsed in yoga_timings[:10]:
+                percentage = (elapsed / total_elapsed) * 100
+                print(f"  {name:30s}: {elapsed:8.6f} seconds ({percentage:5.2f}%)")
+
+            if len(yoga_timings) > 10:
+                print(f"\n... and {len(yoga_timings) - 10} more yogas\n")
+            else:
+                print()
+
+            # Print statistics
+            times = [t[1] for t in yoga_timings]
+            avg_time = sum(times) / len(times) if times else 0
+            min_time = min(times) if times else 0
+            max_time = max(times) if times else 0
+
+            print("Statistics:")
+            print(f"\nAverage time per yoga: {avg_time:.6f} seconds")
+            print(f"\nFastest yoga: {min_time:.6f} seconds")
+            print(f"\nSlowest yoga: {max_time:.6f} seconds")
+            print(f"{'=' * 70}\n")
+
+            return results
+
+        # Temporarily replace compute_all with timed version
+        yoga.compute_all = timed_compute_all
+
+        try:
+            # Execute the test function
+            result = func(*args, **kwargs)
+            return result
+        finally:
+            # Restore original compute_all method
+            yoga.compute_all = original_compute_all
+
+    return wrapper
+
+
+@timeit_individual_yogas
 def test_yoga_computation():
     """Compute all registered yogas and ensure they are present"""
     results = yoga.compute_all()
@@ -72,7 +148,7 @@ def test_yoga_computation():
 def show_yogas():
     """Display all yogas for the horoscope"""
     results = yoga.compute_all()
-    
+
     # Separate present and absent yogas
     present_yogas = [r for r in results if r.get("present", False)]
     absent_yogas = [r for r in results if not r.get("present", False)]
