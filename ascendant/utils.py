@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import re
-from typing import Literal, Union
-from ascendant.types import HOUSES, PLANETS, RASHIS
+from typing import List, Union
+from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 
 
@@ -30,162 +30,188 @@ def parseDate(s: Union[str, datetime]) -> datetime:
 
 
 def planetSignRelation(
-    planet: PLANETS, sign: RASHIS
-) -> Literal[
-    "Exalted", "Own", "Own Exalted", "Debilitated", "Friend", "Neutral", "Enemy"
-]:
+    planet: PLANETS, sign: RASHIS, lon: float
+) -> List[PLANET_SIGN_RELATION]:
+    # -------------------------
+    # Moola Trikona degree map
+    # -------------------------
+    moolatrikona_ranges = {
+        "Sun": ("Leo", (0, 20)),
+        "Moon": ("Taurus", (4, 30)),
+        "Mars": ("Aries", (0, 12)),
+        "Mercury": ("Virgo", (16, 20)),
+        "Jupiter": ("Sagittarius", (0, 10)),
+        "Venus": ("Libra", (0, 15)),
+        "Saturn": ("Aquarius", (0, 20)),
+    }
+
+    results: List[PLANET_SIGN_RELATION] = []
+
+    # -------------------------
+    # Helper: check MT
+    # -------------------------
+    if planet in moolatrikona_ranges:
+        mt_sign, (start, end) = moolatrikona_ranges[planet]
+        if sign == mt_sign and start <= lon % 30 <= end:
+            results.append("Moola Trikona")
+
+    # -------------------------
+    # Basic classification per sign
+    # -------------------------
     match sign:
         case "Aries":
             match planet:
                 case "Sun":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Mars":
-                    return "Own"
+                    results.append("Own")
                 case "Saturn":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Jupiter":
-                    return "Friend"
+                    results.append("Friend")
                 case "Mercury" | "Venus":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Enemy"
+                    results.append("Enemy")
 
         case "Taurus":
             match planet:
                 case "Moon":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Venus":
-                    return "Own"
+                    results.append("Own")
                 case "Rahu" | "Ketu":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Mercury" | "Saturn":
-                    return "Friend"
+                    results.append("Friend")
                 case "Mars":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Enemy"
+                    results.append("Enemy")
 
         case "Gemini":
             match planet:
                 case "Mercury":
-                    return "Own"
+                    results.append("Own")
                 case "Sun":
-                    return "Neutral"
+                    results.append("Neutral")
                 case "Mars" | "Jupiter":
-                    return "Enemy"
+                    results.append("Enemy")
                 case _:
-                    return "Friend"
+                    results.append("Friend")
 
         case "Cancer":
             match planet:
                 case "Jupiter":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Moon":
-                    return "Own"
+                    results.append("Own")
                 case "Mars":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Sun":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Enemy"
+                    results.append("Enemy")
 
         case "Leo":
             match planet:
                 case "Sun":
-                    return "Own"
+                    results.append("Own")
                 case "Moon" | "Mars" | "Mercury" | "Jupiter":
-                    return "Friend"
+                    results.append("Friend")
                 case _:
-                    return "Enemy"
+                    results.append("Enemy")
 
         case "Virgo":
             match planet:
                 case "Mercury":
-                    return "Own Exalted"
+                    results.extend(["Own", "Exalted"])  # Your requirement
                 case "Venus":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Sun":
-                    return "Neutral"
+                    results.append("Neutral")
                 case "Mars":
-                    return "Enemy"
+                    results.append("Enemy")
                 case _:
-                    return "Friend"
+                    results.append("Friend")
 
         case "Libra":
             match planet:
                 case "Saturn":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Venus":
-                    return "Own"
+                    results.append("Own")
                 case "Sun":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Jupiter":
-                    return "Enemy"
+                    results.append("Enemy")
                 case "Moon" | "Mars":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Friend"
+                    results.append("Friend")
 
         case "Scorpio":
             match planet:
                 case "Rahu" | "Ketu":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Mars":
-                    return "Own"
+                    results.append("Own")
                 case "Moon":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Saturn":
-                    return "Enemy"
+                    results.append("Enemy")
                 case "Sun" | "Jupiter":
-                    return "Friend"
+                    results.append("Friend")
                 case _:
-                    return "Neutral"
+                    results.append("Neutral")
 
         case "Sagittarius":
             match planet:
                 case "Jupiter":
-                    return "Own"
+                    results.append("Own")
                 case "Moon" | "Mercury" | "Saturn":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Friend"
+                    results.append("Friend")
 
         case "Capricorn":
             match planet:
                 case "Mars":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Saturn":
-                    return "Own"
+                    results.append("Own")
                 case "Jupiter":
-                    return "Debilitated"
+                    results.append("Debilitated")
                 case "Sun":
-                    return "Enemy"
+                    results.append("Enemy")
                 case "Mercury" | "Moon":
-                    return "Neutral"
+                    results.append("Neutral")
                 case _:
-                    return "Friend"
+                    results.append("Friend")
 
         case "Aquarius":
             match planet:
                 case "Saturn":
-                    return "Own"
+                    results.append("Own")
                 case "Venus":
-                    return "Friend"
+                    results.append("Friend")
                 case "Sun" | "Rahu" | "Ketu":
-                    return "Enemy"
+                    results.append("Enemy")
                 case _:
-                    return "Neutral"
+                    results.append("Neutral")
 
         case "Pisces":
             match planet:
                 case "Venus":
-                    return "Exalted"
+                    results.append("Exalted")
                 case "Jupiter":
-                    return "Own"
+                    results.append("Own")
                 case "Sun" | "Rahu" | "Ketu":
-                    return "Friend"
+                    results.append("Friend")
                 case "Moon" | "Saturn":
-                    return "Neutral"
+                    results.append("Neutral")
+
+    return results
 
 
 def yogaNameToId(name: str) -> str:
