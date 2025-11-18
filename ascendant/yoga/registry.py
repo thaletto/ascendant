@@ -1603,3 +1603,94 @@ def Bheri(yoga: Yoga) -> YogaType:
     )
 
     return result
+
+
+@register_yoga("Gaja")
+def Gaja(yoga: Yoga) -> YogaType:
+    """
+    Lord of the 9th from the 11th occupies the 11th in conjuction with the Moon and aspected by the lord of the 11th
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Gaja",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Calculate 9th house from 11th: (11 + 9 - 1) % 12 = 7
+    lord_of_7 = yoga.get_lord_of_house(7)
+    if not lord_of_7:
+        result["details"] = "Could not determine lord of 7th house."
+        return result
+
+    # Get lord of 11th house
+    lord_of_11 = yoga.get_lord_of_house(11)
+    if not lord_of_11:
+        result["details"] = "Could not determine lord of 11th house."
+        return result
+
+    # Check if lord of 7th is in house 11
+    house_of_lord_7 = yoga.get_house_of_planet(lord_of_7)
+    if not house_of_lord_7:
+        result["details"] = f"Could not find house for lord of 7th ({lord_of_7})."
+        return result
+
+    if house_of_lord_7 != 11:
+        result["details"] = (
+            f"Lord of 7th ({lord_of_7}) is in house {house_of_lord_7}, not in 11th house."
+        )
+        return result
+
+    # Check if Moon is in house 11 (conjunction with lord of 7th)
+    moon_house = yoga.get_house_of_planet("Moon")
+    if not moon_house:
+        result["details"] = "Could not find Moon."
+        return result
+
+    if moon_house != 11:
+        result["details"] = (
+            f"Moon is in house {moon_house}, not in 11th house with lord of 7th."
+        )
+        return result
+
+    # Check if lord of 11th aspects house 11
+    chart = yoga.__chart__
+    try:
+        lord_of_11_aspects = chart.graha_drishti(n=1, planet=lord_of_11)[0]
+        aspect_houses = lord_of_11_aspects.get("aspect_houses", [])
+    except (KeyError, IndexError, TypeError):
+        result["details"] = (
+            f"Could not determine aspects of lord of 11th ({lord_of_11})."
+        )
+        return result
+
+    is_aspect = any(11 in house_dict for house_dict in aspect_houses)
+    if not is_aspect:
+        result["details"] = f"Lord of 11th ({lord_of_11}) does not aspect house 11."
+        return result
+
+    # All conditions met - calculate strength
+    # Strength based on conjunction (1.0) and aspect (0.8)
+    conjunction_strength = 1.0  # Lord of 7th and Moon in same house
+    aspect_strength = 0.8  # Lord of 11th aspects house 11
+
+    # Check if lord of 7th is powerful for additional strength
+    lord_of_7_planet = yoga.get_planet_by_name(lord_of_7)
+    lord_of_7_power_strength = 0.5  # default
+    if lord_of_7_planet:
+        is_powerful, power_strength = yoga.isPlanetPowerful(lord_of_7_planet)
+        if is_powerful:
+            lord_of_7_power_strength = power_strength
+
+    result["present"] = True
+    result["strength"] = (
+        conjunction_strength + aspect_strength + lord_of_7_power_strength
+    ) / 3
+    result["details"] = (
+        f"Lord of 7th ({lord_of_7}) in house 11 in conjunction with Moon. "
+        f"Lord of 11th ({lord_of_11}) aspects house 11."
+    )
+
+    return result
