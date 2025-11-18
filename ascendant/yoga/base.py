@@ -1,7 +1,8 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Tuple
 from vedicastro.VedicAstro import VedicHoroscopeData
 from ascendant.types import (
     HOUSES,
+    PLANET_SIGN_RELATION,
     PLANETS_LAGNA,
     RASHI_LORDS,
     RASHIS,
@@ -101,14 +102,35 @@ class Yoga:
         relative_pos = (house2 - house1) % 12 + 1
         return relative_pos if relative_pos != 0 else 12
 
-    def compute_all(self) -> List[Dict]:
-        """Compute all registered yogas"""
-        results = []
-        for name, func in YOGA_REGISTRY.items():
-            result = func(self)
-            results.append(result)
+    def isPlanetPowerful(self, planet: PlanetType) -> Tuple[bool, float]:
+        """Checks if a planet in the chart is powerful"""
+        relation = planet.get("inSign")
+        name = planet.get("name")
+        if not relation or not name:
+            return False, 0.0
 
-        return results
+        strength_map: Dict[PLANET_SIGN_RELATION, float] = {
+            "Exalted": 1.0,
+            "Moola Trikona": 0.85,
+            "Own": 0.7,
+            "Friend": 0.5,
+        }
+
+        is_powerful = False
+        strength = 0.0
+
+        if relation in strength_map:
+            if relation == "Friend":
+                # Only powerful if Friend and also in kendra from Lagna (house 1)
+                in_kendra = self.planet_in_kendra_from(1, name)
+                if in_kendra:
+                    is_powerful = True
+                    strength = strength_map["Friend"]
+            else:
+                is_powerful = True
+                strength = strength_map[relation]
+
+        return is_powerful, strength
 
     def is_planet_unafflicted(self, planet: PlanetType, planet_house: HOUSES) -> bool:
         """
@@ -138,3 +160,12 @@ class Yoga:
                 continue
 
         return True
+
+    def compute_all(self) -> List[Dict]:
+        """Compute all registered yogas"""
+        results = []
+        for name, func in YOGA_REGISTRY.items():
+            result = func(self)
+            results.append(result)
+
+        return results

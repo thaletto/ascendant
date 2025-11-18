@@ -1,6 +1,6 @@
 from typing import Dict, List
 from ascendant.const import BENEFIC_PLANETS
-from ascendant.types import PLANET_SIGN_RELATION, PLANETS, RASHIS, YogaType
+from ascendant.types import PLANETS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
@@ -972,8 +972,8 @@ def Pushkala(yoga: Yoga) -> YogaType:
     """
     Pushkala Yoga:
     1. Lord of Moon's sign is associated with Lagna lord (aspect/conjunction)
-    2. That lord is in a Kendra OR in an intimate friend's sign
-    3. That lord aspects Lagna directly
+    2. Moon's lord is in a Kendra OR in an intimate friend's sign
+    3. Moon's lord aspects Lagna directly
     4. Lagna is occupied by a powerful planet
     """
     result: YogaType = {
@@ -1011,102 +1011,47 @@ def Pushkala(yoga: Yoga) -> YogaType:
         result["details"] = "Could not determine moon lord aspects"
         return result
 
-    conditions = []
-    POWERFUL_RELATIONS: List[PLANET_SIGN_RELATION] = [
-        "Own",
-        "Exalted",
-        "Moola Trikona",
-        "Friend",
-    ]
-
     # Condition 1: Association (aspect or conjunction)
     is_conjunction = lagna_lord_house == moon_lord_house
     is_aspect = any(lagna_lord_house in house_dict for house_dict in aspect_houses)
     condition1 = is_conjunction or is_aspect
-
-    if condition1:
-        condition_type = "conjunction" if is_conjunction else "aspect"
-        conditions.append(
-            f"Condition 1: Moon-sign-lord {moon_lord} is associated with Lagna lord "
-            f"{lagna_lord} ({condition_type})"
-        )
-    else:
-        conditions.append(
-            f"Condition 1: Moon-sign-lord {moon_lord} is NOT associated with Lagna lord {lagna_lord}"
-        )
+    strength1 = 1.0 if is_conjunction else 0.8 if is_aspect else 0.0
 
     # Condition 2: Kendra or Friend Sign
     in_kendra = yoga.planet_in_kendra_from(lagna_house, moon_lord)
-
-    # Find moon lord planet to check sign
     moon_lord_planet = next(
         (p for p in yoga.chart[moon_lord_house]["planets"] if p["name"] == moon_lord),
         None,
     )
-    in_friend_sign = moon_lord_planet and "Friend" in moon_lord_planet["inSign"]
+    in_friend_sign = bool(moon_lord_planet and "Friend" in moon_lord_planet["inSign"])
     condition2 = in_kendra or in_friend_sign
-
-    if condition2:
-        condition_desc = "in Kendra" if in_kendra else "in friend's sign"
-        conditions.append(
-            f"Condition 2: Moon-sign-lord {moon_lord} is {condition_desc}"
-        )
-    else:
-        conditions.append(
-            f"Condition 2: Moon-sign-lord {moon_lord} is NOT in Kendra or friend's sign"
-        )
+    strength2 = 1.0 if in_kendra else 0.8 if in_friend_sign else 0.0
 
     # Condition 3: Aspect to Lagna
     condition3 = any(lagna_house in house_dict for house_dict in aspect_houses)
-
-    if condition3:
-        conditions.append(
-            f"Condition 3: Moon-sign-lord {moon_lord} aspects the Lagna (house {lagna_house})"
-        )
-    else:
-        conditions.append(
-            f"Condition 3: Moon-sign-lord {moon_lord} does NOT aspect the Lagna (house {lagna_house})"
-        )
+    strength3 = 1.0 if condition3 else 0.0
 
     # Condition 4: Lagna has a powerful planet
     lagna_planets = yoga.planets_in_relative_house("Lagna", 1)
-    powerful_planets_info = []
-
+    condition4 = False
+    strength4 = 0.0
     for planet in lagna_planets:
-        planet_name = planet["name"]
-        planet_house = yoga.get_house_of_planet(planet_name)
-        if not planet_house:
-            continue
-
-        reasons = [
-            relation for relation in POWERFUL_RELATIONS if relation in planet["inSign"]
-        ]
-
-        if planet_name in BENEFIC_PLANETS and yoga.is_planet_unafflicted(
-            planet, planet_house
-        ):
-            reasons.append("benefic unafflicted")
-
-        if reasons:
-            reason_str = ", ".join(reasons)
-            powerful_planets_info.append(f"{planet_name} ({reason_str})")
-
-    condition4 = len(powerful_planets_info) > 0
-
-    if condition4:
-        conditions.append(
-            f"Condition 4: Lagna contains powerful planet(s): {'; '.join(powerful_planets_info)}"
-        )
-    else:
-        conditions.append("Condition 4: Lagna does NOT contain any powerful planets")
+        is_powerful, planet_strength = yoga.isPlanetPowerful(planet)
+        if is_powerful:
+            condition4 = True
+            strength4 = max(strength4, planet_strength)
 
     # Final evaluation
     result["present"] = condition1 and condition2 and condition3 and condition4
-    result["strength"] = 1.0 if result["present"] else 0.0
+    result["strength"] = (strength1 + strength2 + strength3 + strength4) / 4
 
     status = "formed" if result["present"] else "not formed"
-    result["details"] = (
-        f"Pushkala Yoga {status}\n{'\n'.join(conditions)}"
-    )
+    result["details"] = f"""Pushkala Yoga {status}
+        \nCondition 1: {condition1} Strength 1: {strength1}
+        \nCondition 2: {condition2} Strength 2: {strength2}
+        \nCondition 3: {condition3} Strength 3: {strength3}
+        \nCondition 4: {condition4} Strength 1: {strength4}
+        \nTotal Strength: {result["strength"]}
+        """
 
     return result
