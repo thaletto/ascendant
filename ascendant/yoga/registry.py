@@ -1111,7 +1111,7 @@ def Lakshmi(yoga: Yoga) -> YogaType:
 @register_yoga("Gauri")
 def Gauri(yoga: Yoga) -> YogaType:
     """
-    The Lord of the Navamsa
+    The Lord of the Navamsa, occupied by the Lord of the tenth, joins the tenth house in exaltation and combines with the Lord of Lagna.
     """
     result: YogaType = {
         "id": "",
