@@ -1447,3 +1447,87 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
         }
 
     return results
+
+
+@register_yoga("Sankha")
+def Sankha(yoga: Yoga) -> YogaType:
+    """
+    Lord of 5th and 6th house in mutual kendras and lord of lagna is powerful
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Sankha",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Get lords of 5th and 6th houses
+    lord_of_5 = yoga.get_lord_of_house(5)
+    lord_of_6 = yoga.get_lord_of_house(6)
+
+    if not lord_of_5 or not lord_of_6:
+        result["details"] = "Could not determine lords of 5th and 6th houses."
+        return result
+
+    # Get houses where these lords are located
+    house_of_lord_5 = yoga.get_house_of_planet(lord_of_5)
+    house_of_lord_6 = yoga.get_house_of_planet(lord_of_6)
+
+    if not house_of_lord_5 or not house_of_lord_6:
+        result["details"] = "Could not find houses for lords of 5th and 6th."
+        return result
+
+    # Check if they are in mutual kendras
+    lord_5_in_kendra_from_lord_6 = yoga.planet_in_kendra_from(
+        house_of_lord_6, lord_of_5
+    )
+    lord_6_in_kendra_from_lord_5 = yoga.planet_in_kendra_from(
+        house_of_lord_5, lord_of_6
+    )
+
+    mutual_kendras = lord_5_in_kendra_from_lord_6 and lord_6_in_kendra_from_lord_5
+
+    if not mutual_kendras:
+        result["details"] = (
+            f"Lords of 5th ({lord_of_5}) and 6th ({lord_of_6}) not in mutual kendras."
+        )
+        return result
+
+    # Check if lord of lagna is powerful
+    lagna_lord = yoga.get_lord_of_house(1)
+    if not lagna_lord:
+        result["details"] = "Could not determine lord of lagna."
+        return result
+
+    lagna_lord_planet = yoga.get_planet_by_name(lagna_lord)
+    if not lagna_lord_planet:
+        result["details"] = f"Could not find planet {lagna_lord}."
+        return result
+
+    is_powerful, lagna_lord_strength = yoga.isPlanetPowerful(lagna_lord_planet)
+
+    if not is_powerful:
+        result["details"] = f"Lord of lagna ({lagna_lord}) is not powerful."
+        return result
+
+    # Calculate strength based on mutual kendra positions
+    relative_pos_5_from_6 = (house_of_lord_5 - house_of_lord_6 + 12) % 12 + 1
+    relative_pos_6_from_5 = (house_of_lord_6 - house_of_lord_5 + 12) % 12 + 1
+
+    kendra_strength_map = {1: 1.0, 4: 0.75, 7: 0.9, 10: 0.75}
+    strength_5 = kendra_strength_map.get(relative_pos_5_from_6, 0.5)
+    strength_6 = kendra_strength_map.get(relative_pos_6_from_5, 0.5)
+    mutual_kendra_strength = (strength_5 + strength_6) / 2
+
+    # Final strength is average of mutual kendra strength and lagna lord strength
+    result["present"] = True
+    result["strength"] = (mutual_kendra_strength + lagna_lord_strength) / 2
+    result["details"] = (
+        f"Lord of 5th ({lord_of_5}) in house {house_of_lord_5} and "
+        f"Lord of 6th ({lord_of_6}) in house {house_of_lord_6} are in mutual kendras. "
+        f"Lord of lagna ({lagna_lord}) is powerful."
+    )
+
+    return result
