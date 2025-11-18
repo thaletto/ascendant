@@ -1231,3 +1231,152 @@ def Bharathi(yoga: Yoga) -> YogaType:
     # If none matched
     result["details"] = "No Navamsa-sign-lord is exalted and conjunct the 9th lord"
     return result
+
+
+@register_yoga("Chapa")
+def Chapa(yoga: Yoga) -> YogaType:
+    """
+    Lagna Lord is exalted and the fourth and tenth Lord have interchanged houses
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Chapa",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Get Lagna Lord
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    if not lagna_house:
+        result["details"] = "Lagna not found"
+        return result
+
+    lagna_lord = yoga.get_lord_of_house(lagna_house)
+    if not lagna_lord:
+        result["details"] = "Could not determine Lagna Lord"
+        return result
+
+    # Check if Lagna Lord is exalted
+    lagna_lord_planet = yoga.get_planet_by_name(lagna_lord)
+    if not lagna_lord_planet:
+        result["details"] = f"Could not find planet {lagna_lord}"
+        return result
+
+    is_exalted = any(flag == "Exalted" for flag in lagna_lord_planet["inSign"])
+    if not is_exalted:
+        result["details"] = f"Lagna Lord {lagna_lord} is not exalted"
+        return result
+
+    # Get 4th and 10th house lords
+    lord_of_4 = yoga.get_lord_of_house(4)
+    lord_of_10 = yoga.get_lord_of_house(10)
+
+    if not lord_of_4 or not lord_of_10:
+        result["details"] = "Could not determine lords of 4th and 10th houses"
+        return result
+
+    # Get houses where these lords are located
+    house_of_lord_4 = yoga.get_house_of_planet(lord_of_4)
+    house_of_lord_10 = yoga.get_house_of_planet(lord_of_10)
+
+    if not house_of_lord_4 or not house_of_lord_10:
+        result["details"] = "Could not find houses for lords of 4th and 10th"
+        return result
+
+    # Check if they have interchanged houses (lord of 4th in 10th, lord of 10th in 4th)
+    houses_interchanged = (house_of_lord_4 == 10) and (house_of_lord_10 == 4)
+
+    result["present"] = is_exalted and houses_interchanged
+
+    if result["present"]:
+        result["strength"] = 1.0
+        result["details"] = (
+            f"Chapa Yoga formed: Lagna Lord {lagna_lord} is exalted. "
+            f"Lord of 4th ({lord_of_4}) in 10th house, Lord of 10th ({lord_of_10}) in 4th house."
+        )
+    else:
+        result["details"] = (
+            f"Lagna Lord {lagna_lord} exalted: {is_exalted}. "
+            f"4th lord ({lord_of_4}) in house {house_of_lord_4}, "
+            f"10th lord ({lord_of_10}) in house {house_of_lord_10}. "
+            f"Houses interchanged: {houses_interchanged}"
+        )
+
+    return result
+
+
+@register_yoga("Sreenatha")
+def Sreenatha(yoga: Yoga) -> YogaType:
+    """
+    The exalted Lord of the seventh occupies the tenth house and the Lord of the tenth is with the Lord of the ninth.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Sreenatha",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Get 7th, 9th, and 10th house lords
+    lord_of_7 = yoga.get_lord_of_house(7)
+    lord_of_9 = yoga.get_lord_of_house(9)
+    lord_of_10 = yoga.get_lord_of_house(10)
+
+    if not lord_of_7 or not lord_of_9 or not lord_of_10:
+        result["details"] = "Could not determine lords of 7th, 9th, or 10th houses"
+        return result
+
+    # Check if Lord of 7th is exalted
+    lord_of_7_planet = yoga.get_planet_by_name(lord_of_7)
+    if not lord_of_7_planet:
+        result["details"] = f"Could not find planet {lord_of_7}"
+        return result
+
+    is_exalted = any(flag == "Exalted" for flag in lord_of_7_planet["inSign"])
+    if not is_exalted:
+        result["details"] = f"Lord of 7th house {lord_of_7} is not exalted"
+        return result
+
+    # Check if Lord of 7th occupies 10th house
+    house_of_lord_7 = yoga.get_house_of_planet(lord_of_7)
+    if not house_of_lord_7:
+        result["details"] = f"Could not find house for {lord_of_7}"
+        return result
+
+    in_10th_house = house_of_lord_7 == 10
+    if not in_10th_house:
+        result["details"] = (
+            f"Lord of 7th {lord_of_7} is exalted but in house {house_of_lord_7}, not 10th"
+        )
+        return result
+
+    # Check if Lord of 10th is with Lord of 9th (conjunction)
+    house_of_lord_10 = yoga.get_house_of_planet(lord_of_10)
+    house_of_lord_9 = yoga.get_house_of_planet(lord_of_9)
+
+    if not house_of_lord_10 or not house_of_lord_9:
+        result["details"] = "Could not find houses for lords of 9th and 10th"
+        return result
+
+    lords_conjunct = house_of_lord_10 == house_of_lord_9
+
+    result["present"] = is_exalted and in_10th_house and lords_conjunct
+
+    if result["present"]:
+        result["strength"] = 1.0
+        result["details"] = (
+            f"Sreenatha Yoga formed: Exalted Lord of 7th ({lord_of_7}) in 10th house. "
+            f"Lord of 10th ({lord_of_10}) and Lord of 9th ({lord_of_9}) conjunct in house {house_of_lord_10}."
+        )
+    else:
+        result["details"] = (
+            f"Lord of 7th {lord_of_7} exalted: {is_exalted}, in 10th: {in_10th_house}. "
+            f"10th lord ({lord_of_10}) in {house_of_lord_10}, 9th lord ({lord_of_9}) in {house_of_lord_9}. "
+            f"Conjunct: {lords_conjunct}"
+        )
+
+    return result
