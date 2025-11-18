@@ -1694,3 +1694,126 @@ def Gaja(yoga: Yoga) -> YogaType:
     )
 
     return result
+
+
+@register_yoga("Kalanidhi")
+def Kalanidhi(yoga: Yoga) -> YogaType:
+    """
+    Jupiter is placed in the 2nd or 5th house, The sign in that house is owned by Me (Ge/Vi) or Ve (Ta/Li) and Jupiter is joined or associated with Mercury and Venus
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Kalanidhi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Check if Jupiter is in 2nd or 5th house
+    jupiter_house = yoga.get_house_of_planet("Jupiter")
+    if not jupiter_house:
+        result["details"] = "Could not find Jupiter."
+        return result
+
+    if jupiter_house not in [2, 5]:
+        result["details"] = (
+            f"Jupiter is in house {jupiter_house}, not in 2nd or 5th house."
+        )
+        return result
+
+    # Get the sign of Jupiter's house and check if it's Taurus, Libra, Gemini, or Virgo
+    jupiter_house_sign = yoga.get_rashi_of_house(jupiter_house)
+    if not jupiter_house_sign:
+        result["details"] = f"Could not determine sign of house {jupiter_house}."
+        return result
+
+    # Check if the sign is Taurus, Libra, Gemini, or Virgo
+    if jupiter_house_sign not in ["Taurus", "Libra", "Gemini", "Virgo"]:
+        result["details"] = (
+            f"Sign in house {jupiter_house} is {jupiter_house_sign}, "
+            f"not Taurus, Libra, Gemini, or Virgo."
+        )
+        return result
+
+    # Check if Jupiter is associated with Mercury (conjunction or aspect)
+    mercury_house = yoga.get_house_of_planet("Mercury")
+    if not mercury_house:
+        result["details"] = "Could not find Mercury."
+        return result
+
+    # Check conjunction (same house)
+    jupiter_mercury_conjunction = jupiter_house == mercury_house
+
+    # Check aspect
+    chart = yoga.__chart__
+    jupiter_mercury_aspect = False
+    try:
+        mercury_aspects = chart.graha_drishti(n=1, planet="Mercury")[0]
+        aspect_houses = mercury_aspects.get("aspect_houses", [])
+        jupiter_mercury_aspect = any(
+            jupiter_house in house_dict for house_dict in aspect_houses
+        )
+    except (KeyError, IndexError, TypeError):
+        pass
+
+    jupiter_mercury_associated = jupiter_mercury_conjunction or jupiter_mercury_aspect
+
+    if not jupiter_mercury_associated:
+        result["details"] = (
+            f"Jupiter in house {jupiter_house} is not associated with Mercury "
+            f"(Mercury in house {mercury_house})."
+        )
+        return result
+
+    # Check if Jupiter is associated with Venus (conjunction or aspect)
+    venus_house = yoga.get_house_of_planet("Venus")
+    if not venus_house:
+        result["details"] = "Could not find Venus."
+        return result
+
+    # Check conjunction (same house)
+    jupiter_venus_conjunction = jupiter_house == venus_house
+
+    # Check aspect
+    jupiter_venus_aspect = False
+    try:
+        venus_aspects = chart.graha_drishti(n=1, planet="Venus")[0]
+        aspect_houses = venus_aspects.get("aspect_houses", [])
+        jupiter_venus_aspect = any(
+            jupiter_house in house_dict for house_dict in aspect_houses
+        )
+    except (KeyError, IndexError, TypeError):
+        pass
+
+    jupiter_venus_associated = jupiter_venus_conjunction or jupiter_venus_aspect
+
+    if not jupiter_venus_associated:
+        result["details"] = (
+            f"Jupiter in house {jupiter_house} is not associated with Venus "
+            f"(Venus in house {venus_house})."
+        )
+        return result
+
+    # All conditions met - calculate strength
+    # Strength based on house position, sign ownership, and associations
+    house_strength = 1.0 if jupiter_house == 5 else 0.9  # 5th house is stronger
+    sign_ownership_strength = 1.0  # Already verified
+
+    # Association strengths
+    mercury_strength = 1.0 if jupiter_mercury_conjunction else 0.8
+    venus_strength = 1.0 if jupiter_venus_conjunction else 0.8
+
+    result["present"] = True
+    result["strength"] = (
+        house_strength + sign_ownership_strength + mercury_strength + venus_strength
+    ) / 4
+    result["details"] = (
+        f"Jupiter in house {jupiter_house} ({jupiter_house_sign}). "
+        f"Associated with Mercury (house {mercury_house}, "
+        f"{'conjunction' if jupiter_mercury_conjunction else 'aspect'}) and "
+        f"Venus (house {venus_house}, "
+        f"{'conjunction' if jupiter_venus_conjunction else 'aspect'})."
+    )
+
+    return result
