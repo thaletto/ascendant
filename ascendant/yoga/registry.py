@@ -1817,3 +1817,121 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
     )
 
     return result
+
+
+@register_yoga("Amsavatara")
+def Amsavatara(yoga: Yoga) -> YogaType:
+    """
+    Venus and Jupiter in Kendras, the Lagna falls in a movable sign and Saturn must be exalted in a Kendra.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Amsavatara",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Get Lagna house and sign
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    if not lagna_house:
+        result["details"] = "Could not find Lagna."
+        return result
+
+    lagna_sign = yoga.get_rashi_of_house(lagna_house)
+    if not lagna_sign:
+        result["details"] = f"Could not determine sign of Lagna house {lagna_house}."
+        return result
+
+    # Check if Lagna is in a movable sign (Aries, Cancer, Libra, Capricorn)
+    movable_signs = ["Aries", "Cancer", "Libra", "Capricorn"]
+    if lagna_sign not in movable_signs:
+        result["details"] = (
+            f"Lagna is in {lagna_sign} (house {lagna_house}), not in a movable sign."
+        )
+        return result
+
+    # Check if Venus is in a Kendra (from Lagna, house 1)
+    venus_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Venus")
+    if not venus_in_kendra:
+        venus_house = yoga.get_house_of_planet("Venus")
+        result["details"] = (
+            f"Venus is not in a Kendra from Lagna "
+            f"(Venus in house {venus_house}, Lagna in house {lagna_house})."
+        )
+        return result
+
+    # Check if Jupiter is in a Kendra (from Lagna, house 1)
+    jupiter_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Jupiter")
+    if not jupiter_in_kendra:
+        jupiter_house = yoga.get_house_of_planet("Jupiter")
+        result["details"] = (
+            f"Jupiter is not in a Kendra from Lagna "
+            f"(Jupiter in house {jupiter_house}, Lagna in house {lagna_house})."
+        )
+        return result
+
+    # Check if Saturn is exalted
+    saturn_planet = yoga.get_planet_by_name("Saturn")
+    if not saturn_planet:
+        result["details"] = "Could not find Saturn."
+        return result
+
+    is_exalted = any(flag == "Exalted" for flag in saturn_planet["inSign"])
+    if not is_exalted:
+        result["details"] = "Saturn is not exalted."
+        return result
+
+    # Check if Saturn is in a Kendra (from Lagna, house 1)
+    saturn_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Saturn")
+    if not saturn_in_kendra:
+        saturn_house = yoga.get_house_of_planet("Saturn")
+        result["details"] = (
+            f"Saturn is exalted but not in a Kendra from Lagna "
+            f"(Saturn in house {saturn_house}, Lagna in house {lagna_house})."
+        )
+        return result
+
+    # All conditions met - calculate strength
+    venus_house = yoga.get_house_of_planet("Venus")
+    jupiter_house = yoga.get_house_of_planet("Jupiter")
+    saturn_house = yoga.get_house_of_planet("Saturn")
+
+    # Kendra strength map (1st=1.0, 4th=0.75, 7th=0.9, 10th=0.75)
+    kendra_strength_map = {1: 1.0, 4: 0.75, 7: 0.9, 10: 0.75}
+
+    # Calculate relative positions from Lagna
+    def relative_house_from_lagna(planet_house: int) -> int:
+        return (planet_house - lagna_house) % 12 + 1
+
+    venus_relative = relative_house_from_lagna(venus_house)
+    jupiter_relative = relative_house_from_lagna(jupiter_house)
+    saturn_relative = relative_house_from_lagna(saturn_house)
+
+    venus_strength = kendra_strength_map.get(venus_relative, 0.5)
+    jupiter_strength = kendra_strength_map.get(jupiter_relative, 0.5)
+    saturn_strength = kendra_strength_map.get(saturn_relative, 0.5)
+
+    # Exaltation strength for Saturn
+    saturn_exaltation_strength = 1.0
+
+    # Movable sign strength
+    movable_sign_strength = 1.0
+
+    result["present"] = True
+    result["strength"] = (
+        venus_strength
+        + jupiter_strength
+        + saturn_strength
+        + saturn_exaltation_strength
+        + movable_sign_strength
+    ) / 5
+    result["details"] = (
+        f"Venus in house {venus_house} (Kendra from Lagna), "
+        f"Jupiter in house {jupiter_house} (Kendra from Lagna), "
+        f"Lagna in {lagna_sign} (movable sign), "
+        f"Saturn in house {saturn_house} (exalted, Kendra from Lagna)."
+    )
+
+    return result
