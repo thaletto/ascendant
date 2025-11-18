@@ -1043,15 +1043,64 @@ def Pushkala(yoga: Yoga) -> YogaType:
 
     # Final evaluation
     result["present"] = condition1 and condition2 and condition3 and condition4
-    result["strength"] = (strength1 + strength2 + strength3 + strength4) / 4
+    result["strength"] = (strength1 + strength2 + strength3 + strength4) / 4 if result["present"] else 0
 
     status = "formed" if result["present"] else "not formed"
     result["details"] = f"""Pushkala Yoga {status}
-        \nCondition 1: {condition1} Strength 1: {strength1}
-        \nCondition 2: {condition2} Strength 2: {strength2}
-        \nCondition 3: {condition3} Strength 3: {strength3}
-        \nCondition 4: {condition4} Strength 1: {strength4}
+        \nMoon Lord & Lagna Lord Associated: {condition1}, Strength: {strength1}
+        \nMoon Lord in Kendra or Friend's sign: {condition2}, Strength: {strength2}
+        \nMoon Lord aspects Lagna: {condition3}, Strength: {strength3}
+        \nLagna is occupied by powerful planet: {condition4}, Strength: {strength4}
         \nTotal Strength: {result["strength"]}
         """
+
+    return result
+
+
+@register_yoga("Lakshmi")
+def Lakshmi(yoga: Yoga) -> YogaType:
+    """
+    Lagna Lord is Powerful and the Lord of the 9th occupies its own or exaltation sign identical with a Kendra or Trikona
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Lakshmi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    lagna_lord = yoga.get_lord_of_planet("Lagna")
+    Lagna_Lord_Planet = yoga.get_planet_by_name(lagna_lord)
+    isPowerful, strength1 = yoga.isPlanetPowerful(Lagna_Lord_Planet)
+
+    if not isPowerful:
+        result["present"] = False
+        result["details"] = "Lord of Lagna not Powerful"
+        return result
+
+    condition2 = False
+    lord_of_9 = yoga.get_lord_of_house(9)
+    lord_of_9_planet = yoga.get_planet_by_name(lord_of_9)
+    for inSign in lord_of_9_planet["inSign"]:
+        if inSign == "Own":
+            condition2, strength2 = True, 0.8
+        elif inSign == "Exalted":
+            condition2, strength2 = True, 1
+
+    if not condition2:
+        result["present"] = False
+        result["details"] = "Lord of 9th house not in Own or Exalted Sign"
+        return result
+
+    condition3 = False
+    in_Kendra = yoga.planet_in_kendra_from(lord_of_9, 1)
+    in_Trikona = yoga.planet_in_trikona_from(lord_of_9, 1)
+    if in_Kendra or in_Trikona:
+        condition3, strength3 = True, 1
+
+    result["present"] = isPowerful and condition2 and condition3
+    result["strength"] = (strength1 + strength2 + strength3) / 3
+    result["details"] = "Lakshmi Yoga Formed"
 
     return result

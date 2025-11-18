@@ -6,6 +6,7 @@ from ascendant.types import (
     PLANETS_LAGNA,
     RASHI_LORDS,
     RASHIS,
+    LagnaType,
     PlanetType,
     PlanetsType,
     YogaType,
@@ -67,6 +68,14 @@ class Yoga:
             return False
         kendra_houses = [(base_house + i - 1) % 12 for i in [1, 4, 7, 10]]
         return target_house in kendra_houses
+    
+    def planet_in_trikona_from(self, base_house: HOUSES, target_planet: PLANETS_LAGNA):
+        """Check if a planet is in Trikona (1, 5, 9) from a reference house"""
+        target_house = self.get_house_of_planet(target_planet)
+        if not target_house:
+            return False
+        kendra_houses = [(base_house + i - 1) % 12 for i in [1, 5, 9]]
+        return target_house in kendra_houses
 
     def planets_in_relative_house(
         self, base_planet: PLANETS_LAGNA, relative_pos: HOUSES
@@ -86,6 +95,12 @@ class Yoga:
             return RASHI_LORD_MAP.get(sign)
         return None
 
+    def get_lord_of_planet(self, planet: PLANETS_LAGNA) -> RASHI_LORDS:
+        """Return House Lord of the Planet"""
+        planet_house = self.get_house_of_planet(planet)
+        house_lord = self.get_lord_of_house(planet_house)
+        return house_lord
+
     def get_rashi_of_house(self, house_number: HOUSES) -> RASHIS:
         """Return Sign of the house"""
         if house_number in self.chart:
@@ -101,6 +116,21 @@ class Yoga:
             return None
         relative_pos = (house2 - house1) % 12 + 1
         return relative_pos if relative_pos != 0 else 12
+
+    def get_planet_by_name(
+        self, planet: PLANETS_LAGNA
+    ) -> PlanetType | LagnaType | None:
+        if planet == "Lagna":
+            for house, data in self.chart.items():
+                Lagna = data["lagna"]
+                return Lagna
+        else:
+            for house, data in self.chart.items():
+                planets = data["planets"]
+                for _planet in planets:
+                    if _planet["name"] == planet:
+                        return _planet
+        return None
 
     def isPlanetPowerful(self, planet: PlanetType) -> Tuple[bool, float]:
         """Checks if a planet in the chart is powerful"""
@@ -119,16 +149,24 @@ class Yoga:
         is_powerful = False
         strength = 0.0
 
-        if relation in strength_map:
-            if relation == "Friend":
+        relations: List[PLANET_SIGN_RELATION]
+        if isinstance(relation, str):
+            relations = [relation]
+        else:
+            relations = list(relation)
+
+        for relation_status in relations:
+            if relation_status not in strength_map:
+                continue
+
+            if relation_status == "Friend":
                 # Only powerful if Friend and also in kendra from Lagna (house 1)
                 in_kendra = self.planet_in_kendra_from(1, name)
-                if in_kendra:
-                    is_powerful = True
-                    strength = strength_map["Friend"]
-            else:
-                is_powerful = True
-                strength = strength_map[relation]
+                if not in_kendra:
+                    continue
+
+            is_powerful = True
+            strength = max(strength, strength_map[relation_status])
 
         return is_powerful, strength
 
