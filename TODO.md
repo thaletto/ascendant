@@ -1,7 +1,7 @@
 ## Ascendant
 
 - [ ] Add all yogas
-    - Add Mridanga Yoga which was skipped
+    - Add Mridanga Yoga and Parijatha Yoga which was skipped
 - [ ] Optimise the yoga registry functions.
     - Skip yogas based on predefined calculations
 - [ ] Store native's gender in horoscope
