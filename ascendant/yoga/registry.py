@@ -1935,3 +1935,145 @@ def Amsavatara(yoga: Yoga) -> YogaType:
     )
 
     return result
+
+
+@register_yoga("HariHaraBrahma")
+def HariHaraBrahma(yoga: Yoga) -> YogaType:
+    """
+    Benefics are in the 8th or 12th house from the 2nd lord; or the Jupiter, the Moon and Mercury are in the 4th, 9th and 8th from the 7th lord, or the Sun, Venus and Mars are in the 4th, 10th and 11th from the lord of Lagna.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Amsavatara",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    cond1_present = False
+    cond2_present = False
+    cond3_present = False
+
+    lord_of_2 = yoga.get_lord_of_house(2)
+    if not lord_of_2:
+        cond1_details = "Could not determine lord of 2nd house."
+    else:
+        planets_8th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 8)
+        planets_12th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 12)
+
+        benefics_in_8th = [
+            p["name"] for p in planets_8th_from_L2 if p["name"] in BENEFIC_PLANETS
+        ]
+        benefics_in_12th = [
+            p["name"] for p in planets_12th_from_L2 if p["name"] in BENEFIC_PLANETS
+        ]
+
+        if benefics_in_8th or benefics_in_12th:
+            cond1_present = True
+            cond1_details = f"Benefics in 8th ({', '.join(benefics_in_8th) or 'None'}) or 12th ({', '.join(benefics_in_12th) or 'None'}) from 2nd lord {lord_of_2}."
+
+            total_benefics_found = len(benefics_in_8th) + len(benefics_in_12th)
+            if total_benefics_found > 0:
+                strength_sum = 0.0
+                for p_name in benefics_in_8th + benefics_in_12th:
+                    planet_obj = yoga.get_planet_by_name(p_name)
+                    if planet_obj:
+                        is_powerful, power_strength = yoga.isPlanetPowerful(planet_obj)
+                        strength_sum += power_strength if is_powerful else 0.5
+                cond1_strength = strength_sum / total_benefics_found
+        else:
+            cond1_details = f"No benefics in 8th or 12th from 2nd lord {lord_of_2}."
+
+    # Condition 2: Jupiter, the Moon, and Mercury are in the 4th, 9th, and 8th from the 7th lord, respectively.
+    cond2_present = False
+    cond2_strength = 0.0
+    cond2_details = ""
+
+    lord_of_7 = yoga.get_lord_of_house(7)
+    if not lord_of_7:
+        cond2_details = "Could not determine lord of 7th house."
+    else:
+        ju_in_4th = yoga.relative_house(lord_of_7, "Jupiter") == 4
+        mo_in_9th = yoga.relative_house(lord_of_7, "Moon") == 9
+        me_in_8th = yoga.relative_house(lord_of_7, "Mercury") == 8
+
+        if ju_in_4th and mo_in_9th and me_in_8th:
+            cond2_present = True
+            cond2_details = f"Jupiter in 4th, Moon in 9th, and Mercury in 8th from 7th lord {lord_of_7}."
+
+            strength_sum = 0.0
+            planets_to_check = ["Jupiter", "Moon", "Mercury"]
+
+            for p_name in planets_to_check:
+                planet_obj = yoga.get_planet_by_name(p_name)
+                if planet_obj:
+                    is_powerful, power_strength = yoga.isPlanetPowerful(planet_obj)
+                    strength_sum += power_strength if is_powerful else 0.7
+            cond2_strength = strength_sum / len(planets_to_check)
+        else:
+            cond2_details = f"Jupiter in 4th from {lord_of_7}: {ju_in_4th}, Moon in 9th from {lord_of_7}: {mo_in_9th}, Mercury in 8th from {lord_of_7}: {me_in_8th}."
+
+    # Condition 3: The Sun, Venus, and Mars are in the 4th, 10th, and 11th from the lord of Lagna, respectively.
+    cond3_present = False
+    cond3_strength = 0.0
+    cond3_details = ""
+
+    lagna_lord = yoga.get_lord_of_house(1)
+    if not lagna_lord:
+        cond3_details = "Could not determine lord of Lagna."
+    else:
+        su_in_4th = yoga.relative_house(lagna_lord, "Sun") == 4
+        ve_in_10th = yoga.relative_house(lagna_lord, "Venus") == 10
+        ma_in_11th = yoga.relative_house(lagna_lord, "Mars") == 11
+
+        if su_in_4th and ve_in_10th and ma_in_11th:
+            cond3_present = True
+            cond3_details = f"Sun in 4th, Venus in 10th, and Mars in 11th from Lagna lord {lagna_lord}."
+
+            strength_sum = 0.0
+            planets_to_check = ["Sun", "Venus", "Mars"]
+
+            for p_name in planets_to_check:
+                planet_obj = yoga.get_planet_by_name(p_name)
+                if planet_obj:
+                    is_powerful, power_strength = yoga.isPlanetPowerful(planet_obj)
+                    strength_sum += power_strength if is_powerful else 0.7
+            cond3_strength = strength_sum / len(planets_to_check)
+        else:
+            cond3_details = f"Sun in 4th from {lagna_lord}: {su_in_4th}, Venus in 10th from {lagna_lord}: {ve_in_10th}, Mars in 11th from {lagna_lord}: {ma_in_11th}."
+
+    details_list = []
+    total_strength = 0.0
+    num_conditions_met = 0
+
+    if cond1_present:
+        result["present"] = True
+        total_strength += cond1_strength
+        num_conditions_met += 1
+        details_list.append(f"Condition 1 met: {cond1_details}")
+    else:
+        details_list.append(f"Condition 1 not met: {cond1_details}")
+
+    if cond2_present:
+        result["present"] = True
+        total_strength += cond2_strength
+        num_conditions_met += 1
+        details_list.append(f"Condition 2 met: {cond2_details}")
+    else:
+        details_list.append(f"Condition 2 not met: {cond2_details}")
+
+    if cond3_present:
+        result["present"] = True
+        total_strength += cond3_strength
+        num_conditions_met += 1
+        details_list.append(f"Condition 3 met: {cond3_details}")
+    else:
+        details_list.append(f"Condition 3 not met: {cond3_details}")
+
+    if result["present"]:
+        result["strength"] = round(total_strength / num_conditions_met, 2)
+        result["details"] = "HariHaraBrahma Yoga formed. " + " ".join(details_list)
+    else:
+        result["details"] = "HariHaraBrahma Yoga not formed. " + " ".join(details_list)
+
+    return result
