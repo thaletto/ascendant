@@ -32,6 +32,38 @@ def register_yoga(name: str):
     return decorator
 
 
+def register_yogas(*names: str):
+    def decorator(
+        func: Callable[["Yoga"], Dict[str, YogaType]],
+    ) -> Callable[["Yoga"], Dict[str, YogaType]]:
+        # Register each yoga name
+        for name in names:
+            # Create a closure to capture the name properly
+            def make_wrapper(yoga_name: str):
+                def wrapper(yoga: "Yoga") -> YogaType:
+                    results = func(yoga)
+                    if yoga_name not in results:
+                        # Return default if yoga name not found
+                        return {
+                            "id": yogaNameToId(yoga_name),
+                            "name": yoga_name,
+                            "present": False,
+                            "strength": 0.0,
+                            "details": f"Yoga {yoga_name} not found in results",
+                            "type": "Positive",
+                        }
+                    result = results[yoga_name]
+                    result["id"] = yogaNameToId(yoga_name)
+                    return result
+
+                return wrapper
+
+            YOGA_REGISTRY[name] = make_wrapper(name)
+        return func
+
+    return decorator
+
+
 class Yoga:
     def __init__(self, horoscope: VedicHoroscopeData):
         from ascendant.chart import Chart
@@ -68,7 +100,7 @@ class Yoga:
             return False
         kendra_houses = [(base_house + i - 1) % 12 for i in [1, 4, 7, 10]]
         return target_house in kendra_houses
-    
+
     def planet_in_trikona_from(self, base_house: HOUSES, target_planet: PLANETS_LAGNA):
         """Check if a planet is in Trikona (1, 5, 9) from a reference house"""
         target_house = self.get_house_of_planet(target_planet)

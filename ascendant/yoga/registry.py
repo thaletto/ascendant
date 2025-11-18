@@ -1,7 +1,7 @@
 from typing import Dict, List
 from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP
-from ascendant.types import PLANETS, RASHI_LORDS, RASHIS, YogaType
-from ascendant.yoga.base import Yoga, register_yoga
+from ascendant.types import HOUSES, PLANETS, RASHI_LORDS, RASHIS, YogaType
+from ascendant.yoga.base import Yoga, register_yoga, register_yogas
 
 
 @register_yoga("GajaKesari")
@@ -1380,3 +1380,70 @@ def Sreenatha(yoga: Yoga) -> YogaType:
         )
 
     return result
+
+
+@register_yogas(
+    "Lagna Malika",
+    "Dhana Malika",
+    "Vikrama Malika",
+    "Sukha Malika",
+    "Putra Malika",
+    "Satru Malika",
+    "Kalatra Malika",
+    "Randhra Malika",
+    "Bhagya Malika",
+    "Karma Malika",
+    "Labha Malika",
+    "Vraya Malika",
+)
+def Malika(yoga: Yoga) -> Dict[str, YogaType]:
+    """All seven planets occupy seven houses continuously reckoned from starting house"""
+    results: Dict[str, YogaType] = {}
+
+    def is_consecutive(arr):
+        arr = sorted(arr)
+        return all(arr[i] + 1 == arr[i + 1] for i in range(len(arr) - 1))
+
+    MALIKA_YOGAS = {
+        1: ("Lagna Malika", "Positive"),
+        2: ("Dhana Malika", "Positive"),
+        3: ("Vikrama Malika", "Neutral"),
+        4: ("Sukha Malika", "Positive"),
+        5: ("Putra Malika", "Positive"),
+        6: ("Satru Malika", "Negative"),
+        7: ("Kalatra Malika", "Positive"),
+        8: ("Randhra Malika", "Negative"),
+        9: ("Bhagya Malika", "Positive"),
+        10: ("Karma Malika", "Positive"),
+        11: ("Labha Malika", "Positive"),
+        12: ("Vraya Malika", "Positive"),
+    }
+
+    houses: HOUSES = []
+    for planet in yoga.__chart__.get_planets():
+        if planet["name"] in ["Rahu", "Ketu"]:
+            continue
+
+        h = yoga.get_house_of_planet(planet["name"])
+        houses.append(h)
+    houses.sort()
+
+    for i in range(1, 13):
+        yoga_name, type = MALIKA_YOGAS[i]
+        present = False
+        strength = 0.0
+        if houses[0] == i or houses[-1] == i:
+            if is_consecutive(houses):
+                present = True
+                strength = 1.0
+
+        results[yoga_name] = {
+            "id": "",
+            "name": yoga_name,
+            "present": present,
+            "strength": strength,
+            "details": f"{yoga_name}: {present}",
+            "type": type,
+        }
+
+    return results
