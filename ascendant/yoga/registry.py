@@ -1,6 +1,6 @@
 from typing import Dict, List
-from ascendant.const import BENEFIC_PLANETS
-from ascendant.types import PLANETS, RASHIS, YogaType
+from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP
+from ascendant.types import PLANETS, RASHI_LORDS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
@@ -1043,7 +1043,9 @@ def Pushkala(yoga: Yoga) -> YogaType:
 
     # Final evaluation
     result["present"] = condition1 and condition2 and condition3 and condition4
-    result["strength"] = (strength1 + strength2 + strength3 + strength4) / 4 if result["present"] else 0
+    result["strength"] = (
+        (strength1 + strength2 + strength3 + strength4) / 4 if result["present"] else 0
+    )
 
     status = "formed" if result["present"] else "not formed"
     result["details"] = f"""Pushkala Yoga {status}
@@ -1102,5 +1104,61 @@ def Lakshmi(yoga: Yoga) -> YogaType:
     result["present"] = isPowerful and condition2 and condition3
     result["strength"] = (strength1 + strength2 + strength3) / 3
     result["details"] = "Lakshmi Yoga Formed"
+
+    return result
+
+
+@register_yoga("Gauri")
+def Gauri(yoga: Yoga) -> YogaType:
+    """
+    The Lord of the Navamsa
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Gauri",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    L10 = yoga.get_lord_of_house(10)
+    D9 = yoga.__chart__.get_varga_chakra_chart(9)
+
+    for house, data in D9.items():
+        for planet in data["planets"]:
+            if planet["name"] == L10:
+                sign = planet["sign"]["name"]
+                NavamsaSignLord: RASHI_LORDS = RASHI_LORD_MAP.get(sign)
+
+    NSL_house = yoga.get_house_of_planet(NavamsaSignLord)
+    if NSL_house != 10:
+        result["details"] = (
+            f"10th Lord's ({L10}) Navamsa Lord ({NavamsaSignLord}) is not in 10th house of D1"
+        )
+        return result
+
+    NSL_planet = yoga.get_planet_by_name(NavamsaSignLord)
+
+    condition2 = False
+    for inSign in NSL_planet["inSign"]:
+        if inSign == "Exalted":
+            condition2 = True
+
+    if not condition2:
+        result["details"] = f"{NSL_planet['name']} not in 10th house"
+        return result
+
+    LL = yoga.get_lord_of_planet("Lagna")
+    LLH = yoga.get_house_of_planet(LL)
+
+    if LLH != 10:
+        result["details"] = (
+            f"Lagna Lord: {LL} must be with {NSL_planet['name']} in 10th house"
+        )
+
+    result["present"] = True
+    result["strength"] = 1
+    result["details"] = "Gauri Yoga Formed"
 
     return result
