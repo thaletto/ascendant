@@ -1531,3 +1531,75 @@ def Sankha(yoga: Yoga) -> YogaType:
     )
 
     return result
+
+
+@register_yoga("Bheri")
+def Bheri(yoga: Yoga) -> YogaType:
+    """
+    Venus and Jupiter in mutual Kendras and the lord of 9th is powerfully disposed.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Bheri",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Get houses where Venus and Jupiter are located
+    house_of_venus = yoga.get_house_of_planet("Venus")
+    house_of_jupiter = yoga.get_house_of_planet("Jupiter")
+
+    if not house_of_venus or not house_of_jupiter:
+        result["details"] = "Could not find houses for Venus and Jupiter."
+        return result
+
+    # Check if they are in mutual kendras
+    venus_in_kendra_from_jupiter = yoga.planet_in_kendra_from(house_of_jupiter, "Venus")
+    jupiter_in_kendra_from_venus = yoga.planet_in_kendra_from(house_of_venus, "Jupiter")
+
+    mutual_kendras = venus_in_kendra_from_jupiter and jupiter_in_kendra_from_venus
+
+    if not mutual_kendras:
+        result["details"] = (
+            f"Venus in house {house_of_venus} and Jupiter in house {house_of_jupiter} "
+            f"are not in mutual kendras."
+        )
+        return result
+
+    # Check if lord of 9th is powerful
+    lord_of_9 = yoga.get_lord_of_house(9)
+    if not lord_of_9:
+        result["details"] = "Could not determine lord of 9th house."
+        return result
+
+    lord_of_9_planet = yoga.get_planet_by_name(lord_of_9)
+    if not lord_of_9_planet:
+        result["details"] = f"Could not find planet {lord_of_9}."
+        return result
+
+    is_powerful, lord_of_9_strength = yoga.isPlanetPowerful(lord_of_9_planet)
+
+    if not is_powerful:
+        result["details"] = f"Lord of 9th house ({lord_of_9}) is not powerful."
+        return result
+
+    # Calculate strength based on mutual kendra positions
+    relative_pos_venus_from_jupiter = (house_of_venus - house_of_jupiter + 12) % 12 + 1
+    relative_pos_jupiter_from_venus = (house_of_jupiter - house_of_venus + 12) % 12 + 1
+
+    kendra_strength_map = {1: 1.0, 4: 0.75, 7: 0.9, 10: 0.75}
+    strength_venus = kendra_strength_map.get(relative_pos_venus_from_jupiter, 0.5)
+    strength_jupiter = kendra_strength_map.get(relative_pos_jupiter_from_venus, 0.5)
+    mutual_kendra_strength = (strength_venus + strength_jupiter) / 2
+
+    # Final strength is average of mutual kendra strength and lord of 9th strength
+    result["present"] = True
+    result["strength"] = (mutual_kendra_strength + lord_of_9_strength) / 2
+    result["details"] = (
+        f"Venus in house {house_of_venus} and Jupiter in house {house_of_jupiter} "
+        f"are in mutual kendras. Lord of 9th house ({lord_of_9}) is powerful."
+    )
+
+    return result
