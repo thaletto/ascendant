@@ -1162,3 +1162,72 @@ def Gauri(yoga: Yoga) -> YogaType:
     result["details"] = "Gauri Yoga Formed"
 
     return result
+
+
+@register_yoga("Bharathi")
+def Bharathi(yoga: Yoga) -> YogaType:
+    """
+    The Lord of the Navamsa, occupied by the Lords of the second,
+    fifth and eleventh, is exalted and combined with the ninth Lord.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Bharathi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Lords of 2, 5, 11
+    L2 = yoga.get_lord_of_house(2)
+    L5 = yoga.get_lord_of_house(5)
+    L11 = yoga.get_lord_of_house(11)
+
+    key_lords = [L2, L5, L11]
+
+    D9 = yoga.__chart__.get_varga_chakra_chart(9)
+    navamsa_sign_lords = []
+
+    # --- STEP 1: Find Navamsa Sign Lords occupied by 2L, 5L, 11L ---
+    for house, data in D9.items():
+        for planet in data["planets"]:
+            if planet["name"] in key_lords:
+                sign = planet["sign"]["name"]
+                nsl = RASHI_LORD_MAP.get(sign)
+                if nsl:
+                    navamsa_sign_lords.append(nsl)
+
+    if not navamsa_sign_lords:
+        result["details"] = "No Navamsa-sign lord found for L2/L5/L11"
+        return result
+
+    # --- STEP 2: Check each Navamsa-sign-lord ---
+    L9 = yoga.get_lord_of_house(9)
+    L9_house = yoga.get_house_of_planet(L9)
+
+    for NSL in navamsa_sign_lords:
+        NSL_house = yoga.get_house_of_planet(NSL)
+        NSL_planet = yoga.get_planet_by_name(NSL)
+
+        # CONDITION A → NSL must be exalted
+        exalted = any(flag == "Exalted" for flag in NSL_planet["inSign"])
+        if not exalted:
+            continue
+
+        # CONDITION B → NSL must join L9
+        if NSL_house != L9_house:
+            continue
+
+        # If any NSL satisfies both → Yoga formed
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = (
+            f"Bharathi Yoga formed: Navamsa-sign-lord {NSL} is exalted "
+            f"and conjunct 9th lord {L9} in house {L9_house}."
+        )
+        return result
+
+    # If none matched
+    result["details"] = "No Navamsa-sign-lord is exalted and conjunct the 9th lord"
+    return result
