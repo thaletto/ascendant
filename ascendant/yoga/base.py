@@ -11,7 +11,7 @@ from ascendant.types import (
     PlanetsType,
     YogaType,
 )
-from ascendant.const import RASHI_LORD_MAP, MALEFIC_PLANETS
+from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP, MALEFIC_PLANETS
 from ascendant.utils import yogaNameToId
 
 YogaFunction = Callable[["Yoga"], YogaType]
@@ -230,6 +230,34 @@ class Yoga:
                 continue
 
         return True
+    
+    def is_house_benefic_aspected(self, house: HOUSES) -> bool:
+        """
+        Check if a house is has benefic or aspected by benefic
+        """
+        for house_, data in self.chart.items():
+            if house_ == house:
+                planets = data["planets"]
+                for planet in planets:
+                    if planet["name"] in BENEFIC_PLANETS:
+                        if planet["name"] == "Mercury":
+                            Me_is_unafflicted = self.is_planet_unafflicted(planet, house_)
+                            if Me_is_unafflicted:
+                                return True
+                            else:
+                                continue
+                        else:
+                            return True
+                        
+        for aspect in self.__chart__.graha_drishti(n=1):
+            if aspect["planet"] in BENEFIC_PLANETS:
+                for aspect_house in aspect["aspect_houses"]:
+                    for house_, data in aspect_house.items():
+                        if house_ == house:
+                            return True
+        
+        return False
+                        
 
     def compute_all(self) -> List[Dict]:
         """Compute all registered yogas"""

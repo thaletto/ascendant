@@ -2077,3 +2077,44 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
         result["details"] = "HariHaraBrahma Yoga not formed. " + " ".join(details_list)
 
     return result
+
+
+@register_yoga("Mridanga")
+def Mridanga(yoga: Yoga) -> YogaType:
+    """
+    Lagna Lord must be powerful,
+    9th lord must be powerful,
+    9th house must get benefic influence
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Mridanga",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    LL_name = yoga.get_lord_of_planet("Lagna")
+    LL = yoga.get_planet_by_name(LL_name)
+    LL_isPowerful = yoga.isPlanetPowerful(LL)
+
+    if not LL_isPowerful:
+        result["details"] = f"Lagna Lord, {LL_name} is not powerful"
+
+    L9_name = yoga.get_lord_of_house(9)
+    L9 = yoga.get_planet_by_name(L9_name)
+    L9_isPowerful = yoga.isPlanetPowerful(L9)
+
+    if not L9_isPowerful:
+        result["details"] = f"Lord of 9th house, {L9_name} is not powerful"
+        return result
+
+    H9_is_benefic = yoga.is_house_benefic_aspected(9)
+    if not H9_is_benefic:
+        result["details"] = "9th House does have benefic planets influcence"
+        return result
+    
+    result["present"] = True
+    result["strength"] = 1
+    result["details"] = f"Lagna Lord {LL_name}, Lord of 9 {L9_name} are powerful and House 9 has benefic influence"
+    return result
