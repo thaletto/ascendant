@@ -2100,6 +2100,7 @@ def Mridanga(yoga: Yoga) -> YogaType:
 
     if not LL_isPowerful:
         result["details"] = f"Lagna Lord, {LL_name} is not powerful"
+        return result
 
     L9_name = yoga.get_lord_of_house(9)
     L9 = yoga.get_planet_by_name(L9_name)
@@ -2113,8 +2114,56 @@ def Mridanga(yoga: Yoga) -> YogaType:
     if not H9_is_benefic:
         result["details"] = "9th House does have benefic planets influcence"
         return result
-    
+
     result["present"] = True
     result["strength"] = 1
-    result["details"] = f"Lagna Lord {LL_name}, Lord of 9 {L9_name} are powerful and House 9 has benefic influence"
+    result["details"] = (
+        f"Lagna Lord {LL_name}, Lord of 9 {L9_name} are powerful and House 9 has benefic influence"
+    )
+    return result
+
+
+@register_yoga("Parijatha")
+def Parijatha(yoga: Yoga) -> YogaType:
+    """
+    Lagna Lord must be powerful, must be in Kendra/Trikona.
+    Navamsa Lord of Lagna Lord must be powerful
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Parijatha",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    LL_name = yoga.get_lord_of_planet("Lagna")
+    LL = yoga.get_planet_by_name(LL_name)
+    LL_isPowerful = yoga.isPlanetPowerful(LL)
+
+    if not LL_isPowerful:
+        result["details"] = f"Lagna Lord, {LL_name} is not powerful"
+        return result
+
+    LL_house = yoga.get_house_of_planet(LL_name)
+    if LL_house not in [1, 4, 7, 10, 5, 9]:
+        result["details"] = f"Lagna lord is placed in {LL_house} not in Kendra/Trikona"
+        return result
+
+    D9 = yoga.__chart__.get_varga_chakra_chart(9)
+
+    for house, data in D9.items():
+        for planet in data["planets"]:
+            if planet["name"] == LL_name:
+                NL_LL_name = RASHI_LORD_MAP[planet["sign"]]
+
+    NL_LL = yoga.get_planet_by_name(NL_LL_name)
+    if yoga.isPlanetPowerful(NL_LL):
+        result["present"] = True
+        result["strength"] = 1
+        result["details"] = (
+            f"LL {LL_name} is powerful and in Kendra/Trikona. Navamsa Lord of LL is also powerful in D1"
+        )
+
+    result["details"] = "Navamsa Lord of Lagna Lord is not powerful in D1"
     return result
