@@ -2164,6 +2164,40 @@ def Parijatha(yoga: Yoga) -> YogaType:
         result["details"] = (
             f"LL {LL_name} is powerful and in Kendra/Trikona. Navamsa Lord of LL is also powerful in D1"
         )
-
+    
     result["details"] = "Navamsa Lord of Lagna Lord is not powerful in D1"
+    return result
+
+
+@register_yoga("Kusuma")
+def Kusuma(yoga: Yoga) -> YogaType:
+    """
+    Ju in Asc, Mo in 7th and Su in 2nd house
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Kusuma",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    Ju_house = yoga.get_house_of_planet("Jupiter")
+    if Ju_house != 1:
+        result["details"] = "Jupiter is not in Asc"
+        return result
+    
+    Mo_house = yoga.get_house_of_planet("Moon")
+    if Mo_house != 7:
+        result["details"] = "Moon is not in 7th house"
+        return result
+    
+    Su_house = yoga.get_house_of_planet("Sun")
+    if Su_house != 2:
+        result["details"] = "Sun is not in 2nd house"
+        return result
+    
+    result["present"] = True
+    result["strength"] = 1
+    result["details"] = "Jupiter, Moon and Sun are in 1st, 7th and 2nd houses respectively"
     return result
