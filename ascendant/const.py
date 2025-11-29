@@ -1,8 +1,6 @@
-from typing import TYPE_CHECKING, List
+from typing import List
 from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
-
-if TYPE_CHECKING:
-    from ascendant.types import DeepExaltationPointsType
+from ascendant.types import DeepExaltationPointsType
 
 
 __all__ = [RASHIS, NAKSHATRAS]
