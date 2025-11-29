@@ -149,3 +149,11 @@ class YogaType(TypedDict):
     strength: float
     details: str
     type: Literal["Positive", "Neutral", "Negative"]
+
+
+class DeepExaltationInfo(TypedDict):
+    sign: RASHIS
+    degree: int
+
+
+DeepExaltationPointsType = Dict[RASHI_LORDS, DeepExaltationInfo]

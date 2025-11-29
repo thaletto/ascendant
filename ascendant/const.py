@@ -1,5 +1,9 @@
-from typing import List
-from vedicastro.VedicAstro import RASHIS, NAKSHATRAS
+from typing import TYPE_CHECKING, List
+from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
+
+if TYPE_CHECKING:
+    from ascendant.types import DeepExaltationPointsType
+
 
 __all__ = [RASHIS, NAKSHATRAS]
 
@@ -61,3 +65,14 @@ RASHI_LORD_MAP = {
 }
 
 HOUSES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+DEEP_EXALTATION_POINTS: DeepExaltationPointsType = {
+    "Sun": {"sign": "Aries", "degree": 10},
+    "Moon": {"sign": "Taurus", "degree": 3},
+    "Mars": {"sign": "Capricorn", "degree": 28},
+    "Mercury": {"sign": "Virgo", "degree": 15},
+    "Jupiter": {"sign": "Cancer", "degree": 5},
+    "Venus": {"sign": "Pisces", "degree": 27},
+    "Saturn": {"sign": "Libra", "degree": 20},
+}
+

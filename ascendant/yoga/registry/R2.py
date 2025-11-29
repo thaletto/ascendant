@@ -1,4 +1,9 @@
-from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
+from ascendant.const import (
+    BENEFIC_PLANETS,
+    DEEP_EXALTATION_POINTS,
+    MALEFIC_PLANETS,
+    RASHI_LORD_MAP,
+)
 from ascendant.types import YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
@@ -399,4 +404,455 @@ def Chandika(yoga: Yoga) -> YogaType:
     result["strength"] = 1.0
     result["details"] = "All conditions for Chandika Yoga are met."
 
+    return result
+
+
+@register_yoga("Jaya")
+def Jaya(yoga: Yoga) -> YogaType:
+    """
+    The lord of 6th is debliated and the lord of 10th is deep exaltation (+/- 5 degree from deep exaltation degree)
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Jaya",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Condition 1: Lord of 6th is debilitated
+    lord_of_6 = yoga.get_lord_of_house(6)
+    if not lord_of_6:
+        result["details"] = "Could not determine lord of 6th."
+        return result
+    p6 = yoga.get_planet_by_name(lord_of_6)
+    if not p6 or "Debilitated" not in p6["inSign"]:
+        result["details"] = f"Lord of 6th ({lord_of_6}) is not debilitated."
+        return result
+
+    # Condition 2: Lord of 10th is in deep exaltation
+    lord_of_10 = yoga.get_lord_of_house(10)
+    if not lord_of_10:
+        result["details"] = "Could not determine lord of 10th."
+        return result
+    p10 = yoga.get_planet_by_name(lord_of_10)
+    if not p10:
+        result["details"] = f"Could not find planet object for {lord_of_10}. "
+        return result
+
+    p10_name = p10["name"]
+    if p10_name not in DEEP_EXALTATION_POINTS:
+        result["details"] = f"{p10_name} does not have a deep exaltation point."
+        return result
+
+    exaltation_info = DEEP_EXALTATION_POINTS[p10_name]
+    p10_house = yoga.get_house_of_planet(p10_name)
+    p10_sign = yoga.get_rashi_of_house(p10_house)
+
+    if p10_sign != exaltation_info["sign"]:
+        result["details"] = f"{p10_name} is in {p10_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        return result
+
+    p10_degree = p10["longitude"] % 30
+    exalt_degree = exaltation_info["degree"]
+    if not (abs(p10_degree - exalt_degree) <= 5):
+        result["details"] = f"{p10_name} at {p10_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Jaya Yoga are met."
+    return result
+
+
+@register_yoga("Vidyut")
+def Vidyut(yoga: Yoga) -> YogaType:
+    """
+    The 11th lord is in deep exaltation (+/- 5 degree from deep exaltation degree)
+    and joins Venus in a Kendra from the lord of Lagna
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Vidyut",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Condition 1: 11th lord in deep exaltation
+    lord_of_11 = yoga.get_lord_of_house(11)
+    if not lord_of_11:
+        result["details"] = "Could not determine lord of 11th."
+        return result
+    p11 = yoga.get_planet_by_name(lord_of_11)
+    if not p11:
+        result["details"] = f"Could not find planet object for {lord_of_11}. "
+        return result
+
+    p11_name = p11["name"]
+    if p11_name not in DEEP_EXALTATION_POINTS:
+        result["details"] = f"{p11_name} does not have a deep exaltation point."
+        return result
+
+    exaltation_info = DEEP_EXALTATION_POINTS[p11_name]
+    p11_house = yoga.get_house_of_planet(p11_name)
+    p11_sign = yoga.get_rashi_of_house(p11_house)
+
+    if p11_sign != exaltation_info["sign"]:
+        result["details"] = f"{p11_name} is in {p11_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        return result
+
+    p11_degree = p11["longitude"] % 30
+    exalt_degree = exaltation_info["degree"]
+    if not (abs(p11_degree - exalt_degree) <= 5):
+        result["details"] = f"{p11_name} at {p11_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        return result
+        
+    # Condition 2: joins Venus in a Kendra from the lord of Lagna
+    house_of_l11 = yoga.get_house_of_planet(lord_of_11)
+    house_of_venus = yoga.get_house_of_planet("Venus")
+    if house_of_l11 != house_of_venus:
+        result["details"] = f"11th lord ({lord_of_11}) and Venus are not in the same house."
+        return result
+
+    lord_of_1 = yoga.get_lord_of_house(1)
+    if not lord_of_1:
+        result["details"] = "Could not determine lord of Lagna."
+        return result
+        
+    base_house = yoga.get_house_of_planet(lord_of_1)
+    if not base_house:
+        result["details"] = f"Could not find house of Lagna lord ({lord_of_1})."
+        return result
+        
+    target_house = house_of_l11
+    kendra_offsets = [1, 4, 7, 10]
+    kendra_houses = [((base_house - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
+    if target_house not in kendra_houses:
+        result["details"] = f"House of 11th lord and Venus ({target_house}) is not in a Kendra from Lagna lord's house ({base_house})."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Vidyut Yoga are met."
+    return result
+
+
+@register_yoga("Gandharva")
+def Gandharva(yoga: Yoga) -> YogaType:
+    """
+    The 10th Lord is in the Kama Trikona (3, 7, 11) and the Lord of Lagna and Jupiter are in association
+    The Sun being exalted and the Moon occupies the 9th
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Gandharva",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    # Condition 1: 10th Lord in Kama Trikona (3, 7, 11)
+    lord_of_10 = yoga.get_lord_of_house(10)
+    if not lord_of_10:
+        result["details"] = "Could not determine lord of 10th."
+        return result
+    house_of_l10 = yoga.get_house_of_planet(lord_of_10)
+    if house_of_l10 not in [3, 7, 11]:
+        result["details"] = f"10th lord ({lord_of_10}) is in house {house_of_l10}, not in a Kama Trikona (3, 7, 11)."
+        return result
+
+    # Condition 2: Lord of Lagna and Jupiter are in association
+    lord_of_1 = yoga.get_lord_of_house(1)
+    if not lord_of_1:
+        result["details"] = "Could not determine lord of Lagna."
+        return result
+    house_of_l1 = yoga.get_house_of_planet(lord_of_1)
+    house_of_ju = yoga.get_house_of_planet("Jupiter")
+    if house_of_l1 != house_of_ju:
+        result["details"] = "Lagna lord and Jupiter are not in the same house."
+        return result
+        
+    # Condition 3: Sun is exalted
+    sun_planet = yoga.get_planet_by_name("Sun")
+    if not sun_planet or "Exalted" not in sun_planet["inSign"]:
+        result["details"] = "Sun is not exalted."
+        return result
+        
+    # Condition 4: Moon occupies the 9th
+    moon_house = yoga.get_house_of_planet("Moon")
+    if moon_house != 9:
+        result["details"] = f"Moon is in house {moon_house}, not the 9th."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Gandharva Yoga are met."
+    return result
+
+
+@register_yoga("Vishnu")
+def Vishnu(yoga: Yoga) -> YogaType:
+    """
+    The lord of the Navamsa in which the 9th lord is placed
+    and the 10th lord joins the 2nd house in conjunction with the 9th lord
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Vishnu",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    l9 = yoga.get_lord_of_house(9)
+    l10 = yoga.get_lord_of_house(10)
+    if not l9 or not l10:
+        result["details"] = "Could not determine lord of 9th or 10th."
+        return result
+        
+    # Condition: l9, l10 and NL9L must be in the 2nd house
+    house_of_l9 = yoga.get_house_of_planet(l9)
+    house_of_l10 = yoga.get_house_of_planet(l10)
+    
+    if house_of_l9 != 2 or house_of_l10 != 2:
+        result["details"] = f"9th lord ({l9} in {house_of_l9}) and 10th lord ({l10} in {house_of_l10}) are not both in the 2nd house."
+        return result
+
+    # Find Navamsa lord of L9's Navamsa sign (NL9L)
+    d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
+    l9_d9_sign = None
+    for _house, data in d9_chart.items():
+        for planet in data["planets"]:
+            if planet["name"] == l9:
+                l9_d9_sign = planet["sign"]["name"]
+                break
+        if l9_d9_sign:
+            break
+            
+    if not l9_d9_sign:
+        result["details"] = f"Could not find {l9} in the Navamsa chart."
+        return result
+        
+    NL9L = RASHI_LORD_MAP.get(l9_d9_sign)
+    if not NL9L:
+        result["details"] = f"Could not determine the lord of Navamsa sign {l9_d9_sign}. "
+        return result
+        
+    house_of_nl9l = yoga.get_house_of_planet(NL9L)
+    if house_of_nl9l != 2:
+        result["details"] = f"Navamsa lord of 9th lord ({NL9L}) is not in the 2nd house."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = f"9th lord ({l9}), 10th lord ({l10}), and Navamsa lord of 9th lord ({NL9L}) are all in the 2nd house."
+    return result
+
+
+@register_yoga("Brahma")
+def Brahma(yoga: Yoga) -> YogaType:
+    """
+    Jupiter and Venus are in Kendras respectively from the lords of the 9th and 11th
+    and Mercury is in Kendras from the lord of either Lagna or the 10th
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Brahma",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    kendra_offsets = [1, 4, 7, 10]
+    
+    # Condition 1: Jupiter in Kendra from 9th lord
+    l9 = yoga.get_lord_of_house(9)
+    if not l9:
+        result["details"] = "Could not determine lord of 9th."
+        return result
+    h_l9 = yoga.get_house_of_planet(l9)
+    h_ju = yoga.get_house_of_planet("Jupiter")
+    if not h_l9 or not h_ju:
+        result["details"] = "Could not locate 9th lord or Jupiter."
+        return result
+    kendra_from_l9 = [((h_l9 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
+    if h_ju not in kendra_from_l9:
+        result["details"] = "Jupiter is not in a Kendra from the 9th lord."
+        return result
+
+    # Condition 2: Venus in Kendra from 11th lord
+    l11 = yoga.get_lord_of_house(11)
+    if not l11:
+        result["details"] = "Could not determine lord of 11th."
+        return result
+    h_l11 = yoga.get_house_of_planet(l11)
+    h_ve = yoga.get_house_of_planet("Venus")
+    if not h_l11 or not h_ve:
+        result["details"] = "Could not locate 11th lord or Venus."
+        return result
+    kendra_from_l11 = [
+        ((h_l11 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets
+    ]
+    if h_ve not in kendra_from_l11:
+        result["details"] = "Venus is not in a Kendra from the 11th lord."
+        return result
+        
+    # Condition 3: Mercury in Kendra from Lagna lord OR 10th lord
+    l1 = yoga.get_lord_of_house(1)
+    l10 = yoga.get_lord_of_house(10)
+    if not l1 or not l10:
+        result["details"] = "Could not determine lord of 1st or 10th."
+        return result
+    h_l1 = yoga.get_house_of_planet(l1)
+    h_l10 = yoga.get_house_of_planet(l10)
+    h_me = yoga.get_house_of_planet("Mercury")
+    if not h_l1 or not h_l10 or not h_me:
+        result["details"] = "Could not locate 1st lord, 10th lord or Mercury."
+        return result
+        
+    kendra_from_l1 = [((h_l1 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
+    kendra_from_l10 = [((h_l10 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
+    
+    me_kendra_l1 = h_me in kendra_from_l1
+    me_kendra_l10 = h_me in kendra_from_l10
+    
+    if not (me_kendra_l1 or me_kendra_l10):
+        result["details"] = "Mercury is not in a Kendra from either the Lagna lord or the 10th lord."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Brahma Yoga are met."
+    return result
+
+
+@register_yoga("Indra")
+def Indra(yoga: Yoga) -> YogaType:
+    """
+    The lord of the 5th and 11th interchange their houses and the Moon is in the 5th
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Indra",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Neutral",
+    }
+    
+    # Condition 1: Lord of 5th and 11th interchange
+    l5 = yoga.get_lord_of_house(5)
+    l11 = yoga.get_lord_of_house(11)
+    if not l5 or not l11:
+        result["details"] = "Could not determine lord of 5th or 11th."
+        return result
+        
+    h_l5 = yoga.get_house_of_planet(l5)
+    h_l11 = yoga.get_house_of_planet(l11)
+    
+    if not (h_l5 == 11 and h_l11 == 5):
+        result["details"] = "Lords of 5th and 11th do not interchange houses."
+        return result
+
+    # Condition 2: Moon is in the 5th
+    h_mo = yoga.get_house_of_planet("Moon")
+    if h_mo != 5:
+        result["details"] = "Moon is not in the 5th house."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Indra Yoga are met."
+    return result
+
+
+@register_yoga("Ravi")
+def Ravi(yoga: Yoga) -> YogaType:
+    """
+    The Sun joins the 10th and the lord of 10th must be in 3rd in conjunction with Saturn
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Ravi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Condition 1: Sun in 10th house
+    h_su = yoga.get_house_of_planet("Sun")
+    if h_su != 10:
+        result["details"] = "Sun is not in the 10th house."
+        return result
+        
+    # Condition 2: Lord of 10th in 3rd with Saturn
+    l10 = yoga.get_lord_of_house(10)
+    if not l10:
+        result["details"] = "Could not determine lord of 10th."
+        return result
+    h_l10 = yoga.get_house_of_planet(l10)
+    h_sa = yoga.get_house_of_planet("Saturn")
+    
+    if not(h_l10 == 3 and h_sa == 3):
+        result["details"] = "Lord of 10th is not in the 3rd house in conjunction with Saturn."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Ravi Yoga are met."
+    return result
+
+
+@register_yoga("Go")
+def Go(yoga: Yoga) -> YogaType:
+    """
+    Jupiter in Moolatrikona with the lord of the 2nd house and the lord of Lagna is in exaltation
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Go",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Condition 1: Jupiter in Moolatrikona and with 2nd lord
+    p_ju = yoga.get_planet_by_name("Jupiter")
+    if not p_ju or "Moola Trikona" not in p_ju["inSign"]:
+        result["details"] = "Jupiter is not in Moolatrikona."
+        return result
+        
+    l2 = yoga.get_lord_of_house(2)
+    if not l2:
+        result["details"] = "Could not determine lord of 2nd."
+        return result
+        
+    h_ju = yoga.get_house_of_planet("Jupiter")
+    h_l2 = yoga.get_house_of_planet(l2)
+    if h_ju != h_l2:
+        result["details"] = "Jupiter is not in conjunction with the 2nd lord."
+        return result
+        
+    # Condition 2: Lord of Lagna is in exaltation
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not determine lord of Lagna."
+        return result
+        
+    p_l1 = yoga.get_planet_by_name(l1)
+    if not p_l1 or "Exalted" not in p_l1["inSign"]:
+        result["details"] = "Lord of Lagna is not exalted."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = "All conditions for Go Yoga are met."
     return result
