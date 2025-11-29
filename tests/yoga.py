@@ -213,10 +213,33 @@ def main():
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
+    import json
 
-    # Check if --show-yogas flag is passed
-    if "--show-yoga" in sys.argv or "-y" in sys.argv:
+    parser = argparse.ArgumentParser(description="Test yogas.")
+    parser.add_argument("--yoga", type=str, help="Test a single yoga by name.")
+    parser.add_argument(
+        "--show-yoga", "-y", action="store_true", help="Show all yogas for the horoscope."
+    )
+
+    args = parser.parse_args()
+
+    if args.yoga:
+        yoga_name = args.yoga
+        if yoga_name in YOGA_REGISTRY:
+            print(f"Testing yoga: {yoga_name}")
+            start_time = time.perf_counter()
+            result = YOGA_REGISTRY[yoga_name](yoga)
+            end_time = time.perf_counter()
+            print(json.dumps(result, indent=2))
+            print(f"\nExecution time: {end_time - start_time:.6f} seconds")
+        else:
+            print(f"Error: Yoga '{yoga_name}' not found.")
+            print("Available yogas:")
+            for y_name in sorted(YOGA_REGISTRY.keys()):
+                print(f"  - {y_name}")
+            exit(1)
+    elif args.show_yoga:
         show_yogas()
     else:
         success = main()
