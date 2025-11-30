@@ -753,7 +753,25 @@ def Brahma(yoga: Yoga) -> YogaType:
 
     result["present"] = True
     result["strength"] = 1.0
-    result["details"] = "All conditions for Brahma Yoga are met."
+
+    details_parts = []
+    details_parts.append(f"Jupiter (h{h_ju}) in Kendra from 9th lord ({l9} in h{h_l9})")
+    details_parts.append(
+        f"Venus (h{h_ve}) in Kendra from 11th lord ({l11} in h{h_l11})"
+    )
+
+    mercury_kendra_details = []
+    if me_kendra_l1:
+        mercury_kendra_details.append(f"Lagna lord ({l1} in h{h_l1})")
+    if me_kendra_l10:
+        mercury_kendra_details.append(f"10th lord ({l10} in h{h_l10})")
+
+    if mercury_kendra_details:
+        details_parts.append(
+            f"Mercury (h{h_me}) in Kendra from {' and '.join(mercury_kendra_details)}"
+        )
+
+    result["details"] = "; ".join(details_parts)
     return result
 
 
@@ -923,13 +941,13 @@ def Thrilochana(yoga: Yoga) -> YogaType:
     if (houses[1] - houses[0] == 4) and (houses[2] - houses[1] == 4):
         result["present"] = True
         result["strength"] = 1.0
-        result[
-            "details"
-        ] = f"Sun, Moon, and Mars are in a grand trine at houses {h_su}, {h_mo}, and {h_ma}."
+        result["details"] = (
+            f"Sun, Moon, and Mars are in a grand trine at houses {h_su}, {h_mo}, and {h_ma}."
+        )
     else:
-        result[
-            "details"
-        ] = f"Sun (h{h_su}), Moon (h{h_mo}), and Mars (h{h_ma}) do not form a grand trine."
+        result["details"] = (
+            f"Sun (h{h_su}), Moon (h{h_mo}), and Mars (h{h_ma}) do not form a grand trine."
+        )
 
     return result
 
@@ -952,7 +970,9 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
     planet_houses = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
     if not all(planet_houses.values()):
         missing = [p for p, h in planet_houses.items() if h is None]
-        result["details"] = f"Could not locate all classical planets: {', '.join(missing)}."
+        result["details"] = (
+            f"Could not locate all classical planets: {', '.join(missing)}."
+        )
         return result
 
     # Check if all planets are in the same house
@@ -977,9 +997,9 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
         if the_house == target_house_from_sun:
             result["present"] = True
             result["strength"] = 1.0
-            result[
-                "details"
-            ] = f"All classical planets are in house {the_house}, which is the 5th from the Sun (in house {h_su})."
+            result["details"] = (
+                f"All classical planets are in house {the_house}, which is the 5th from the Sun (in house {h_su})."
+            )
             return result
 
     # Case 3: 5th house from Moon
@@ -989,14 +1009,14 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
         if the_house == target_house_from_moon:
             result["present"] = True
             result["strength"] = 1.0
-            result[
-                "details"
-            ] = f"All classical planets are in house {the_house}, which is the 5th from the Moon (in house {h_mo})."
+            result["details"] = (
+                f"All classical planets are in house {the_house}, which is the 5th from the Moon (in house {h_mo})."
+            )
             return result
 
-    result[
-        "details"
-    ] = f"All classical planets are in house {the_house}, which is not the 5th from Lagna, Sun, or Moon."
+    result["details"] = (
+        f"All classical planets are in house {the_house}, which is not the 5th from Lagna, Sun, or Moon."
+    )
     return result
 
 
@@ -1028,13 +1048,13 @@ def Yupa(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
         occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
-        result[
-            "details"
-        ] = f"All classical planets are in the first four houses. Occupied houses: {occupied_houses_str}."
+        result["details"] = (
+            f"All classical planets are in the first four houses. Occupied houses: {occupied_houses_str}."
+        )
     else:
-        result[
-            "details"
-        ] = "Not all classical planets are confined to the first four houses (1, 2, 3, 4)."
+        result["details"] = (
+            "Not all classical planets are confined to the first four houses (1, 2, 3, 4)."
+        )
 
     return result
 
@@ -1067,10 +1087,12 @@ def Ishu(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
         occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
-        result[
-            "details"
-        ] = f"All classical planets are in the four houses starting from the 4th. Occupied houses: {occupied_houses_str}."
+        result["details"] = (
+            f"All classical planets are in the four houses starting from the 4th. Occupied houses: {occupied_houses_str}."
+        )
     else:
-        result["details"] = "Not all classical planets are confined to houses 4, 5, 6, 7."
+        result["details"] = (
+            "Not all classical planets are confined to houses 4, 5, 6, 7."
+        )
 
     return result
