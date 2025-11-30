@@ -1079,13 +1079,14 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
             results[name]["details"] = "Could not locate all classical planets."
         return results
 
-    
     for name, definition in yoga_definitions.items():
         required_house_count = definition["house_count"]
         start_house = definition["start_house"]
-        
-        required_houses_set = {((start_house + i - 1) % 12) + 1 for i in range(required_house_count)}
-        
+
+        required_houses_set = {
+            ((start_house + i - 1) % 12) + 1 for i in range(required_house_count)
+        }
+
         occupied_houses = set(planet_locations.values())
 
         condition_met = False
@@ -1097,30 +1098,32 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
         if condition_met:
             results[name]["present"] = True
             results[name]["strength"] = 1.0
-            
+
             planets_by_house = {}
             for p, h in planet_locations.items():
                 if h not in planets_by_house:
                     planets_by_house[h] = []
                 planets_by_house[h].append(p)
-            
+
             details_list = []
             for h in sorted(list(required_houses_set)):
-                planets_str = ', '.join(planets_by_house.get(h, []))
-                details_list.append(f"House {h}: {planets_str if planets_str else 'Empty'}")
+                planets_str = ", ".join(planets_by_house.get(h, []))
+                details_list.append(
+                    f"House {h}: {planets_str if planets_str else 'Empty'}"
+                )
 
-            results[name][
-                "details"
-            ] = f"All {required_house_count} classical planets are in {required_house_count} consecutive houses starting from house {start_house}. Planets found: {'; '.join(details_list)}."
+            results[name]["details"] = (
+                f"All {required_house_count} classical planets are in {required_house_count} consecutive houses starting from house {start_house}. Planets found: {'; '.join(details_list)}."
+            )
         else:
             outside_planets = []
             for planet, house in planet_locations.items():
                 if house not in required_houses_set:
                     outside_planets.append(f"{planet} in house {house}")
-            
-            results[name][
-                "details"
-            ] = f"For {name} Yoga, all {required_house_count} classical planets must be in houses {', '.join(map(str, sorted(list(required_houses_set))))}. Planets outside this range: {', '.join(outside_planets)}."
+
+            results[name]["details"] = (
+                f"For {name} Yoga, all {required_house_count} classical planets must be in houses {', '.join(map(str, sorted(list(required_houses_set))))}. Planets outside this range: {', '.join(outside_planets)}."
+            )
 
     return results
 
@@ -1138,7 +1141,7 @@ def ArdhaChandra(yoga: Yoga) -> YogaType:
         "details": "ArdhaChandra Yoga not formed.",
         "type": "Positive",
     }
-    
+
     planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
 
     if any(h is None for h in planet_locations.values()):
@@ -1148,33 +1151,39 @@ def ArdhaChandra(yoga: Yoga) -> YogaType:
     occupied_houses = set(planet_locations.values())
 
     if len(occupied_houses) != 7:
-        result['details'] = f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(list(occupied_houses))}"
+        result["details"] = (
+            f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(list(occupied_houses))}"
+        )
         return result
-        
+
     for start_house in range(1, 13):
         # Exclude starts for Nav, Kuta, Chhatra, Chapa
         if start_house in [1, 4, 7, 10]:
             continue
-            
+
         consecutive_houses = {(start_house + i - 1) % 12 + 1 for i in range(7)}
         if occupied_houses == consecutive_houses:
             result["present"] = True
             result["strength"] = 1.0
-            
+
             planets_by_house = {}
             for p, h in planet_locations.items():
                 if h not in planets_by_house:
                     planets_by_house[h] = []
                 planets_by_house[h].append(p)
-            
+
             details_list = []
             for h in sorted(list(consecutive_houses)):
-                 planets_str = ', '.join(planets_by_house.get(h, []))
-                 details_list.append(f"House {h}: {planets_str if planets_str else 'Empty'}")
-                 
-            result["details"] = f"ArdhaChandra Yoga is formed. All 7 classical planets are in 7 consecutive houses starting from house {start_house}. Planet positions: {'; '.join(details_list)}"
+                planets_str = ", ".join(planets_by_house.get(h, []))
+                details_list.append(
+                    f"House {h}: {planets_str if planets_str else 'Empty'}"
+                )
+
+            result["details"] = (
+                f"ArdhaChandra Yoga is formed. All 7 classical planets are in 7 consecutive houses starting from house {start_house}. Planet positions: {'; '.join(details_list)}"
+            )
             return result
-            
+
     return result
 
 
@@ -1191,35 +1200,39 @@ def Chandra(yoga: Yoga) -> YogaType:
         "details": "Chandra Yoga not formed.",
         "type": "Positive",
     }
-    
+
     required_houses = {1, 3, 5, 7, 9, 11}
     planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
-    
+
     if any(h is None for h in planet_locations.values()):
         result["details"] = "Could not locate all classical planets."
         return result
-        
+
     occupied_houses = set(planet_locations.values())
-    
+
     if occupied_houses == required_houses:
         result["present"] = True
         result["strength"] = 1.0
-        
+
         planets_by_house = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
             planets_by_house[h].append(p)
-        
+
         details_list = []
         for h in sorted(list(required_houses)):
-             planets_str = ', '.join(planets_by_house.get(h, []))
-             details_list.append(f"House {h}: {planets_str if planets_str else 'Empty'}")
-             
-        result["details"] = f"Chandra Yoga is formed. All planets are in houses 1, 3, 5, 7, 9, 11. Planet positions: {'; '.join(details_list)}"
+            planets_str = ", ".join(planets_by_house.get(h, []))
+            details_list.append(f"House {h}: {planets_str if planets_str else 'Empty'}")
+
+        result["details"] = (
+            f"Chandra Yoga is formed. All planets are in houses 1, 3, 5, 7, 9, 11. Planet positions: {'; '.join(details_list)}"
+        )
     else:
-        result["details"] = f"Chandra Yoga not formed. All planets are not in houses 1, 3, 5, 7, 9, 11. Occupied houses: {sorted(list(occupied_houses))}"
-        
+        result["details"] = (
+            f"Chandra Yoga not formed. All planets are not in houses 1, 3, 5, 7, 9, 11. Occupied houses: {sorted(list(occupied_houses))}"
+        )
+
     return result
 
 
@@ -1231,9 +1244,30 @@ def KendraStithiYogas(yoga: Yoga) -> Dict[str, YogaType]:
     Vihaga Kendra Stithi: All planets occupy 4th and 10th kendra houses.
     """
     results: Dict[str, YogaType] = {
-        "Gada Kendra Stithi": {"id": "", "name": "Gada Kendra Stithi", "present": False, "strength": 0.0, "details": "Gada Yoga not formed.", "type": "Positive"},
-        "Sakata Kendra Stithi": {"id": "", "name": "Sakata Kendra Stithi", "present": False, "strength": 0.0, "details": "Sakata Yoga not formed.", "type": "Positive"},
-        "Vihaga Kendra Stithi": {"id": "", "name": "Vihaga Kendra Stithi", "present": False, "strength": 0.0, "details": "Vihaga Yoga not formed.", "type": "Positive"},
+        "Gada Kendra Stithi": {
+            "id": "",
+            "name": "Gada Kendra Stithi",
+            "present": False,
+            "strength": 0.0,
+            "details": "Gada Yoga not formed.",
+            "type": "Positive",
+        },
+        "Sakata Kendra Stithi": {
+            "id": "",
+            "name": "Sakata Kendra Stithi",
+            "present": False,
+            "strength": 0.0,
+            "details": "Sakata Yoga not formed.",
+            "type": "Negative",
+        },
+        "Vihaga Kendra Stithi": {
+            "id": "",
+            "name": "Vihaga Kendra Stithi",
+            "present": False,
+            "strength": 0.0,
+            "details": "Vihaga Yoga not formed.",
+            "type": "Negative",
+        },
     }
 
     planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
@@ -1250,18 +1284,26 @@ def KendraStithiYogas(yoga: Yoga) -> Dict[str, YogaType]:
     if occupied_houses.issubset({1, 7}):
         results["Sakata Kendra Stithi"]["present"] = True
         results["Sakata Kendra Stithi"]["strength"] = 1.0
-        results["Sakata Kendra Stithi"]["details"] = f"Sakata Yoga formed. All planets are in houses 1 and 7. Occupied houses: {occupied_houses_str}"
+        results["Sakata Kendra Stithi"]["details"] = (
+            f"Sakata Yoga formed. All planets are in houses 1 and 7. Occupied houses: {occupied_houses_str}"
+        )
     else:
-        results["Sakata Kendra Stithi"]["details"] = f"Sakata Yoga not formed. All planets must be in houses 1 and 7. Occupied houses: {occupied_houses_str}"
+        results["Sakata Kendra Stithi"]["details"] = (
+            f"Sakata Yoga not formed. All planets must be in houses 1 and 7. Occupied houses: {occupied_houses_str}"
+        )
 
     # Vihaga
     if occupied_houses.issubset({4, 10}):
         results["Vihaga Kendra Stithi"]["present"] = True
         results["Vihaga Kendra Stithi"]["strength"] = 1.0
-        results["Vihaga Kendra Stithi"]["details"] = f"Vihaga Yoga formed. All planets are in houses 4 and 10. Occupied houses: {occupied_houses_str}"
+        results["Vihaga Kendra Stithi"]["details"] = (
+            f"Vihaga Yoga formed. All planets are in houses 4 and 10. Occupied houses: {occupied_houses_str}"
+        )
     else:
-        results["Vihaga Kendra Stithi"]["details"] = f"Vihaga Yoga not formed. All planets must be in houses 4 and 10. Occupied houses: {occupied_houses_str}"
-        
+        results["Vihaga Kendra Stithi"]["details"] = (
+            f"Vihaga Yoga not formed. All planets must be in houses 4 and 10. Occupied houses: {occupied_houses_str}"
+        )
+
     # Gada
     gada_pairs = [{1, 4}, {4, 7}, {7, 10}, {10, 1}]
     gada_formed = False
@@ -1269,10 +1311,14 @@ def KendraStithiYogas(yoga: Yoga) -> Dict[str, YogaType]:
         if occupied_houses.issubset(pair):
             results["Gada Kendra Stithi"]["present"] = True
             results["Gada Kendra Stithi"]["strength"] = 1.0
-            results["Gada Kendra Stithi"]["details"] = f"Gada Yoga formed. All planets are in houses {pair}. Occupied houses: {occupied_houses_str}"
+            results["Gada Kendra Stithi"]["details"] = (
+                f"Gada Yoga formed. All planets are in houses {pair}. Occupied houses: {occupied_houses_str}"
+            )
             gada_formed = True
             break
     if not gada_formed:
-        results["Gada Kendra Stithi"]["details"] = f"Gada Yoga not formed. All planets must be in one of the adjacent kendra pairs (1,4), (4,7), (7,10), or (10,1). Occupied houses: {occupied_houses_str}"
+        results["Gada Kendra Stithi"]["details"] = (
+            f"Gada Yoga not formed. All planets must be in one of the adjacent kendra pairs (1,4), (4,7), (7,10), or (10,1). Occupied houses: {occupied_houses_str}"
+        )
 
     return results
