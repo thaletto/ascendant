@@ -968,27 +968,36 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    planet_houses = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
-    if not all(planet_houses.values()):
-        missing = [p for p, h in planet_houses.items() if h is None]
+    planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
+    if not all(planet_locations.values()):
+        missing = [p for p, h in planet_locations.items() if h is None]
         result["details"] = (
             f"Could not locate all classical planets: {', '.join(missing)}."
         )
         return result
 
     # Check if all planets are in the same house
-    occupied_houses = set(planet_houses.values())
+    occupied_houses = set(planet_locations.values())
     if len(occupied_houses) > 1:
-        result["details"] = "Classical planets are not in a single house."
+        planets_by_house = {}
+        for p, h in planet_locations.items():
+            if h not in planets_by_house:
+                planets_by_house[h] = []
+            planets_by_house[h].append(p)
+        details_list = []
+        for h in sorted(planets_by_house.keys()):
+            details_list.append(f"House {h}: {', '.join(planets_by_house[h])}")
+        result["details"] = f"Classical planets are not in a single house. Planet distribution: {'; '.join(details_list)}"
         return result
 
     the_house = occupied_houses.pop()
+    planets_in_the_house = list(planet_locations.keys())
 
     # Case 1: 5th house from Lagna
     if the_house == 5:
         result["present"] = True
         result["strength"] = 1.0
-        result["details"] = "All classical planets are in the 5th house from Lagna."
+        result["details"] = f"All classical planets ({', '.join(planets_in_the_house)}) are in the 5th house from Lagna."
         return result
 
     # Case 2: 5th house from Sun
@@ -999,7 +1008,7 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
             result["present"] = True
             result["strength"] = 1.0
             result["details"] = (
-                f"All classical planets are in house {the_house}, which is the 5th from the Sun (in house {h_su})."
+                f"All classical planets ({', '.join(planets_in_the_house)}) are in house {the_house}, which is the 5th from the Sun (in house {h_su})."
             )
             return result
 
@@ -1011,12 +1020,13 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
             result["present"] = True
             result["strength"] = 1.0
             result["details"] = (
-                f"All classical planets are in house {the_house}, which is the 5th from the Moon (in house {h_mo})."
+                f"All classical planets ({', '.join(planets_in_the_house)}) are in house {the_house}, which is the 5th from the Moon (in house {h_mo})."
             )
             return result
 
     result["details"] = (
-        f"All classical planets are in house {the_house}, which is not the 5th from Lagna, Sun, or Moon."
+        f"All classical planets are in house {the_house}, but this is not the 5th from Lagna, Sun, or Moon. "
+        f"5th from Lagna is 5. 5th from Sun (in house {h_su}) is {((h_su - 1 + 4) % 12) + 1}. 5th from Moon (in house {h_mo}) is {((h_mo - 1 + 4) % 12) + 1}."
     )
     return result
 
@@ -1031,6 +1041,12 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
     Shadow planets are not considered.
     """
+    yoga_types = {
+        "Yupa": "Positive",
+        "Ishu": "Positive",
+        "Sakti": "Negative",
+        "Danda": "Negative",
+    }
     results: Dict[str, YogaType] = {
         name: {
             "id": "",
@@ -1038,9 +1054,9 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
             "present": False,
             "strength": 0.0,
             "details": f"Condition for {name} Yoga not met.",
-            "type": "Positive",
+            "type": yoga_types[name],
         }
-        for name in ["Yupa", "Ishu", "Sakti", "Danda"]
+        for name in yoga_types
     }
 
     planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
