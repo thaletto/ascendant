@@ -1,3 +1,4 @@
+from typing import Dict
 from ascendant.const import (
     BENEFIC_PLANETS,
     DEEP_EXALTATION_POINTS,
@@ -6,7 +7,7 @@ from ascendant.const import (
     CLASSICAL_PLANETS,
 )
 from ascendant.types import YogaType
-from ascendant.yoga.base import Yoga, register_yoga
+from ascendant.yoga.base import Yoga, register_yoga, register_yogas
 
 
 @register_yoga("Kusuma")
@@ -1020,79 +1021,71 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("Yupa")
-def Yupa(yoga: Yoga) -> YogaType:
+@register_yogas("Yupa", "Ishu", "Sakti", "Danda")
+def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
     """
-    Planets occupy four consecutive houses starting from the Lagna.
-    Shadow planets are not considered
+    Yupa: Planets occupy four consecutive houses starting from the Lagna.
+    Ishu: Planets occupy four consecutive houses starting from the Nadir (fourth house).
+    Sakti: Planets occupy four consecutive houses starting from the 7th house.
+    Danda: Planets occupy four consecutive houses starting from the 10th house.
+
+    Shadow planets are not considered.
     """
-    result: YogaType = {
-        "id": "",
-        "name": "Yupa",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
+    results: Dict[str, YogaType] = {
+        name: {
+            "id": "",
+            "name": name,
+            "present": False,
+            "strength": 0.0,
+            "details": f"Condition for {name} Yoga not met.",
+            "type": "Positive",
+        }
+        for name in ["Yupa", "Ishu", "Sakti", "Danda"]
     }
 
-    planet_houses = [yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS]
+    planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
 
-    if any(h is None for h in planet_houses):
-        result["details"] = "Could not locate all classical planets."
-        return result
+    if any(h is None for h in planet_locations.values()):
+        for name in results:
+            results[name]["details"] = "Could not locate all classical planets."
+        return results
 
-    required_houses = {1, 2, 3, 4}
-    is_yupa = all(h in required_houses for h in planet_houses)
+    planet_houses = set(planet_locations.values())
 
-    if is_yupa:
-        result["present"] = True
-        result["strength"] = 1.0
-        occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
-        result["details"] = (
-            f"All classical planets are in the first four houses. Occupied houses: {occupied_houses_str}."
-        )
-    else:
-        result["details"] = (
-            "Not all classical planets are confined to the first four houses (1, 2, 3, 4)."
-        )
-
-    return result
-
-
-@register_yoga("Ishu")
-def Ishu(yoga: Yoga) -> YogaType:
-    """
-    Planets occupy four consecutive houses starting from the Nadir (fourth house).
-    Shadow planets are not considered
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Ishu",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
+    yoga_definitions = {
+        "Yupa": {1, 2, 3, 4},
+        "Ishu": {4, 5, 6, 7},
+        "Sakti": {7, 8, 9, 10},
+        "Danda": {10, 11, 12, 1},
     }
 
-    planet_houses = [yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS]
+    for name, required_houses in yoga_definitions.items():
+        if planet_houses.issubset(required_houses):
+            results[name]["present"] = True
+            results[name]["strength"] = 1.0
+            
+            planets_by_house = {}
+            for p, h in planet_locations.items():
+                if h not in planets_by_house:
+                    planets_by_house[h] = []
+                planets_by_house[h].append(p)
+            
+            details_list = []
+            for h in sorted(planets_by_house.keys()):
+                details_list.append(f"House {h}: {', '.join(planets_by_house[h])}")
 
-    if any(h is None for h in planet_houses):
-        result["details"] = "Could not locate all selected classical planets."
-        return result
+            results[name][
+                "details"
+            ] = f"All classical planets are within houses {', '.join(map(str, sorted(list(required_houses))))}. Planets found: {'; '.join(details_list)}."
+        else:
+            outside_planets = []
+            for planet, house in planet_locations.items():
+                if house not in required_houses:
+                    outside_planets.append(f"{planet} in house {house}")
+            
+            results[name][
+                "details"
+            ] = f"For {name} Yoga, all classical planets must be in houses {', '.join(map(str, sorted(list(required_houses))))}. Planets outside this range: {', '.join(outside_planets)}."
 
-    required_houses = {4, 5, 6, 7}
-    is_ishu = all(h in required_houses for h in planet_houses)
-
-    if is_ishu:
-        result["present"] = True
-        result["strength"] = 1.0
-        occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
-        result["details"] = (
-            f"All classical planets are in the four houses starting from the 4th. Occupied houses: {occupied_houses_str}."
-        )
-    else:
-        result["details"] = (
-            "Not all classical planets are confined to houses 4, 5, 6, 7."
-        )
-
-    return result
+    return results
+    
