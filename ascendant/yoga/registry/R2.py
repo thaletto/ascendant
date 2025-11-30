@@ -1769,6 +1769,7 @@ def SankhyaYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
     return results
 
+
 @register_yogas("Rajju", "Musala", "Nala")
 def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
     """
@@ -1803,9 +1804,7 @@ def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
     if any(h is None for h in planet_locations.values()):
         missing_planets = [p for p, h in planet_locations.items() if h is None]
-        details = (
-            f"Could not locate all classical planets. Missing: {', '.join(missing_planets)}"
-        )
+        details = f"Could not locate all classical planets. Missing: {', '.join(missing_planets)}"
         for name in results:
             results[name]["details"] = details
         return results
@@ -1836,3 +1835,82 @@ def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
     return results
 
+
+@register_yogas("Srik", "Sarpa")
+def SrikSarpa(yoga: Yoga) -> Dict[str, YogaType]:
+    """
+    Srik: All the benefics occupy kendras
+    Sarpa: All the malefics occupy kendras
+    """
+    results: Dict[str, YogaType] = {
+        "Srik": {
+            "id": "",
+            "name": "Srik",
+            "present": False,
+            "strength": 0.0,
+            "details": "Srik Yoga not formed.",
+            "type": "Positive",
+        },
+        "Sarpa": {
+            "id": "",
+            "name": "Sarpa",
+            "present": False,
+            "strength": 0.0,
+            "details": "Sarpa Yoga not formed.",
+            "type": "Negative",
+        },
+    }
+
+    KENDRA_HOUSES = {1, 4, 7, 10}
+
+    # Srik Yoga
+    benefic_locations = {p: yoga.get_house_of_planet(p) for p in BENEFIC_PLANETS}
+    if any(h is None for h in benefic_locations.values()):
+        results["Srik"]["details"] = "Could not locate all benefic planets."
+    else:
+        benefics_in_kendra = all(h in KENDRA_HOUSES for h in benefic_locations.values())
+        if benefics_in_kendra:
+            results["Srik"]["present"] = True
+            results["Srik"]["strength"] = 1.0
+            pos_str = ", ".join(
+                [f"{p} in h{h}" for p, h in benefic_locations.items()]
+            )
+            results["Srik"][
+                "details"
+            ] = f"Srik Yoga formed. All benefics in Kendra houses: {pos_str}."
+        else:
+            outside = [
+                f"{p} in h{h}"
+                for p, h in benefic_locations.items()
+                if h not in KENDRA_HOUSES
+            ]
+            results["Srik"][
+                "details"
+            ] = f"Srik Yoga not formed. Benefics outside Kendras: {', '.join(outside)}."
+
+    # Sarpa Yoga
+    malefic_locations = {p: yoga.get_house_of_planet(p) for p in MALEFIC_PLANETS}
+    if any(h is None for h in malefic_locations.values()):
+        results["Sarpa"]["details"] = "Could not locate all malefic planets."
+    else:
+        malefics_in_kendra = all(h in KENDRA_HOUSES for h in malefic_locations.values())
+        if malefics_in_kendra:
+            results["Sarpa"]["present"] = True
+            results["Sarpa"]["strength"] = 1.0
+            pos_str = ", ".join(
+                [f"{p} in h{h}" for p, h in malefic_locations.items()]
+            )
+            results["Sarpa"][
+                "details"
+            ] = f"Sarpa Yoga formed. All malefics in Kendra houses: {pos_str}."
+        else:
+            outside = [
+                f"{p} in h{h}"
+                for p, h in malefic_locations.items()
+                if h not in KENDRA_HOUSES
+            ]
+            results["Sarpa"][
+                "details"
+            ] = f"Sarpa Yoga not formed. Malefics outside Kendras: {', '.join(outside)}."
+
+    return results
