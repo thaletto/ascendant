@@ -1768,3 +1768,71 @@ def SankhyaYogas(yoga: Yoga) -> Dict[str, YogaType]:
             )
 
     return results
+
+@register_yogas("Rajju", "Musala", "Nala")
+def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
+    """
+    Yogas based on all planets occupying signs of a certain modality.
+    - Rajju: All planets in movable (cardinal) signs.
+    - Musala: All planets in fixed signs.
+    - Nala: All planets in dual (mutable) signs.
+    """
+    MOVABLE_SIGNS = {"Aries", "Cancer", "Libra", "Capricorn"}
+    FIXED_SIGNS = {"Taurus", "Leo", "Scorpio", "Aquarius"}
+    DUAL_SIGNS = {"Gemini", "Virgo", "Sagittarius", "Pisces"}
+
+    yoga_definitions = {
+        "Rajju": {"signs": MOVABLE_SIGNS, "type": "Neutral", "modality": "movable"},
+        "Musala": {"signs": FIXED_SIGNS, "type": "Positive", "modality": "fixed"},
+        "Nala": {"signs": DUAL_SIGNS, "type": "Negative", "modality": "dual"},
+    }
+
+    results: Dict[str, YogaType] = {
+        name: {
+            "id": "",
+            "name": name,
+            "present": False,
+            "strength": 0.0,
+            "details": f"Condition for {name} Yoga not met.",
+            "type": definition["type"],
+        }
+        for name, definition in yoga_definitions.items()
+    }
+
+    planet_locations = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
+
+    if any(h is None for h in planet_locations.values()):
+        missing_planets = [p for p, h in planet_locations.items() if h is None]
+        details = (
+            f"Could not locate all classical planets. Missing: {', '.join(missing_planets)}"
+        )
+        for name in results:
+            results[name]["details"] = details
+        return results
+
+    occupied_rashis = {
+        yoga.get_rashi_of_house(h) for h in planet_locations.values() if h is not None
+    }
+
+    active_yoga = None
+    for name, definition in yoga_definitions.items():
+        if occupied_rashis.issubset(definition["signs"]):
+            active_yoga = name
+            break
+
+    for name, definition in yoga_definitions.items():
+        if name == active_yoga:
+            results[name]["present"] = True
+            results[name]["strength"] = 1.0
+            results[name]["details"] = (
+                f"{name} Yoga formed: All planets are in {definition['modality']} signs. "
+                f"Occupied signs: {', '.join(sorted(list(occupied_rashis)))}."
+            )
+        else:
+            results[name]["details"] = (
+                f"{name} Yoga not formed. All planets must be in {definition['modality']} signs. "
+                f"Occupied signs: {', '.join(sorted(list(occupied_rashis)))}."
+            )
+
+    return results
+
