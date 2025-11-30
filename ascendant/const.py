@@ -1,9 +1,9 @@
 from typing import List
 from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
-from ascendant.types import DeepExaltationPointsType
+from ascendant.types import PLANETS, DeepExaltationPointsType
 
 
-__all__ = [RASHIS, NAKSHATRAS]
+__all__ = [RASHIS, NAKSHATRAS, "CLASSICAL_PLANETS"]
 
 
 SELECTED_PLANETS: List[str] = [
@@ -16,6 +16,28 @@ SELECTED_PLANETS: List[str] = [
     "Saturn",
     "North Node",
     "South Node",
+]
+
+CLASSICAL_PLANETS: List[str] = [
+    "Sun",
+    "Moon",
+    "Mars",
+    "Mercury",
+    "Jupiter",
+    "Venus",
+    "Saturn",
+]
+
+PLANETS_LIST: List[PLANETS] = [
+    "Sun",
+    "Moon",
+    "Mars",
+    "Mercury",
+    "Jupiter",
+    "Venus",
+    "Saturn",
+    "Rahu",
+    "Ketu"
 ]
 
 NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}

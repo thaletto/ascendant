@@ -3,6 +3,7 @@ from ascendant.const import (
     DEEP_EXALTATION_POINTS,
     MALEFIC_PLANETS,
     RASHI_LORD_MAP,
+    CLASSICAL_PLANETS,
 )
 from ascendant.types import YogaType
 from ascendant.yoga.base import Yoga, register_yoga
@@ -451,13 +452,17 @@ def Jaya(yoga: Yoga) -> YogaType:
     p10_sign = yoga.get_rashi_of_house(p10_house)
 
     if p10_sign != exaltation_info["sign"]:
-        result["details"] = f"{p10_name} is in {p10_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        result["details"] = (
+            f"{p10_name} is in {p10_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        )
         return result
 
     p10_degree = p10["longitude"] % 30
     exalt_degree = exaltation_info["degree"]
     if not (abs(p10_degree - exalt_degree) <= 5):
-        result["details"] = f"{p10_name} at {p10_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        result["details"] = (
+            f"{p10_name} at {p10_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        )
         return result
 
     result["present"] = True
@@ -501,37 +506,47 @@ def Vidyut(yoga: Yoga) -> YogaType:
     p11_sign = yoga.get_rashi_of_house(p11_house)
 
     if p11_sign != exaltation_info["sign"]:
-        result["details"] = f"{p11_name} is in {p11_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        result["details"] = (
+            f"{p11_name} is in {p11_sign}, not its exaltation sign {exaltation_info['sign']}. "
+        )
         return result
 
     p11_degree = p11["longitude"] % 30
     exalt_degree = exaltation_info["degree"]
     if not (abs(p11_degree - exalt_degree) <= 5):
-        result["details"] = f"{p11_name} at {p11_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        result["details"] = (
+            f"{p11_name} at {p11_degree:.2f} is not within 5 degrees of deep exaltation point ({exalt_degree})."
+        )
         return result
-        
+
     # Condition 2: joins Venus in a Kendra from the lord of Lagna
     house_of_l11 = yoga.get_house_of_planet(lord_of_11)
     house_of_venus = yoga.get_house_of_planet("Venus")
     if house_of_l11 != house_of_venus:
-        result["details"] = f"11th lord ({lord_of_11}) and Venus are not in the same house."
+        result["details"] = (
+            f"11th lord ({lord_of_11}) and Venus are not in the same house."
+        )
         return result
 
     lord_of_1 = yoga.get_lord_of_house(1)
     if not lord_of_1:
         result["details"] = "Could not determine lord of Lagna."
         return result
-        
+
     base_house = yoga.get_house_of_planet(lord_of_1)
     if not base_house:
         result["details"] = f"Could not find house of Lagna lord ({lord_of_1})."
         return result
-        
+
     target_house = house_of_l11
     kendra_offsets = [1, 4, 7, 10]
-    kendra_houses = [((base_house - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
+    kendra_houses = [
+        ((base_house - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets
+    ]
     if target_house not in kendra_houses:
-        result["details"] = f"House of 11th lord and Venus ({target_house}) is not in a Kendra from Lagna lord's house ({base_house})."
+        result["details"] = (
+            f"House of 11th lord and Venus ({target_house}) is not in a Kendra from Lagna lord's house ({base_house})."
+        )
         return result
 
     result["present"] = True
@@ -554,7 +569,7 @@ def Gandharva(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    
+
     # Condition 1: 10th Lord in Kama Trikona (3, 7, 11)
     lord_of_10 = yoga.get_lord_of_house(10)
     if not lord_of_10:
@@ -562,7 +577,9 @@ def Gandharva(yoga: Yoga) -> YogaType:
         return result
     house_of_l10 = yoga.get_house_of_planet(lord_of_10)
     if house_of_l10 not in [3, 7, 11]:
-        result["details"] = f"10th lord ({lord_of_10}) is in house {house_of_l10}, not in a Kama Trikona (3, 7, 11)."
+        result["details"] = (
+            f"10th lord ({lord_of_10}) is in house {house_of_l10}, not in a Kama Trikona (3, 7, 11)."
+        )
         return result
 
     # Condition 2: Lord of Lagna and Jupiter are in association
@@ -575,13 +592,13 @@ def Gandharva(yoga: Yoga) -> YogaType:
     if house_of_l1 != house_of_ju:
         result["details"] = "Lagna lord and Jupiter are not in the same house."
         return result
-        
+
     # Condition 3: Sun is exalted
     sun_planet = yoga.get_planet_by_name("Sun")
     if not sun_planet or "Exalted" not in sun_planet["inSign"]:
         result["details"] = "Sun is not exalted."
         return result
-        
+
     # Condition 4: Moon occupies the 9th
     moon_house = yoga.get_house_of_planet("Moon")
     if moon_house != 9:
@@ -608,19 +625,21 @@ def Vishnu(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    
+
     l9 = yoga.get_lord_of_house(9)
     l10 = yoga.get_lord_of_house(10)
     if not l9 or not l10:
         result["details"] = "Could not determine lord of 9th or 10th."
         return result
-        
+
     # Condition: l9, l10 and NL9L must be in the 2nd house
     house_of_l9 = yoga.get_house_of_planet(l9)
     house_of_l10 = yoga.get_house_of_planet(l10)
-    
+
     if house_of_l9 != 2 or house_of_l10 != 2:
-        result["details"] = f"9th lord ({l9} in {house_of_l9}) and 10th lord ({l10} in {house_of_l10}) are not both in the 2nd house."
+        result["details"] = (
+            f"9th lord ({l9} in {house_of_l9}) and 10th lord ({l10} in {house_of_l10}) are not both in the 2nd house."
+        )
         return result
 
     # Find Navamsa lord of L9's Navamsa sign (NL9L)
@@ -633,24 +652,30 @@ def Vishnu(yoga: Yoga) -> YogaType:
                 break
         if l9_d9_sign:
             break
-            
+
     if not l9_d9_sign:
         result["details"] = f"Could not find {l9} in the Navamsa chart."
         return result
-        
+
     NL9L = RASHI_LORD_MAP.get(l9_d9_sign)
     if not NL9L:
-        result["details"] = f"Could not determine the lord of Navamsa sign {l9_d9_sign}. "
+        result["details"] = (
+            f"Could not determine the lord of Navamsa sign {l9_d9_sign}. "
+        )
         return result
-        
+
     house_of_nl9l = yoga.get_house_of_planet(NL9L)
     if house_of_nl9l != 2:
-        result["details"] = f"Navamsa lord of 9th lord ({NL9L}) is not in the 2nd house."
+        result["details"] = (
+            f"Navamsa lord of 9th lord ({NL9L}) is not in the 2nd house."
+        )
         return result
 
     result["present"] = True
     result["strength"] = 1.0
-    result["details"] = f"9th lord ({l9}), 10th lord ({l10}), and Navamsa lord of 9th lord ({NL9L}) are all in the 2nd house."
+    result["details"] = (
+        f"9th lord ({l9}), 10th lord ({l10}), and Navamsa lord of 9th lord ({NL9L}) are all in the 2nd house."
+    )
     return result
 
 
@@ -668,9 +693,9 @@ def Brahma(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    
+
     kendra_offsets = [1, 4, 7, 10]
-    
+
     # Condition 1: Jupiter in Kendra from 9th lord
     l9 = yoga.get_lord_of_house(9)
     if not l9:
@@ -696,13 +721,11 @@ def Brahma(yoga: Yoga) -> YogaType:
     if not h_l11 or not h_ve:
         result["details"] = "Could not locate 11th lord or Venus."
         return result
-    kendra_from_l11 = [
-        ((h_l11 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets
-    ]
+    kendra_from_l11 = [((h_l11 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
     if h_ve not in kendra_from_l11:
         result["details"] = "Venus is not in a Kendra from the 11th lord."
         return result
-        
+
     # Condition 3: Mercury in Kendra from Lagna lord OR 10th lord
     l1 = yoga.get_lord_of_house(1)
     l10 = yoga.get_lord_of_house(10)
@@ -715,15 +738,17 @@ def Brahma(yoga: Yoga) -> YogaType:
     if not h_l1 or not h_l10 or not h_me:
         result["details"] = "Could not locate 1st lord, 10th lord or Mercury."
         return result
-        
+
     kendra_from_l1 = [((h_l1 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
     kendra_from_l10 = [((h_l10 - 1 + offset - 1) % 12) + 1 for offset in kendra_offsets]
-    
+
     me_kendra_l1 = h_me in kendra_from_l1
     me_kendra_l10 = h_me in kendra_from_l10
-    
+
     if not (me_kendra_l1 or me_kendra_l10):
-        result["details"] = "Mercury is not in a Kendra from either the Lagna lord or the 10th lord."
+        result["details"] = (
+            "Mercury is not in a Kendra from either the Lagna lord or the 10th lord."
+        )
         return result
 
     result["present"] = True
@@ -745,17 +770,17 @@ def Indra(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Neutral",
     }
-    
+
     # Condition 1: Lord of 5th and 11th interchange
     l5 = yoga.get_lord_of_house(5)
     l11 = yoga.get_lord_of_house(11)
     if not l5 or not l11:
         result["details"] = "Could not determine lord of 5th or 11th."
         return result
-        
+
     h_l5 = yoga.get_house_of_planet(l5)
     h_l11 = yoga.get_house_of_planet(l11)
-    
+
     if not (h_l5 == 11 and h_l11 == 5):
         result["details"] = "Lords of 5th and 11th do not interchange houses."
         return result
@@ -791,7 +816,7 @@ def Ravi(yoga: Yoga) -> YogaType:
     if h_su != 10:
         result["details"] = "Sun is not in the 10th house."
         return result
-        
+
     # Condition 2: Lord of 10th in 3rd with Saturn
     l10 = yoga.get_lord_of_house(10)
     if not l10:
@@ -799,9 +824,11 @@ def Ravi(yoga: Yoga) -> YogaType:
         return result
     h_l10 = yoga.get_house_of_planet(l10)
     h_sa = yoga.get_house_of_planet("Saturn")
-    
-    if not(h_l10 == 3 and h_sa == 3):
-        result["details"] = "Lord of 10th is not in the 3rd house in conjunction with Saturn."
+
+    if not (h_l10 == 3 and h_sa == 3):
+        result["details"] = (
+            "Lord of 10th is not in the 3rd house in conjunction with Saturn."
+        )
         return result
 
     result["present"] = True
@@ -829,24 +856,24 @@ def Go(yoga: Yoga) -> YogaType:
     if not p_ju or "Moola Trikona" not in p_ju["inSign"]:
         result["details"] = "Jupiter is not in Moolatrikona."
         return result
-        
+
     l2 = yoga.get_lord_of_house(2)
     if not l2:
         result["details"] = "Could not determine lord of 2nd."
         return result
-        
+
     h_ju = yoga.get_house_of_planet("Jupiter")
     h_l2 = yoga.get_house_of_planet(l2)
     if h_ju != h_l2:
         result["details"] = "Jupiter is not in conjunction with the 2nd lord."
         return result
-        
+
     # Condition 2: Lord of Lagna is in exaltation
     l1 = yoga.get_lord_of_house(1)
     if not l1:
         result["details"] = "Could not determine lord of Lagna."
         return result
-        
+
     p_l1 = yoga.get_planet_by_name(l1)
     if not p_l1 or "Exalted" not in p_l1["inSign"]:
         result["details"] = "Lord of Lagna is not exalted."
@@ -855,4 +882,195 @@ def Go(yoga: Yoga) -> YogaType:
     result["present"] = True
     result["strength"] = 1.0
     result["details"] = "All conditions for Go Yoga are met."
+    return result
+
+
+@register_yoga("Thrilochana")
+def Thrilochana(yoga: Yoga) -> YogaType:
+    """
+    The Sun, Moon and Mars are in trines with each other
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Thrilochana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    h_su = yoga.get_house_of_planet("Sun")
+    h_mo = yoga.get_house_of_planet("Moon")
+    h_ma = yoga.get_house_of_planet("Mars")
+
+    if not all([h_su, h_mo, h_ma]):
+        details = []
+        if not h_su:
+            details.append("Sun")
+        if not h_mo:
+            details.append("Moon")
+        if not h_ma:
+            details.append("Mars")
+        result["details"] = f"Could not locate: {', '.join(details)}."
+        return result
+
+    # A grand trine means planets are in signs of the same element,
+    # which are 4 signs (120 degrees) apart.
+    # e.g., houses 1, 5, 9 or 2, 6, 10 etc.
+    houses = sorted([h_su, h_mo, h_ma])
+
+    # The difference between sorted house numbers must be 4.
+    if (houses[1] - houses[0] == 4) and (houses[2] - houses[1] == 4):
+        result["present"] = True
+        result["strength"] = 1.0
+        result[
+            "details"
+        ] = f"Sun, Moon, and Mars are in a grand trine at houses {h_su}, {h_mo}, and {h_ma}."
+    else:
+        result[
+            "details"
+        ] = f"Sun (h{h_su}), Moon (h{h_mo}), and Mars (h{h_ma}) do not form a grand trine."
+
+    return result
+
+
+@register_yoga("Kulavardhana")
+def Kulavardhana(yoga: Yoga) -> YogaType:
+    """
+    All planets are in the 5th house from either Lagna, the Sun and the Moon
+    Shadow planets are not considered
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Kulavardhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    planet_houses = {p: yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS}
+    if not all(planet_houses.values()):
+        missing = [p for p, h in planet_houses.items() if h is None]
+        result["details"] = f"Could not locate all classical planets: {', '.join(missing)}."
+        return result
+
+    # Check if all planets are in the same house
+    occupied_houses = set(planet_houses.values())
+    if len(occupied_houses) > 1:
+        result["details"] = "Classical planets are not in a single house."
+        return result
+
+    the_house = occupied_houses.pop()
+
+    # Case 1: 5th house from Lagna
+    if the_house == 5:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = "All classical planets are in the 5th house from Lagna."
+        return result
+
+    # Case 2: 5th house from Sun
+    h_su = yoga.get_house_of_planet("Sun")
+    if h_su:
+        target_house_from_sun = ((h_su - 1 + 4) % 12) + 1
+        if the_house == target_house_from_sun:
+            result["present"] = True
+            result["strength"] = 1.0
+            result[
+                "details"
+            ] = f"All classical planets are in house {the_house}, which is the 5th from the Sun (in house {h_su})."
+            return result
+
+    # Case 3: 5th house from Moon
+    h_mo = yoga.get_house_of_planet("Moon")
+    if h_mo:
+        target_house_from_moon = ((h_mo - 1 + 4) % 12) + 1
+        if the_house == target_house_from_moon:
+            result["present"] = True
+            result["strength"] = 1.0
+            result[
+                "details"
+            ] = f"All classical planets are in house {the_house}, which is the 5th from the Moon (in house {h_mo})."
+            return result
+
+    result[
+        "details"
+    ] = f"All classical planets are in house {the_house}, which is not the 5th from Lagna, Sun, or Moon."
+    return result
+
+
+@register_yoga("Yupa")
+def Yupa(yoga: Yoga) -> YogaType:
+    """
+    Planets occupy four consecutive houses starting from the Lagna.
+    Shadow planets are not considered
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Yupa",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    planet_houses = [yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS]
+
+    if any(h is None for h in planet_houses):
+        result["details"] = "Could not locate all classical planets."
+        return result
+
+    required_houses = {1, 2, 3, 4}
+    is_yupa = all(h in required_houses for h in planet_houses)
+
+    if is_yupa:
+        result["present"] = True
+        result["strength"] = 1.0
+        occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
+        result[
+            "details"
+        ] = f"All classical planets are in the first four houses. Occupied houses: {occupied_houses_str}."
+    else:
+        result[
+            "details"
+        ] = "Not all classical planets are confined to the first four houses (1, 2, 3, 4)."
+
+    return result
+
+
+@register_yoga("Ishu")
+def Ishu(yoga: Yoga) -> YogaType:
+    """
+    Planets occupy four consecutive houses starting from the Nadir (fourth house).
+    Shadow planets are not considered
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Ishu",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    planet_houses = [yoga.get_house_of_planet(p) for p in CLASSICAL_PLANETS]
+
+    if any(h is None for h in planet_houses):
+        result["details"] = "Could not locate all selected classical planets."
+        return result
+
+    required_houses = {4, 5, 6, 7}
+    is_ishu = all(h in required_houses for h in planet_houses)
+
+    if is_ishu:
+        result["present"] = True
+        result["strength"] = 1.0
+        occupied_houses_str = ", ".join(map(str, sorted(list(set(planet_houses)))))
+        result[
+            "details"
+        ] = f"All classical planets are in the four houses starting from the 4th. Occupied houses: {occupied_houses_str}."
+    else:
+        result["details"] = "Not all classical planets are confined to houses 4, 5, 6, 7."
+
     return result
