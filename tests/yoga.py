@@ -234,7 +234,6 @@ if __name__ == "__main__":
             print(json.dumps(result, indent=2))
             print(f"\nExecution time: {end_time - start_time:.6f} seconds")
         else:
-            print(f"Error: Yoga '{yoga_name}' not found.")
             print("Available yogas:")
             for y_name in sorted(YOGA_REGISTRY.keys()):
                 print(f"  - {y_name}")
