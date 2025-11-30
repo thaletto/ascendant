@@ -317,9 +317,9 @@ def Chatussagara(yoga: Yoga) -> YogaType:
         details.append(f"10th house: {', '.join([p['name'] for p in house_10])}")
 
     if result["present"]:
-        result["details"] = "Planets found in all kendras. " + '; '.join(details)
+        result["details"] = "Planets found in all kendras. " + "; ".join(details)
     else:
-        result["details"] = "Not all kendras are occupied. " + '; '.join(details)
+        result["details"] = "Not all kendras are occupied. " + "; ".join(details)
 
     # Strength logic
     if result["present"]:
@@ -978,12 +978,13 @@ def BuddhaAditya(yoga: Yoga) -> YogaType:
 @register_yoga("Pushkala")
 def Pushkala(yoga: Yoga) -> YogaType:
     """
-    Pushkala Yoga:
-    1. Lord of Moon's sign is associated with Lagna lord (aspect/conjunction)
-    2. Moon's lord is in a Kendra OR in an intimate friend's sign
-    3. Moon's lord aspects Lagna directly
-    4. Lagna is occupied by a powerful planet
+    Pushkala Yoga Formation Rules:
+    1. Lord of Moon's sign must associate with Lagna lord (aspect or conjunction)
+    2. Moon's lord must be in a Kendra or in a friend's sign
+    3. Moon's lord must aspect Lagna
+    4. Lagna must have a powerful planet
     """
+
     result: YogaType = {
         "id": "",
         "name": "Pushkala",
@@ -993,12 +994,12 @@ def Pushkala(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    # Get required houses and lords
+    # Basic lookups
     moon_house = yoga.get_house_of_planet("Moon")
     lagna_house = yoga.get_house_of_planet("Lagna")
 
     if not moon_house or not lagna_house:
-        result["details"] = "Moon or Lagna not found"
+        result["details"] = "Pushkala Yoga not formed because Moon or Lagna not found."
         return result
 
     moon_lord = yoga.get_lord_of_house(moon_house)
@@ -1007,62 +1008,77 @@ def Pushkala(yoga: Yoga) -> YogaType:
     lagna_lord_house = yoga.get_house_of_planet(lagna_lord)
 
     if not all([moon_lord, lagna_lord, moon_lord_house, lagna_lord_house]):
-        result["details"] = "Could not determine all required lords and houses"
+        result["details"] = (
+            "Pushkala Yoga not formed because required lords or houses are missing."
+        )
         return result
 
     # Get moon lord aspects
-    chart = yoga.__chart__
     try:
-        moon_lord_aspects = chart.graha_drishti(n=1, planet=moon_lord)[0]
-        aspect_houses = moon_lord_aspects.get("aspect_houses", [])
-    except (KeyError, IndexError, TypeError):
-        result["details"] = "Could not determine moon lord aspects"
+        aspect_info = yoga.__chart__.graha_drishti(n=1, planet=moon_lord)[0]
+        aspect_houses = aspect_info.get("aspect_houses", [])
+    except Exception:
+        result["details"] = (
+            "Pushkala Yoga not formed because Moon-lord aspects couldn't be determined."
+        )
         return result
 
-    # Condition 1: Association (aspect or conjunction)
-    is_conjunction = lagna_lord_house == moon_lord_house
-    is_aspect = any(lagna_lord_house in house_dict for house_dict in aspect_houses)
-    condition1 = is_conjunction or is_aspect
-    strength1 = 1.0 if is_conjunction else 0.8 if is_aspect else 0.0
+    # -----------------------
+    # SHORT-CIRCUIT CHECKING
+    # -----------------------
 
-    # Condition 2: Kendra or Friend Sign
+    # Condition 1: Association between Moon-lord & Lagna-lord
+    is_conjunction = lagna_lord_house == moon_lord_house
+    is_aspect = any(lagna_lord_house in d for d in aspect_houses)
+
+    if not (is_conjunction or is_aspect):
+        result["details"] = (
+            "Pushkala Yoga not formed because Moon-lord and Lagna-lord are not associated."
+        )
+        return result
+
+    # Condition 2: Moon-lord in Kendra OR friend sign
     in_kendra = yoga.planet_in_kendra_from(lagna_house, moon_lord)
     moon_lord_planet = next(
         (p for p in yoga.chart[moon_lord_house]["planets"] if p["name"] == moon_lord),
         None,
     )
     in_friend_sign = bool(moon_lord_planet and "Friend" in moon_lord_planet["inSign"])
-    condition2 = in_kendra or in_friend_sign
-    strength2 = 1.0 if in_kendra else 0.8 if in_friend_sign else 0.0
 
-    # Condition 3: Aspect to Lagna
-    condition3 = any(lagna_house in house_dict for house_dict in aspect_houses)
-    strength3 = 1.0 if condition3 else 0.0
+    if not (in_kendra or in_friend_sign):
+        result["details"] = (
+            "Pushkala Yoga not formed because Moon-lord is not in a Kendra or friend's sign."
+        )
+        return result
 
-    # Condition 4: Lagna has a powerful planet
+    # Condition 3: Moon-lord must aspect Lagna
+    if not any(lagna_house in d for d in aspect_houses):
+        result["details"] = (
+            "Pushkala Yoga not formed because Moon-lord does not aspect Lagna."
+        )
+        return result
+
+    # Condition 4: Lagna must have a powerful planet
     lagna_planets = yoga.planets_in_relative_house("Lagna", 1)
-    condition4 = False
-    strength4 = 0.0
-    for planet in lagna_planets:
-        is_powerful, planet_strength = yoga.isPlanetPowerful(planet)
-        if is_powerful:
-            condition4 = True
-            strength4 = max(strength4, planet_strength)
+    has_powerful = False
+    for p in lagna_planets:
+        ok, _ = yoga.isPlanetPowerful(p)
+        if ok:
+            has_powerful = True
+            break
 
-    # Final evaluation
-    result["present"] = condition1 and condition2 and condition3 and condition4
-    result["strength"] = (
-        (strength1 + strength2 + strength3 + strength4) / 4 if result["present"] else 0
+    if not has_powerful:
+        result["details"] = (
+            "Pushkala Yoga not formed because Lagna has no powerful planet."
+        )
+        return result
+
+    # If all conditions passed
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = (
+        "Pushkala Yoga formed because all required conditions are satisfied."
     )
-
-    status = "formed" if result["present"] else "not formed"
-    result["details"] = f"""Pushkala Yoga {status}
-        \nMoon Lord & Lagna Lord Associated: {condition1}, Strength: {strength1}
-        \nMoon Lord in Kendra or Friend's sign: {condition2}, Strength: {strength2}
-        \nMoon Lord aspects Lagna: {condition3}, Strength: {strength3}
-        \nLagna is occupied by powerful planet: {condition4}, Strength: {strength4}
-        \nTotal Strength: {result["strength"]}
-        """
 
     return result
 
@@ -1102,9 +1118,9 @@ def Lakshmi(yoga: Yoga) -> YogaType:
 
     if not dignity:
         result["present"] = False
-        result[
-            "details"
-        ] = f"Lord of 9th ({lord_of_9}) is not in its Own or Exalted sign. It is in {lord_of_9_planet['inSign']}."
+        result["details"] = (
+            f"Lord of 9th ({lord_of_9}) is not in its Own or Exalted sign. It is in {lord_of_9_planet['inSign']}."
+        )
         return result
 
     lord_of_9_house = yoga.get_house_of_planet(lord_of_9)
@@ -1113,9 +1129,9 @@ def Lakshmi(yoga: Yoga) -> YogaType:
 
     if not (in_kendra or in_trikona):
         result["present"] = False
-        result[
-            "details"
-        ] = f"Lord of 9th ({lord_of_9}) is in house {lord_of_9_house}, which is not a Kendra or Trikona."
+        result["details"] = (
+            f"Lord of 9th ({lord_of_9}) is in house {lord_of_9_house}, which is not a Kendra or Trikona."
+        )
         return result
 
     strength3 = 1.0
@@ -1131,9 +1147,9 @@ def Lakshmi(yoga: Yoga) -> YogaType:
     else:
         location = "a Trikona"
 
-    result[
-        "details"
-    ] = f"Lakshmi Yoga is formed. Lagna lord ({lagna_lord}) is powerful (strength: {strength1:.2f}). Lord of 9th ({lord_of_9}) is in its {dignity} sign in house {lord_of_9_house}, which is {location}."
+    result["details"] = (
+        f"Lakshmi Yoga is formed. Lagna lord ({lagna_lord}) is powerful (strength: {strength1:.2f}). Lord of 9th ({lord_of_9}) is in its {dignity} sign in house {lord_of_9_house}, which is {location}."
+    )
 
     return result
 
@@ -1456,18 +1472,24 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
         for _, (name, type) in MALIKA_YOGAS.items()
     }
 
-    planet_houses = {p["name"]: yoga.get_house_of_planet(p["name"]) for p in yoga.__chart__.get_planets() if p["name"] not in ["Rahu", "Ketu"]}
+    planet_houses = {
+        p["name"]: yoga.get_house_of_planet(p["name"])
+        for p in yoga.__chart__.get_planets()
+        if p["name"] not in ["Rahu", "Ketu"]
+    }
 
     if any(h is None for h in planet_houses.values()):
         for name in results:
-            results[name]['details'] = "Could not locate all classical planets."
+            results[name]["details"] = "Could not locate all classical planets."
         return results
 
     occupied_houses = set(planet_houses.values())
 
     if len(occupied_houses) != 7:
         for name in results.values():
-            name['details'] = f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(list(occupied_houses))}"
+            name["details"] = (
+                f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(list(occupied_houses))}"
+            )
         return results
 
     # Check for a continuous block of 7 houses
@@ -1484,15 +1506,19 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
 
             details_list = []
             for h in sorted(list(malika_houses)):
-                planets_str = ', '.join(planets_by_house.get(h, []))
-                details_list.append(f"House {h}: {planets_str if planets_str else 'Empty'}")
+                planets_str = ", ".join(planets_by_house.get(h, []))
+                details_list.append(
+                    f"House {h}: {planets_str if planets_str else 'Empty'}"
+                )
 
-            results[yoga_name].update({
-                "present": True,
-                "strength": 1.0,
-                "details": f"{yoga_name} is formed. All 7 classical planets are in 7 consecutive houses from house {start_house}. Planet positions: {'; '.join(details_list)}",
-            })
-            break 
+            results[yoga_name].update(
+                {
+                    "present": True,
+                    "strength": 1.0,
+                    "details": f"{yoga_name} is formed. All 7 classical planets are in 7 consecutive houses from house {start_house}. Planet positions: {'; '.join(details_list)}",
+                }
+            )
+            break
     return results
 
 
@@ -1987,8 +2013,8 @@ def Amsavatara(yoga: Yoga) -> YogaType:
 @register_yoga("HariHaraBrahma")
 def HariHaraBrahma(yoga: Yoga) -> YogaType:
     """
-    Benefics are in the 8th or 12th house from the 2nd lord; 
-    or the Jupiter, the Moon and Mercury are in the 4th, 9th and 8th from the 7th lord, 
+    Benefics are in the 8th or 12th house from the 2nd lord;
+    or the Jupiter, the Moon and Mercury are in the 4th, 9th and 8th from the 7th lord,
     or the Sun, Venus and Mars are in the 4th, 10th and 11th from the lord of Lagna.
     """
     result: YogaType = {
@@ -1999,7 +2025,7 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    
+
     details = []
     strengths = []
 
@@ -2008,9 +2034,13 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
     if lord_of_2:
         planets_8th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 8)
         planets_12th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 12)
-        benefics_in_8th = [p["name"] for p in planets_8th_from_L2 if p["name"] in BENEFIC_PLANETS]
-        benefics_in_12th = [p["name"] for p in planets_12th_from_L2 if p["name"] in BENEFIC_PLANETS]
-        
+        benefics_in_8th = [
+            p["name"] for p in planets_8th_from_L2 if p["name"] in BENEFIC_PLANETS
+        ]
+        benefics_in_12th = [
+            p["name"] for p in planets_12th_from_L2 if p["name"] in BENEFIC_PLANETS
+        ]
+
         if benefics_in_8th or benefics_in_12th:
             detail_str = f"Benefics in 8th/12th from 2nd lord ({lord_of_2}): "
             if benefics_in_8th:
@@ -2027,9 +2057,11 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
         mo_in_9th = yoga.relative_house(lord_of_7, "Moon") == 9
         me_in_8th = yoga.relative_house(lord_of_7, "Mercury") == 8
         if ju_in_4th and mo_in_9th and me_in_8th:
-            details.append(f"From 7th lord ({lord_of_7}): Jupiter is in 4th, Moon in 9th, and Mercury in 8th.")
+            details.append(
+                f"From 7th lord ({lord_of_7}): Jupiter is in 4th, Moon in 9th, and Mercury in 8th."
+            )
             strengths.append(1.0)
-            
+
     # Condition 3
     lagna_lord = yoga.get_lord_of_house(1)
     if lagna_lord:
@@ -2037,7 +2069,9 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
         ve_in_10th = yoga.relative_house(lagna_lord, "Venus") == 10
         ma_in_11th = yoga.relative_house(lagna_lord, "Mars") == 11
         if su_in_4th and ve_in_10th and ma_in_11th:
-            details.append(f"From Lagna lord ({lagna_lord}): Sun is in 4th, Venus in 10th, and Mars in 11th.")
+            details.append(
+                f"From Lagna lord ({lagna_lord}): Sun is in 4th, Venus in 10th, and Mars in 11th."
+            )
             strengths.append(1.0)
 
     if strengths:
@@ -2045,8 +2079,10 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
         result["strength"] = max(strengths)
         result["details"] = "HariHaraBrahma Yoga is formed. " + " | ".join(details)
     else:
-        result["details"] = "HariHaraBrahma Yoga is not formed. None of the three conditions are met."
-        
+        result["details"] = (
+            "HariHaraBrahma Yoga is not formed. None of the three conditions are met."
+        )
+
     return result
 
 
