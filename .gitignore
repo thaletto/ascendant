@@ -15,8 +15,8 @@ venv/
 *.sqlite3
 
 # Environment variables
-.env.local
-.env.*.local
+.env.*
+.env.*.*
 .envrc
 .env
 
