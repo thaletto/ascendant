@@ -171,14 +171,14 @@ def KemaDurga(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("ChandraMangala")
+@register_yoga("Chandra Mangala")
 def ChandraMangala(yoga: Yoga) -> YogaType:
     """
     Ma cojoins Mo
     """
     result: YogaType = {
         "id": "",
-        "name": "ChandraMangala",
+        "name": "Chandra Mangala",
         "present": False,
         "strength": 1,
         "details": "",
@@ -193,14 +193,14 @@ def ChandraMangala(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("ChandraAdhiYoga")
-def ChandraAdhiYoga(yoga: Yoga) -> YogaType:
+@register_yoga("Chandra Adhi")
+def ChandraAdhi(yoga: Yoga) -> YogaType:
     """
     All Benefics (Ju, Ve, Me) in 6th, 7th & 8th houses from Moon
     """
     result: YogaType = {
         "id": "",
-        "name": "ChandraAdhiYoga",
+        "name": "Chandra Adhi",
         "present": False,
         "strength": 0.0,
         "details": "",
@@ -237,14 +237,14 @@ def ChandraAdhiYoga(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("LagnaAdhiYoga")
-def LagnaAdhiYoga(yoga: Yoga) -> YogaType:
+@register_yoga("Lagna Adhi")
+def LagnaAdhi(yoga: Yoga) -> YogaType:
     """
     All Benefics (Ju, Ve, Me) in 6th, 7th & 8th houses from Moon
     """
     result: YogaType = {
         "id": "",
-        "name": "LagnaAdhiYoga",
+        "name": "Lagna Adhi",
         "present": False,
         "strength": 0.0,
         "details": "",
@@ -630,14 +630,14 @@ def Kahala(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("VesiYoga")
-def VesiYoga(yoga: Yoga) -> YogaType:
+@register_yoga("Vesi")
+def Vesi(yoga: Yoga) -> YogaType:
     """
     Planets other than Mo occupy 2nd house from Su.
     """
     result: YogaType = {
         "id": "",
-        "name": "VesiYoga",
+        "name": "Vesi",
         "present": False,
         "strength": 0.0,
         "details": "",
@@ -664,14 +664,14 @@ def VesiYoga(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("VasiYoga")
-def VasiYoga(yoga: Yoga) -> YogaType:
+@register_yoga("Vasi")
+def Vasi(yoga: Yoga) -> YogaType:
     """
     Planets other than Mo occupy 12th house from Su.
     """
     result: YogaType = {
         "id": "",
-        "name": "VasiYoga",
+        "name": "Vasi",
         "present": False,
         "strength": 0.0,
         "details": "",
@@ -698,22 +698,22 @@ def VasiYoga(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("ObhayachariYoga")
-def ObhayachariYoga(yoga: Yoga) -> YogaType:
+@register_yoga("Obhayachari")
+def Obhayachari(yoga: Yoga) -> YogaType:
     """
     Planets other than Mo are on either side of the Su.
     """
     result: YogaType = {
         "id": "",
-        "name": "ObhayachariYoga",
+        "name": "Obhayachari",
         "present": False,
         "strength": 0.0,
         "details": "",
         "type": "Positive",
     }
 
-    vesi = VesiYoga(yoga)
-    vasi = VasiYoga(yoga)
+    vesi = Vesi(yoga)
+    vasi = Vasi(yoga)
 
     result["present"] = vesi["present"] and vasi["present"]
     result["details"] = f"Vesi Yoga: {vesi['details']}. Vasi Yoga: {vasi['details']}"
@@ -954,14 +954,14 @@ def Bhadra(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("BuddhaAditya")
+@register_yoga("Buddha Aditya")
 def BuddhaAditya(yoga: Yoga) -> YogaType:
     """
     Me combines with the Su
     """
     result: YogaType = {
         "id": "",
-        "name": "BuddhaAditya",
+        "name": "Buddha Aditya",
         "present": False,
         "strength": 1.0,
         "details": "",
@@ -2010,7 +2010,7 @@ def Amsavatara(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("HariHaraBrahma")
+@register_yoga("Hari Hara Brahma")
 def HariHaraBrahma(yoga: Yoga) -> YogaType:
     """
     Benefics are in the 8th or 12th house from the 2nd lord;
@@ -2019,7 +2019,7 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
     """
     result: YogaType = {
         "id": "",
-        "name": "HariHaraBrahma",
+        "name": "Hari Hara Brahma",
         "present": False,
         "strength": 0.0,
         "details": "",

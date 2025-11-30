@@ -1128,14 +1128,14 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
     return results
 
 
-@register_yoga("ArdhaChandra")
+@register_yoga("Ardha Chandra")
 def ArdhaChandra(yoga: Yoga) -> YogaType:
     """
     All planets occupy seven consecutive houses not starting from 1, 4, 7, 10
     """
     result: YogaType = {
         "id": "",
-        "name": "ArdhaChandra",
+        "name": "Ardha Chandra",
         "present": False,
         "strength": 0.0,
         "details": "ArdhaChandra Yoga not formed.",
