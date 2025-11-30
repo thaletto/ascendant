@@ -95,4 +95,3 @@ DEEP_EXALTATION_POINTS: DeepExaltationPointsType = {
     "Venus": {"sign": "Pisces", "degree": 27},
     "Saturn": {"sign": "Libra", "degree": 20},
 }
-

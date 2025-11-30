@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 import re
 from typing import List, Union
+
+from vedicastro.VedicAstro import HOUSE_SYSTEM_MAPPING
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 
@@ -16,6 +18,18 @@ def getSignName(n: HOUSES) -> RASHIS:
     if not n and n != 0:
         return None
     return RASHI_MAP[n]
+
+
+def getHouseSystem(house_system: str):
+    # Normalize
+    key = house_system.replace("_", " ").strip().title()
+
+    # If exists in mapping, return it
+    if key in HOUSE_SYSTEM_MAPPING:
+        return HOUSE_SYSTEM_MAPPING[key]
+
+    # Default fallback
+    return HOUSE_SYSTEM_MAPPING["Whole Sign"]
 
 
 def parseDate(s: Union[str, datetime]) -> datetime:
