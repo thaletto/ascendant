@@ -10,6 +10,8 @@
 - [ ] Combine all classes utils into one and create a super class Ascendant
 - [ ] Implement Swaveeryaddhana Yoga
 - [ ] Implement Madhya Vayasi Dhana Yoga
+- [ ] Add Upagrahas (Mandi etc.) support
+- [ ] Implement Jada Yoga (Requires Mandi)
 
 ### Test
 
