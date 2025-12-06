@@ -2664,3 +2664,80 @@ def Bahudravyarjana(yoga: Yoga) -> YogaType:
         f"L1 ({l1}) in 2nd, L2 ({l2}) in 11th, L11 ({l11}) in Lagna."
     )
     return result
+
+
+@register_yoga("Anthya Vayasi Dhana")
+def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
+    """
+    The planets owning the sign in which the lords of the 2nd and 1st together with a natural benefic are placed,
+    should be strongly disposed in Lagna.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Anthya Vayasi Dhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l1 = yoga.get_lord_of_house(1)
+    l2 = yoga.get_lord_of_house(2)
+    if not l1 or not l2:
+        result["details"] = "Could not find Lord of 1st or 2nd."
+        return result
+
+    h_l1 = yoga.get_house_of_planet(l1)
+    h_l2 = yoga.get_house_of_planet(l2)
+
+    # Check L1 and L2 in same house
+    if h_l1 != h_l2:
+        result["details"] = f"L1 ({l1}) and L2 ({l2}) are not in the same house."
+        return result
+
+    # Check for additional Natural Benefic in the same house
+    planets_in_house = yoga.planets_in_relative_house("Lagna", h_l1)
+    benefics_in_house = [
+        p["name"]
+        for p in planets_in_house
+        if p["name"] in BENEFIC_PLANETS and p["name"] != l1 and p["name"] != l2
+    ]
+
+    if not benefics_in_house:
+        result["details"] = (
+            f"L1 ({l1}) and L2 ({l2}) are together but not with a separate Natural Benefic."
+        )
+        return result
+
+    # Find the lord of this house (the dispositor)
+    sign_of_house = yoga.get_rashi_of_house(h_l1)
+    dispositor = RASHI_LORD_MAP.get(sign_of_house)
+    
+    if not dispositor:
+        result["details"] = "Could not determine dispositor."
+        return result
+
+    # Dispositor must be "strongly disposed in Lagna"
+    # 1. In Lagna
+    h_disp = yoga.get_house_of_planet(dispositor)
+    if h_disp != 1:
+        result["details"] = f"Dispositor ({dispositor}) is in {h_disp}, not Lagna (1)."
+        return result
+    
+    # 2. Strong
+    p_disp = yoga.get_planet_by_name(dispositor)
+    is_strong, _ = yoga.isPlanetPowerful(p_disp)
+    
+    if not is_strong:
+        result["details"] = f"Dispositor ({dispositor}) is in Lagna but not strong."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = (
+        f"L1 ({l1}) and L2 ({l2}) joined {benefics_in_house[0]} in {sign_of_house}. "
+        f"Dispositor {dispositor} is strong in Lagna."
+    )
+    return result
