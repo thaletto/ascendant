@@ -3367,154 +3367,151 @@ def Daridhra(yoga: Yoga) -> YogaType:
     if l1 and l12 and l7:
         h_l12 = yoga.get_house_of_planet(l12)
         if h_l1 == 12 and h_l12 == 1:
-            # Check aspect/join by L7 on either end? 
-            # Text: "exchange their positions AND conjoined or aspected by the lord of the 7th."
-            # Ambiguous. Usually applies to the pair or one of them. Let's check if either L1 or L12 is influenced by L7.
-            if is_joined_or_aspected(h_l1, l7) or is_joined_or_aspected(h_l12, l7):
-                result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 1 met"; return result
+            cause = []
+            if is_joined_or_aspected(h_l1, l7): cause.append(f"L7 ({l7}) affects L1")
+            if is_joined_or_aspected(h_l12, l7): cause.append(f"L7 ({l7}) affects L12")
+            if cause:
+                result["present"] = True; result["strength"] = 1.0
+                result["details"] = f"Exchange L1/L12. Influence: {', '.join(cause)}."
+                return result
 
     # 2. L6, L1 exchange AND Moon aspected by L2 or L7
     if l1 and l6 and l2 and l7:
         h_l6 = yoga.get_house_of_planet(l6)
         if h_l1 == 6 and h_l6 == 1:
             h_moon = yoga.get_house_of_planet("Moon")
-            if is_joined_or_aspected(h_moon, l2) or is_joined_or_aspected(h_moon, l7):
-                result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 2 met"; return result
+            cause = []
+            if is_joined_or_aspected(h_moon, l2): cause.append(f"L2 ({l2}) affects Moon")
+            if is_joined_or_aspected(h_moon, l7): cause.append(f"L7 ({l7}) affects Moon")
+            if cause:
+                result["present"] = True; result["strength"] = 1.0
+                result["details"] = f"Exchange L1/L6. Influence: {', '.join(cause)}."
+                return result
 
     # 3. Ketu and Moon in Lagna
     h_ketu = yoga.get_house_of_planet("Ketu")
     h_moon = yoga.get_house_of_planet("Moon")
     if h_ketu == 1 and h_moon == 1:
-        result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 3 met"; return result
+        result["present"] = True; result["strength"] = 1.0; result["details"] = "Ketu and Moon both in Lagna."
+        return result
 
     # 4. L1 in 8th aspected/joined by L2 or L7
     if l1 and l2 and l7:
         if h_l1 == 8:
-            if is_joined_or_aspected(8, l2) or is_joined_or_aspected(8, l7):
-                result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 4 met"; return result
+            cause = []
+            if is_joined_or_aspected(8, l2): cause.append(f"L2 ({l2})")
+            if is_joined_or_aspected(8, l7): cause.append(f"L7 ({l7})")
+            if cause:
+                result["present"] = True; result["strength"] = 1.0
+                result["details"] = f"L1 ({l1}) in 8th. Influenced by: {', '.join(cause)}."
+                return result
 
-    # 5. L1 joins 6th, 8th or 12th (Lords? Text says "joins the 6th...") 
-    # Usually "joins the 6th" means "in the 6th house". But "joins the 6th, 8th and 12th" suggests Lords.
-    # Text: "The lord of the Lagna joins the 6th, 8th and 12th..." -> Likely means joins L6 OR L8 OR L12? OR joins ALL?
-    # "and" usually means list of options or all. Given planetary positions, joining ALL is unlikely (3 planets + L1 in one sign).
-    # Interpreting as "joins L6 OR L8 OR L12".
-    # Condition: WITHOUT beneficial aspects or conjunctions.
+    # 5. L1 joins 6th, 8th or 12th (Lords) WITHOUT beneficial aspects or conjunctions.
     if l1 and l6 and l8 and l12:
         h_l6 = yoga.get_house_of_planet(l6)
         h_l8 = yoga.get_house_of_planet(l8)
         h_l12 = yoga.get_house_of_planet(l12)
-        joined_any_dusthana_lord = (h_l1 == h_l6) or (h_l1 == h_l8) or (h_l1 == h_l12)
-        if joined_any_dusthana_lord:
+        
+        joined_lords = []
+        if h_l1 == h_l6: joined_lords.append(f"L6 ({l6})")
+        if h_l1 == h_l8: joined_lords.append(f"L8 ({l8})")
+        if h_l1 == h_l12: joined_lords.append(f"L12 ({l12})")
+        
+        if joined_lords:
              if not has_benefic_influence(h_l1):
-                 result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 5 met"; return result
+                 result["present"] = True; result["strength"] = 1.0
+                 result["details"] = f"L1 ({l1}) joins {', '.join(joined_lords)}. No benefic influence."
+                 return result
 
     # 6. L1 associated with 6th, 8th or 12th lord AND subjected to malefic aspects.
-    # "associated" -> Conjoined.
     if l1 and l6 and l8 and l12:
          h_l6 = yoga.get_house_of_planet(l6)
          h_l8 = yoga.get_house_of_planet(l8)
          h_l12 = yoga.get_house_of_planet(l12)
-         associated = (h_l1 == h_l6) or (h_l1 == h_l8) or (h_l1 == h_l12)
-         if associated:
-             if has_malefic_influence(h_l1):
-                 result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 6 met"; return result
+         
+         associated_lords = []
+         if h_l1 == h_l6: associated_lords.append(f"L6 ({l6})")
+         if h_l1 == h_l8: associated_lords.append(f"L8 ({l8})")
+         if h_l1 == h_l12: associated_lords.append(f"L12 ({l12})")
+
+         if associated_lords:
+             # Find which malefic affects L1
+             malefics_affecting = []
+             # Conjunction
+             planets_in_h = yoga.planets_in_relative_house("Lagna", h_l1)
+             for p in planets_in_h:
+                 if p["name"] in MALEFIC_PLANETS and p["name"] != l1:
+                     malefics_affecting.append(f"{p['name']} (Conjunction)")
+             # Aspect
+             for aspect in yoga.__chart__.graha_drishti(n=1):
+                  if aspect["planet"] in MALEFIC_PLANETS:
+                      for house_data in aspect["aspect_houses"]:
+                          if h_l1 in house_data:
+                              malefics_affecting.append(f"{aspect['planet']} (Aspect)")
+             
+             if malefics_affecting:
+                 result["present"] = True; result["strength"] = 1.0
+                 result["details"] = f"L1 ({l1}) associated with {', '.join(associated_lords)}. Malefic influence: {', '.join(malefics_affecting)}."
+                 return result
 
     # 7. L5 joins L6/L8/L12 WITHOUT beneficial aspects.
     if l5 and l6 and l8 and l12:
          h_l6 = yoga.get_house_of_planet(l6)
          h_l8 = yoga.get_house_of_planet(l8)
          h_l12 = yoga.get_house_of_planet(l12)
-         joined = (h_l5 == h_l6) or (h_l5 == h_l8) or (h_l5 == h_l12)
+         
+         joined = []
+         if h_l5 == h_l6: joined.append(f"L6 ({l6})")
+         if h_l5 == h_l8: joined.append(f"L8 ({l8})")
+         if h_l5 == h_l12: joined.append(f"L12 ({l12})")
+         
          if joined:
              if not has_benefic_influence(h_l5):
-                 result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 7 met"; return result
+                 result["present"] = True; result["strength"] = 1.0
+                 result["details"] = f"L5 ({l5}) joins {', '.join(joined)}. No benefic influence."
+                 return result
 
     # 8. L5 in 6 or 10 aspected by L2, L6, L7, L8 or L12.
     if l5 and h_l5 in [6, 10]:
         aspectors = [l2, l6, l7, l8, l12]
+        aspector_names = []
         for aspector in aspectors:
             if not aspector: continue
             if is_joined_or_aspected(h_l5, aspector):
-                 result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 8 met"; return result
+                aspector_names.append(aspector)
+        
+        if aspector_names:
+            result["present"] = True; result["strength"] = 1.0
+            result["details"] = f"L5 ({l5}) in {h_l5}. Influenced by: {', '.join(aspector_names)}."
+            return result
 
     # 9. Natural malefics (not owning 9 or 10) in Lagna AND (associated/aspected by Maraka Lords -> L2/L7).
     planets_in_1 = yoga.planets_in_relative_house("Lagna", 1)
     malefics_in_1 = [p["name"] for p in planets_in_1 if p["name"] in MALEFIC_PLANETS]
     
     for m_name in malefics_in_1:
-        # Check ownership (Not owning 9 or 10)
-        # Assuming current Ascendant is Lagna (House 1).
-        # We need to find what houses this planet owns.
-        # Planet owns signs. Find which houses these signs fall in.
-        is_yogakaraka = False
+        # Check ownership
         owned_signs = [s for s, lord in RASHI_LORD_MAP.items() if lord == m_name]
-        
         owned_houses = []
         for s in owned_signs:
-            # Find house number for this sign
-            # Simplest way: iterate 1 to 12, get rashi of house.
             for h in range(1, 13):
                 if yoga.get_rashi_of_house(h) == s:
                     owned_houses.append(h)
         
         if 9 in owned_houses or 10 in owned_houses:
-            continue # Skip this malefic
+            continue
             
-        # Check aspect/conjunction by L2 or L7
-        if is_joined_or_aspected(1, l2) or is_joined_or_aspected(1, l7):
-            result["present"] = True; result["strength"] = 1.0; result["details"] = "Cond 9 met"; return result
-
-    # 10. L1 and Navamsa Lagna Lord occupy 6/8/12 AND aspected/conjoined by L2 and L7.
-    # Require BOTH to be in Dusthana? "Lords of Lagna and Navamsa Lagna occupies..." Plural.
-    # And aspected by L2 AND L7.
-    
-    # Needs Navamsa Lagna Lord (NL1_Lord)
-    # Navamsa Lagna is the sign of the 1st house in D9.
-    d9_lagna_sign = None
-    # We need to calculate D9. The chart object has get_varga_chakra_chart(9).
-    # But usually Ascendant-Agent stores 'Ascendant' as a generic concept.
-    # Wait, 'Navamsa Lagna Lord' = Lord of the Sign rising in Navamsa Lagna.
-    # The 'Lagna' in D9.
-    # yoga.__chart__.get_varga_chakra_chart(9) returns {house_num: ...} relative to D9 Lagna?
-    # Actually, get_varga_chakra_chart returns houses 1-12 based on the D9 Ascendant.
-    # So House 1 in D9 chart IS the Navamsa Lagna.
-    d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
-    # The 'sign' of house 1 in D9.
-    d9_lagna_data = d9_chart.get(1)
-    # d9_chart structure: {1: {'sign': {'id': 1, 'name': 'Aries'}, 'planets': [...]}, ...}
-    
-    nl_lord = None
-    if d9_lagna_data:
-        nl_sign = d9_lagna_data["sign"]["name"]
-        nl_lord = RASHI_LORD_MAP.get(nl_sign)
-
-    if l1 and nl_lord:
-        h_l1 = yoga.get_house_of_planet(l1)
-        # Note: NL Lord position to be checked in Rashi chart (D1) or Navamsa (D9)?
-        # Usually standard yogas refer to Rashi positions unless specified "In Navamsa".
-        # "Lords of Lagna and Navamsa Lagna occupies [in Rashi]..."
-        h_nl_lord = yoga.get_house_of_planet(nl_lord)
+        cause = []
+        if is_joined_or_aspected(1, l2): cause.append(f"L2 ({l2})")
+        if is_joined_or_aspected(1, l7): cause.append(f"L7 ({l7})")
         
-        dusthanas = [6, 8, 12]
-        if h_l1 in dusthanas and h_nl_lord in dusthanas:
-            # Aspected/Conjoined by L2 AND L7.
-            # Applied to whom? Both?
-            # "have the aspect or conjunction..." -> Plural subject. Usually implies both must satisfy.
-            # Or "the group is influenced".
-            # "aspected/conjoined by L2 AND L7" -> Both L2 and L7 must influence.
-            
-            # Let's check strict: L1 influenced by L2+L7 AND NL_Lord influenced by L2+L7?
-            # Or valid if L2 influences one and L7 influences other?
-            # Ambiguous. Let's assume simpler: Combined influence on the 'yoga configuration'. 
-            # Or check for each planet.
-            # Simplest interpretation: Both L1 and NL_Lord must be influenced by both L2 and L7. (Very rare).
-            # Less strict: "The combination is aspected...".
-            # Let's try: (L1 influenced by L2 OR L7) AND (NL_Lord influenced by L2 OR L7).
-            # Text says "aspect or conjunction of L2 AND L7".
-            # Effectively, L2 and L7 are the marakas attacking both L1 and NL_Lord.
-            
-            pass # Skipping this complex/ambiguous condition for now if not strictly required, but I coded 9 others.
-            # If code reaches here, return not found.
+        if cause:
+            result["present"] = True; result["strength"] = 1.0
+            result["details"] = f"Malefic {m_name} in Lagna. Influenced by Maraka: {', '.join(cause)}."
+            return result
+
+    # 10. L1 and Navamsa Lagna Lord... (Skipped per previous decision as ambiguous/complex, but noting here)
+    pass 
 
     result["details"] = "No Daridhra conditions met."
     return result
