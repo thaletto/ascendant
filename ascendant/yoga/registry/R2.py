@@ -3167,3 +3167,76 @@ def Kalatramooladdhana(yoga: Yoga) -> YogaType:
 
     result["details"] = f"L2 ({l2}) is not related to both L7 ({l7}) and Venus."
     return result
+
+
+@register_yoga("Amaranantha Dhana")
+def AmarananthaDhana(yoga: Yoga) -> YogaType:
+    """
+    A number of planets occupy the 2nd house and the wealth giving ones are strong or occupy their own or exaltation signs.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Amaranantha Dhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # "A number of planets occupy the 2nd house" -> Interpret as "Multiple planets" (>= 2 seems reasonable for "a number", or maybe just check count).
+    # Let's check for at least 2 planets in 2nd house.
+    planets_in_2 = yoga.planets_in_relative_house("Lagna", 2)
+    
+    if len(planets_in_2) < 2:
+        result["details"] = f"Only {len(planets_in_2)} planet(s) in 2nd house (Need multiple)."
+        return result
+
+    # "Wealth giving ones are strong or occupy their own or exaltation signs"
+    # Wealth giving planets usually refer to L2, L11, Jupiter, Venus.
+    # Let's filter the planets in 2nd house to see if any are 'wealth giving' and check their strength.
+    # If the text implies "The planets IN the 2nd house... and the wealth giving ones (among them?) are strong..."
+    # Or "Planets in 2nd... AND wealth givers (L2/L11/Ju) everywhere are strong?"
+    # Usually "A number of planets occupy the 2nd house AND the wealth giving ones [among them?]..."
+    # Let's assume we check strength of L2, L11 and Jupiter regardless of position, or specifically those in 2nd?
+    # "A number of planets occupy the 2nd house and the wealth giving ones are strong..."
+    # This likely refers to the Karakas for wealth (Jupiter, L2, L11).
+    
+    wealth_karakas = ["Jupiter", yoga.get_lord_of_house(2), yoga.get_lord_of_house(11)]
+    # Filter out None
+    wealth_karakas = [k for k in wealth_karakas if k]
+    
+    strong_wealth_karakas = []
+    for karaka in wealth_karakas:
+        p = yoga.get_planet_by_name(karaka)
+        if not p: continue
+        # Check if strong (Powerful) OR Own/Exaltation
+        # isPlanetPowerful checks Exalted/MoolaTrikona/Own/Friend.
+        # Strict "own or exaltation":
+        relation = p.get("inSign")
+        is_own_exalt = False
+        if "Exalted" in relation or "Own" in relation:
+            is_own_exalt = True
+        
+        # Text says "are strong OR occupy their own or exaltation signs"
+        # So isPlanetPowerful covers "strong".
+        is_strong, _ = yoga.isPlanetPowerful(p)
+        
+        if is_strong or is_own_exalt:
+            strong_wealth_karakas.append(karaka)
+
+    # If we have multiple planets in 2nd AND at least one/all wealth karakas are strong?
+    # "wealth giving ones are strong" -> Plural. Implies generally they should be strong.
+    # Let's require at least 2 wealth karakas to be strong.
+    if len(strong_wealth_karakas) >= 2:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = (
+            f"{len(planets_in_2)} planets in 2nd house. "
+            f"Strong wealth karakas: {', '.join(strong_wealth_karakas)}."
+        )
+        return result
+
+    result["details"] = "Multiple planets in 2nd, but not enough strong wealth karakas."
+    return result
