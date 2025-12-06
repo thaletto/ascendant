@@ -3098,3 +3098,72 @@ def Satrumooladdhana(yoga: Yoga) -> YogaType:
 
     result["details"] = f"L2 ({l2}) is not joined by L6 ({l6}) or Mars."
     return result
+
+
+@register_yoga("Kalatramooladdhana")
+def Kalatramooladdhana(yoga: Yoga) -> YogaType:
+    """
+    The strong lord of the 2nd should join or aspected by the 7th lord and Venus and lord of Lagna should be powerful.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Kalatramooladdhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l1 = yoga.get_lord_of_house(1)
+    l2 = yoga.get_lord_of_house(2)
+    l7 = yoga.get_lord_of_house(7)
+
+    if not l1 or not l2 or not l7:
+        result["details"] = "Could not find lords of L1, L2, L7"
+        return result
+
+    # Check L1 Powerful
+    p_l1 = yoga.get_planet_by_name(l1)
+    if not p_l1: return result
+    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
+    if not l1_strong:
+        result["details"] = f"L1 ({l1}) is not powerful."
+        return result
+
+    # Check L2 Strong
+    p_l2 = yoga.get_planet_by_name(l2)
+    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    if not l2_strong:
+        result["details"] = f"L2 ({l2}) is not strong."
+        return result
+
+    # L2 joined or aspected by L7 AND Venus
+    # Logic: (Joined/Aspected by L7) AND (Joined/Aspected by Venus)
+    h_l2 = yoga.get_house_of_planet(l2)
+    
+    def check_relation(target_h, planet_name):
+        # Join
+        h_p = yoga.get_house_of_planet(planet_name)
+        if h_p == target_h: return True
+        # Aspect
+        try:
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=planet_name)[0]
+            if any(target_h in h for h in aspects.get("aspect_houses", [])):
+                return True
+        except:
+            pass
+        return False
+
+    rel_l7 = check_relation(h_l2, l7)
+    rel_venus = check_relation(h_l2, "Venus")
+
+    if rel_l7 and rel_venus:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"Strong L2 ({l2}) joined/aspected by L7 ({l7}) AND Venus. Powerful L1 ({l1})."
+        return result
+
+    result["details"] = f"L2 ({l2}) is not related to both L7 ({l7}) and Venus."
+    return result
