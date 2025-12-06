@@ -2267,3 +2267,123 @@ def Krisanga(yoga: Yoga) -> YogaType:
 
     result["details"] = "Lagna Sign is not dry and Lagna Lord is not a dry planet."
     return result
+
+
+@register_yoga("Dehasthoulya")
+def Dehasthoulya(yoga: Yoga) -> YogaType:
+    """
+    Lord of Lagna and the planet, in whose Navamasa the lord of Lagna is placed, should occupy watery signs.
+    or
+    The Lagna must be occupied by Jupiter or he must aspect the Lagna from a watery sign.
+    or
+    The Ascendant must fall in a watery sign in conjunction with benefics or the Ascendant lord must be a watery sign.
+
+    This is a Negative Yoga
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Dehasthoulya",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Negative",
+    }
+
+    watery_signs = ["Cancer", "Scorpio", "Pisces"]
+    benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not determine Lord of Lagna"
+        return result
+
+    h_l1 = yoga.get_house_of_planet(l1)
+    # Note: get_rashi_of_house returns the sign of the house number in Rashi chart
+    sign_l1 = yoga.get_rashi_of_house(h_l1)
+
+    # Helper to check if a sign is watery
+    def is_watery(sign):
+        return sign in watery_signs
+
+    # Condition 1: Lord of Lagna and [Navamsa Lord of L1] occupy watery signs.
+    cond1 = False
+    details1 = ""
+    if is_watery(sign_l1):
+        # Find Navamsa Lord of L1
+        d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
+        navamsa_lord_l1 = None
+        for data in d9_chart.values():
+            for planet in data["planets"]:
+                if planet["name"] == l1:
+                    navamsa_sign_l1 = planet["sign"]["name"]
+                    from ascendant.const import RASHI_LORD_MAP
+                    navamsa_lord_l1 = RASHI_LORD_MAP.get(navamsa_sign_l1)
+                    break
+            if navamsa_lord_l1:
+                break
+        
+        if navamsa_lord_l1:
+            h_nl1 = yoga.get_house_of_planet(navamsa_lord_l1)
+            sign_nl1 = yoga.get_rashi_of_house(h_nl1)
+            if is_watery(sign_nl1):
+                cond1 = True
+                details1 = f"Lagna Lord ({l1}) and its Navamsa dispositor ({navamsa_lord_l1}) are in watery signs."
+
+    # Condition 2: Lagna occupied by Jupiter OR Jupiter aspects Lagna from a watery sign.
+    cond2 = False
+    details2 = ""
+    # Check if Jupiter in Lagna (House 1)
+    h_ju = yoga.get_house_of_planet("Jupiter")
+    if h_ju == 1:
+        cond2 = True
+        details2 = "Jupiter is in Lagna."
+    else:
+        # Check aspect
+        # Jupiter aspects 5, 7, 9 houses from itself.
+        # So if Lagna (1) is 5, 7, or 9 from Jupiter...
+        # Relative house of 1 from Jupiter should be 5, 7, 9.
+        rel_1_from_ju = yoga.relative_house("Jupiter", "Lagna")
+        if rel_1_from_ju in [5, 7, 9]:
+            # AND Jupiter must be in a watery sign
+            sign_ju = yoga.get_rashi_of_house(h_ju)
+            if is_watery(sign_ju):
+                cond2 = True
+                details2 = f"Jupiter aspects Lagna from a watery sign ({sign_ju})."
+
+    # Condition 3: Ascendant in watery sign + benefics OR Ascendant lord is in watery sign.
+    cond3 = False
+    details3 = ""
+    
+    # Part B: Ascendant lord must be a watery sign (interpreted as "in a watery sign")
+    if is_watery(sign_l1):
+        cond3 = True
+        details3 = f"Lagna Lord ({l1}) is in a watery sign ({sign_l1})."
+    else:
+        # Part A: Ascendant in watery sign in conjunction with benefics
+        lagna_sign = yoga.get_rashi_of_house(1)
+        if is_watery(lagna_sign):
+            # Check benefics in Lagna
+            planets_in_1 = yoga.planets_in_relative_house("Lagna", 1)
+            has_benefic = any(p["name"] in benefics for p in planets_in_1)
+            if has_benefic:
+                cond3 = True
+                details3 = f"Ascendant is in watery sign ({lagna_sign}) with benefics."
+
+    if cond1:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details1
+        return result
+    if cond2:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details2
+        return result
+    if cond3:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details3
+        return result
+
+    result["details"] = "None of the conditions for Dehasthoulya Yoga are met."
+    return result
