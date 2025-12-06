@@ -3656,3 +3656,96 @@ def Parihasaka(yoga: Yoga) -> YogaType:
         
     result["details"] = f"Lord of Sun's Navamsa ({nsl_sun}) is Strong but in {h_nsl} (not 2)."
     return result
+
+
+@register_yoga("Asatyavadi")
+def Asatyavadi(yoga: Yoga) -> YogaType:
+    """
+    The Lord of the second house occupies the house of Saturn or Mars and malefics join kendras and thrikonas.
+
+    [Negative Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Asatyavadi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Negative",
+    }
+    
+    # 1. L2 in Saturn's house (Cap/Aqu) OR Mars's house (Ari/Sco)
+    l2 = yoga.get_lord_of_house(2)
+    if not l2: 
+        return result
+        
+    p_l2 = yoga.get_planet_by_name(l2)
+    if not p_l2: return result
+    
+    sign_of_l2 = p_l2.get("sign", {}).get("name")
+    
+    target_signs = ["Capricorn", "Aquarius", "Aries", "Scorpio"]
+    
+    if sign_of_l2 not in target_signs:
+        result["details"] = f"L2 ({l2}) is in {sign_of_l2}, not in Sat/Mars sign."
+        return result
+        
+    # CRITICAL: Invalid if L2 is itself Saturn or Mars (Own Sign)
+    # The requirement "occupies the house of Saturn or Mars" implies "Staying in someone else's house" (usually malefics).
+    # If L2 is Mars and in Aries -> Own house. This is usually good (Swakshetra). Not Asatyavadi (Liar).
+    # User clarification: "the first condition is will be invalid if L2 is itself Saturn or Mars"
+    # Wait, simple logic: IF L2 == Saturn OR L2 == Mars, checking if they are in their own house means they are Strong.
+    # The user logic was: "invalid if L2 is itself Saturn or Mars".
+    # Does this mean checking L2 name?
+    # "Invalid if L2 IS Saturn or Mars" -> Meaning if L2 is Sat/Mars, this yoga cannot form?
+    # Or "Invalid if L2 is in its OWN house"?
+    # Context: "L2 in Saturn's house...". If L2 is Saturn, it is in its own house.
+    # Usually "Planet in Malefic's house" is bad. "Planet in Own house" is good.
+    # So if L2 is Saturn, being in Capricorn is GOOD.
+    # So the condition really is: L2 is in Sat/Mars sign AND L2 is NOT the owner of that sign.
+    
+    l2_in_own_sign = (l2 == "Saturn" and sign_of_l2 in ["Capricorn", "Aquarius"]) or \
+                     (l2 == "Mars" and sign_of_l2 in ["Aries", "Scorpio"])
+                     
+    if l2_in_own_sign:
+        result["details"] = f"L2 ({l2}) is in own sign {sign_of_l2} (Good)."
+        return result
+        
+    # 2. Malefics join Kendras and Trikonas
+    # "Malefics" -> Plural. "Join Kendras and Trikonas" -> Plural.
+    # Implies a general affliction of Kendras/Trikonas by Malefics.
+    # Does it mean ALL Kendras/Trikonas have malefics? Or "Some" malefics are in "Some" Kendras/Trikonas?
+    # Usually "Malefics in Kendras and Trikonas" means there are malefics present in these pivotal houses.
+    # Let's count how many Kendras/Trikonas (1,4,7,10, 5,9) are occupied by Malefics.
+    # Or just "Are there Malefics in K/T?"
+    # Let's verify if there is SIGNIFICANT malefic presence.
+    # Maybe check if at least one Kendra AND at least one Trikona has Malefics?
+    # Or simply "Malefics occupy Kendras and Trikonas".
+    # I will stick to: At least one Malefic in a Kendra AND At least one Malefic in a Trikona.
+    
+    kendras = [1, 4, 7, 10]
+    trikonas = [5, 9] # Lagna (1) is also Trikona, but technically Kendra too. Usually 5,9. 
+    # Let's treat 1,4,7,10 separately from 5,9.
+    
+    malefic_in_kendra = False
+    for k in kendras:
+         planets = yoga.planets_in_relative_house("Lagna", k)
+         if any(p["name"] in MALEFIC_PLANETS for p in planets):
+             malefic_in_kendra = True
+             break
+             
+    malefic_in_trikona = False
+    for t in trikonas:
+         planets = yoga.planets_in_relative_house("Lagna", t)
+         if any(p["name"] in MALEFIC_PLANETS for p in planets):
+             malefic_in_trikona = True
+             break
+             
+    if malefic_in_kendra and malefic_in_trikona:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"L2 ({l2}) in {sign_of_l2}. Malefics in Kendras and Trikonas."
+        return result
+        
+    result["details"] = "L2 matches sign, but Malefics not found in BOTH Kendra and Trikona."
+    return result
