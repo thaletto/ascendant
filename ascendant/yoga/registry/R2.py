@@ -3589,3 +3589,70 @@ def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
 
     result["details"] = "No Yukthi Samanwithavagmi conditions met."
     return result
+
+
+@register_yoga("Parihasaka")
+def Parihasaka(yoga: Yoga) -> YogaType:
+    """
+    The Lord of Navamsa occupied by the Sun attains Vaiseshikamsa and joins the second house.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Parihasaka",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    # 1. Find Lord of Navamsa occupied by Sun (NSL_Sun)
+    d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
+    nl_sun = None
+    
+    # Need to iterate D9 chart to find where Sun is placed
+    found_sun = False
+    sun_navamsa_sign = None
+    
+    for h_num, data in d9_chart.items():
+        for planet in data["planets"]:
+            if planet["name"] == "Sun":
+                sun_navamsa_sign = planet["sign"]["name"]
+                found_sun = True
+                break
+        if found_sun:
+            break
+            
+    if not found_sun or not sun_navamsa_sign:
+        result["details"] = "Could not find Sun in Navamsa chart."
+        return result
+        
+    nsl_sun = RASHI_LORD_MAP.get(sun_navamsa_sign)
+    if not nsl_sun:
+        result["details"] = "Could not determine lord of Sun's Navamsa."
+        return result
+        
+    # 2. Check if NSL_Sun attains Vaiseshikamsa (Strong)
+    p_nsl = yoga.get_planet_by_name(nsl_sun)
+    is_strong, _ = yoga.isPlanetPowerful(p_nsl)
+    
+    if not is_strong:
+        result["details"] = f"Lord of Sun's Navamsa ({nsl_sun}) is not Strong/Vaiseshikamsa."
+        return result
+        
+    # 3. Joins the 2nd house
+    # "joins the second house" -> In Rashi D1 chart or Navamsa D9?
+    # Standard: unless specified "in Navamsa", positions like "joins 2nd house" refer to Rashi.
+    # The subject is "The Lord of Navamsa occupied by Sun". This is a planet.
+    # So: This planet (NSL_Sun) is in 2nd house (in Rashi).
+    
+    h_nsl = yoga.get_house_of_planet(nsl_sun)
+    if h_nsl == 2:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"Lord of Sun's Navamsa ({nsl_sun}) is Strong and in 2nd House."
+        return result
+        
+    result["details"] = f"Lord of Sun's Navamsa ({nsl_sun}) is Strong but in {h_nsl} (not 2)."
+    return result
