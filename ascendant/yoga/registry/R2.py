@@ -2978,3 +2978,63 @@ def Matrumooladdhana(yoga: Yoga) -> YogaType:
 
     result["details"] = f"L2 ({l2}) is neither joined nor aspected by L4 ({l4})."
     return result
+
+
+@register_yoga("Putramooladdhana")
+def Putramooladdhana(yoga: Yoga) -> YogaType:
+    """
+    The strong lord of the 2nd is in conjunction with the 5th lord or Jupiter and the lord of Lagna is in Vaiseshikamsa.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Putramooladdhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l2 = yoga.get_lord_of_house(2)
+    l5 = yoga.get_lord_of_house(5)
+    l1 = yoga.get_lord_of_house(1)
+
+    if not l2 or not l5 or not l1:
+        result["details"] = "Could not find lords of L1, L2, L5"
+        return result
+
+    # Check L1 Vaiseshikamsa (Strong)
+    p_l1 = yoga.get_planet_by_name(l1)
+    if not p_l1: return result
+    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
+    if not l1_strong:
+        result["details"] = f"L1 ({l1}) is not strong/Vaiseshikamsa."
+        return result
+
+    # Check L2 strong
+    p_l2 = yoga.get_planet_by_name(l2)
+    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    if not l2_strong:
+         result["details"] = f"L2 ({l2}) is not strong."
+         return result
+
+    # Check L2 conjunction with L5 OR Jupiter
+    h_l2 = yoga.get_house_of_planet(l2)
+    h_l5 = yoga.get_house_of_planet(l5)
+    h_ju = yoga.get_house_of_planet("Jupiter")
+
+    joined_l5 = (h_l2 == h_l5)
+    joined_ju = (h_l2 == h_ju)
+
+    if joined_l5 or joined_ju:
+        result["present"] = True
+        result["strength"] = 1.0
+        joined_with = []
+        if joined_l5: joined_with.append(f"L5 ({l5})")
+        if joined_ju: joined_with.append("Jupiter")
+        result["details"] = f"Strong L2 ({l2}) joined {' and '.join(joined_with)}. Strong L1 ({l1})."
+        return result
+
+    result["details"] = f"L2 ({l2}) is not joined by L5 ({l5}) or Jupiter."
+    return result
