@@ -2077,3 +2077,68 @@ def SareeraSoukhya(yoga: Yoga) -> YogaType:
         )
 
     return result
+
+
+@register_yogas("Dehapushti", "Dehakashta")
+def DehapushtiDehakashta(yoga: Yoga) -> Dict[str, YogaType]:
+    """
+    Dehapushti: Lord of Lagna in a movable sign and aspected by a benefic
+    Dehakashta: Lord of Langa must join a malefic or occupy the 8th house
+    """
+    results: Dict[str, YogaType] = {
+        "Dehapushti": {
+            "id": "",
+            "name": "Dehapushti",
+            "present": False,
+            "strength": 0.0,
+            "details": "Dehapushti Yoga not formed.",
+            "type": "Positive",
+        },
+        "Dehakashta": {
+            "id": "",
+            "name": "Dehakashta",
+            "present": False,
+            "strength": 0.0,
+            "details": "Dehakashta Yoga not formed.",
+            "type": "Negative",
+        },
+    }
+
+    LAsc = yoga.get_lord_of_house(1)
+    LAscH = yoga.get_house_of_planet(LAsc)
+    LAscPlanet = yoga.get_planet_by_name(LAsc)
+    LAscAspected = yoga.is_house_benefic_aspected(LAscH)
+    LAscCojoins = yoga.planets_in_relative_house(LAsc, 1)
+
+    if LAscPlanet["sign"]["name"] in ["Aries", "Cancer", "Libra", "Capricorn"]:
+        if LAscAspected:
+            results["Dehapushti"]["present"] = True
+            results["Dehapushti"]["strength"] = 1.0
+            results["Dehapushti"]["details"] = (
+                f"Lord of Lagna ({LAsc}) is in the movable sign ({LAscPlanet['sign']['name']}) and aspected by a benefic"
+            )
+        else:
+            results["Dehapushti"]["details"] = (
+                f"Lord of Lagna ({LAsc}) is in the movable sign ({LAscPlanet['sign']['name']}) and not aspected by a benefic"
+            )
+    else:
+        results["Dehapushti"]["details"] = (
+            f"Lord of Lagna ({LAsc}) is not in the movalble sign and not aspected by a benefic"
+        )
+
+    if LAscH == 8:
+        results["Dehakashta"]["present"] = True
+        results["Dehakashta"]["strength"] = 1.0
+        results["Dehakashta"]["details"] = f"Lord of Lagna ({LAsc}) is in the 8th house"
+    elif any(p in MALEFIC_PLANETS for p in LAscCojoins):
+        results["Dehakashta"]["present"] = True
+        results["Dehakashta"]["strength"] = 1.0
+        results["Dehakashta"]["details"] = (
+            f"Lord of Lagna ({LAsc}) is in the {LAscH} house and cojoined by a malefic"
+        )
+    else:
+        results["Dehakashta"]["details"] = (
+            f"Lord of Lagna ({LAsc}) is not in the 8th house and not cojoined by a malefic"
+        )
+
+    return results
