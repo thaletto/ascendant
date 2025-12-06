@@ -8,6 +8,8 @@
 - [ ] Store native's date of birth
   - [ ] Add Garuda Yoga
 - [ ] Combine all classes utils into one and create a super class Ascendant
+- [ ] Implement Swaveeryaddhana Yoga
+- [ ] Implement Madhya Vayasi Dhana Yoga
 
 ### Test
 
