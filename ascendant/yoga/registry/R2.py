@@ -1872,21 +1872,19 @@ def SrikSarpa(yoga: Yoga) -> Dict[str, YogaType]:
         if benefics_in_kendra:
             results["Srik"]["present"] = True
             results["Srik"]["strength"] = 1.0
-            pos_str = ", ".join(
-                [f"{p} in h{h}" for p, h in benefic_locations.items()]
+            pos_str = ", ".join([f"{p} in h{h}" for p, h in benefic_locations.items()])
+            results["Srik"]["details"] = (
+                f"Srik Yoga formed. All benefics in Kendra houses: {pos_str}."
             )
-            results["Srik"][
-                "details"
-            ] = f"Srik Yoga formed. All benefics in Kendra houses: {pos_str}."
         else:
             outside = [
                 f"{p} in h{h}"
                 for p, h in benefic_locations.items()
                 if h not in KENDRA_HOUSES
             ]
-            results["Srik"][
-                "details"
-            ] = f"Srik Yoga not formed. Benefics outside Kendras: {', '.join(outside)}."
+            results["Srik"]["details"] = (
+                f"Srik Yoga not formed. Benefics outside Kendras: {', '.join(outside)}."
+            )
 
     # Sarpa Yoga
     malefic_locations = {p: yoga.get_house_of_planet(p) for p in MALEFIC_PLANETS}
@@ -1897,20 +1895,73 @@ def SrikSarpa(yoga: Yoga) -> Dict[str, YogaType]:
         if malefics_in_kendra:
             results["Sarpa"]["present"] = True
             results["Sarpa"]["strength"] = 1.0
-            pos_str = ", ".join(
-                [f"{p} in h{h}" for p, h in malefic_locations.items()]
+            pos_str = ", ".join([f"{p} in h{h}" for p, h in malefic_locations.items()])
+            results["Sarpa"]["details"] = (
+                f"Sarpa Yoga formed. All malefics in Kendra houses: {pos_str}."
             )
-            results["Sarpa"][
-                "details"
-            ] = f"Sarpa Yoga formed. All malefics in Kendra houses: {pos_str}."
         else:
             outside = [
                 f"{p} in h{h}"
                 for p, h in malefic_locations.items()
                 if h not in KENDRA_HOUSES
             ]
-            results["Sarpa"][
-                "details"
-            ] = f"Sarpa Yoga not formed. Malefics outside Kendras: {', '.join(outside)}."
+            results["Sarpa"]["details"] = (
+                f"Sarpa Yoga not formed. Malefics outside Kendras: {', '.join(outside)}."
+            )
+
+    return results
+
+
+@register_yogas("Duryoga", "Daridra")
+def DuryogaDaridra(yoga: Yoga) -> Dict[str, YogaType]:
+    """
+    Duryoga: The lord of the 10th is situated in the 6th, 8th or 12th
+    Daridra: The lord of the 11th is situated in the 6th, 8th or 12th
+    """
+    results: Dict[str, YogaType] = {
+        "Duryoga": {
+            "id": "",
+            "name": "Duryoga",
+            "present": False,
+            "strength": 0.0,
+            "details": "Duryoga not formed.",
+            "type": "Negative",
+        },
+        "Daridra": {
+            "id": "",
+            "name": "Daridra",
+            "present": False,
+            "strength": 0.0,
+            "details": "Daridra yoga not formed.",
+            "type": "Negative",
+        },
+    }
+    L10 = yoga.get_lord_of_house(10)
+    L11 = yoga.get_lord_of_house(11)
+
+    L10H = yoga.get_house_of_planet(L10)
+    L11H = yoga.get_house_of_planet(L11)
+
+    if L10H in [6, 8, 12]:
+        results["Duryoga"]["present"] = True
+        results["Duryoga"]["strength"] = 1.0
+        results["Duryoga"]["details"] = (
+            f"Duryoga formed. Lord of 10th ({L10}) is in the {L10H} house."
+        )
+    else:
+        results["Duryoga"]["details"] = (
+            f"Duryoga not formed. Lord of 10th ({L10}) is in the {L10H} house not in 6th, 8th or 12th."
+        )
+
+    if L11H in [6, 8, 12]:
+        results["Daridra"]["present"] = True
+        results["Daridra"]["strength"] = 1.0
+        results["Daridra"]["details"] = (
+            f"Daridra formed. Lord of 11th ({L11}) is in the {L11H} house."
+        )
+    else:
+        results["Daridra"]["details"] = (
+            f"Daridra not formed. Lord of 11th ({L11}) is in the {L11H} house not in 6th, 8th or 12th."
+        )
 
     return results
