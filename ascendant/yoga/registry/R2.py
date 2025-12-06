@@ -2741,3 +2741,99 @@ def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
         f"Dispositor {dispositor} is strong in Lagna."
     )
     return result
+
+
+@register_yoga("Balya Dhana")
+def BalyaDhana(yoga: Yoga) -> YogaType:
+    """
+    Lords of the 2nd and 10th should be in a conjunction in a Kendra aspected by the lord of Navamasa occupied by the Ascendant lord.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Balya Dhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l2 = yoga.get_lord_of_house(2)
+    l10 = yoga.get_lord_of_house(10)
+    if not l2 or not l10:
+        result["details"] = "Could not find Lord of 2nd or 10th."
+        return result
+
+    h_l2 = yoga.get_house_of_planet(l2)
+    h_l10 = yoga.get_house_of_planet(l10)
+
+    # 1. Conjunction
+    if h_l2 != h_l10:
+        result["details"] = f"L2 ({l2}) and L10 ({l10}) are not conjoined."
+        return result
+
+    conjunction_house = h_l2
+
+    # 2. In a Kendra (1, 4, 7, 10)
+    if conjunction_house not in [1, 4, 7, 10]:
+        result["details"] = f"L2 and L10 are conjoined in {conjunction_house}, which is not a Kendra."
+        return result
+
+    # 3. Aspected by Lord of Navamsa occupied by Ascendant Lord (NL1)
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not find Lord of Lagna."
+        return result
+
+    # Find NL1
+    d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
+    nl1_lord = None
+    for data in d9_chart.values():
+        for planet in data["planets"]:
+            if planet["name"] == l1:
+                navamsa_sign = planet["sign"]["name"]
+                nl1_lord = RASHI_LORD_MAP.get(navamsa_sign)
+                break
+        if nl1_lord:
+            break
+    
+    if not nl1_lord:
+        result["details"] = "Could not find Navamsa Lord of L1."
+        return result
+
+    # Check Aspect
+    is_aspected = False
+    try:
+        aspects = yoga.__chart__.graha_drishti(n=1, planet=nl1_lord)[0]
+        if any(conjunction_house in h for h in aspects.get("aspect_houses", [])):
+            is_aspected = True
+    except:
+        pass
+    
+    # Text says "aspected by". Conjunction is usually also acceptable in yoga definitions unless strictly specified "aspected".
+    # But usually "aspected by X" implies X is somewhere else casting a glance.
+    # However, standard practice often includes conjunction. Let's check for conjunction too to be safe, or stick to "aspect".
+    # The requirement "aspected by" -> strictly aspect?
+    # Let's assume standard Vedic interpretation: Joined or Aspected (Sambandha).
+    # But wait, logic: "L2 & L10 joined... aspected by NL1".
+    # If using strictly aspect:
+    if not is_aspected:
+         # Check if NL1 is also in the same house (Conjunction) - debatable if this counts as "aspect" in strict text, but usually Sambandha covers it.
+         # Let's stick to strict aspect for now, or maybe check conjunction too if aspect fails?
+         # "Aspected by" usually excludes conjunction in strict literal translations, but includes it in functional astrology.
+         # Let's check conjunction too.
+         h_nl1 = yoga.get_house_of_planet(nl1_lord)
+         if h_nl1 == conjunction_house:
+             is_aspected = True # Technically joined
+
+    if not is_aspected:
+        result["details"] = f"L2 and L10 conjoined in Kendra but not aspected by NL1 ({nl1_lord})."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = (
+        f"L2 ({l2}) and L10 ({l10}) conjoined in Kendra ({conjunction_house}), aspected/joined by NL1 ({nl1_lord})."
+    )
+    return result
