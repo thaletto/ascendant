@@ -1965,3 +1965,80 @@ def DuryogaDaridra(yoga: Yoga) -> Dict[str, YogaType]:
         )
 
     return results
+
+
+@register_yogas("Harsha", "Sarala", "Vimala")
+def HarshaSaralaVimala(yoga: Yoga) -> Dict[str, YogaType]:
+    """
+    The lords of the 6th occupy the 6th
+    The lords of the 8th occupy the 8th
+    The lords of the 12th occupy the 12th
+    """
+    results: Dict[str, YogaType] = {
+        "Harsha": {
+            "id": "",
+            "name": "Harsha",
+            "present": False,
+            "strength": 0.0,
+            "details": "Harsha Yoga not formed.",
+            "type": "Positive",
+        },
+        "Sarala": {
+            "id": "",
+            "name": "Sarala",
+            "present": False,
+            "strength": 0.0,
+            "details": "Sarala Yoga not formed.",
+            "type": "Positive",
+        },
+        "Vimala": {
+            "id": "",
+            "name": "Vimala",
+            "present": False,
+            "strength": 0.0,
+            "details": "Vimala Yoga not formed.",
+            "type": "Positive",
+        },
+    }
+    L6 = yoga.get_lord_of_house(6)
+    L8 = yoga.get_lord_of_house(8)
+    L12 = yoga.get_lord_of_house(12)
+
+    L6H = yoga.get_house_of_planet(L6)
+    L8H = yoga.get_house_of_planet(L8)
+    L12H = yoga.get_house_of_planet(L12)
+
+    if L6H == 6:
+        results["Harsha"]["present"] = True
+        results["Harsha"]["strength"] = 1.0
+        results["Harsha"]["details"] = (
+            f"Harsha formed. Lord of 6th ({L6}) is in the 6th house."
+        )
+    else:
+        results["Harsha"]["details"] = (
+            f"Harsha not formed. Lord of 6th ({L6}) is in the {L6H} house not in 6th."
+        )
+
+    if L8H == 8:
+        results["Sarala"]["present"] = True
+        results["Sarala"]["strength"] = 1.0
+        results["Sarala"]["details"] = (
+            f"Sarala formed. Lord of 8th ({L8}) is in the 8th house."
+        )
+    else:
+        results["Sarala"]["details"] = (
+            f"Sarala not formed. Lord of 8th ({L8}) is in the {L8H} house not in 8th."
+        )
+
+    if L12H == 12:
+        results["Vimala"]["present"] = True
+        results["Vimala"]["strength"] = 1.0
+        results["Vimala"]["details"] = (
+            f"Vimala formed. Lord of 12th ({L12}) is in the 12th house."
+        )
+    else:
+        results["Vimala"]["details"] = (
+            f"Vimala not formed. Lord of 12th ({L12}) is in the {L12H} house not in 12th."
+        )
+
+    return results
