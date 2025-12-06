@@ -2438,3 +2438,172 @@ def SadaSanchara(yoga: Yoga) -> YogaType:
 
     result["details"] = "Neither Lagna Lord nor its dispositor are in movable signs."
     return result
+
+
+@register_yoga("Dhana")
+def Dhana(yoga: Yoga) -> YogaType:
+    """
+    Multiple conditions involved 5th, 11th, and specific planet positions.
+    Check details for specific condition met.
+
+    This is a positive yoga.
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Dhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Helper function to check if a planet is in a specific house
+    def check_planet_house(planet, house):
+        return yoga.get_house_of_planet(planet) == house
+
+    # Helper for aspect/conjunction
+    def joined_or_aspected(planet_name, *others):
+        # Joined
+        phouse = yoga.get_house_of_planet(planet_name)
+        if not phouse: return False
+        
+        planets_in_same_house = [p["name"] for p in yoga.planets_in_relative_house("Lagna", phouse)]
+        
+        # Check aspect
+        aspecting_planets = []
+        # Get planets aspecting 'phouse'
+        for aspect in yoga.__chart__.graha_drishti(n=1):
+            if aspect["planet"] in others:
+                 for aspect_house_data in aspect["aspect_houses"]:
+                     if phouse in aspect_house_data:
+                         aspecting_planets.append(aspect["planet"])
+
+        joined = all(other in planets_in_same_house for other in others)
+        aspected = all(other in aspecting_planets for other in others) # This logic is strict "all others aspect or join". The rule says "aspected OR joined by X AND Y". Usually means (X joins OR aspects) AND (Y joins OR aspects).
+        
+        # Improved check: for each 'other', check if it joins OR aspects
+        satisfied_count = 0
+        for other in others:
+            is_joined = other in planets_in_same_house
+            
+            is_aspected = False
+            # Check aspect specifically for 'other'
+            try:
+                aspects = yoga.__chart__.graha_drishti(n=1, planet=other)[0]
+                if any(phouse in h for h in aspects.get("aspect_houses", [])):
+                    is_aspected = True
+            except:
+                pass
+            
+            if is_joined or is_aspected:
+                satisfied_count += 1
+        
+        return satisfied_count == len(others)
+
+
+    # 1. The 5th from the Ascendant happen to be a sign of Venus, and Venus and Saturn are situated in the 5th and 11th respectively.
+    sign_5 = yoga.get_rashi_of_house(5)
+    rashi_lord_5 = None
+    if sign_5:
+        from ascendant.const import RASHI_LORD_MAP
+        rashi_lord_5 = RASHI_LORD_MAP.get(sign_5)
+    
+    if rashi_lord_5 == "Venus":
+        if check_planet_house("Venus", 5) and check_planet_house("Saturn", 11):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = "5th is Venus sign, Venus in 5th, Saturn in 11th."
+            return result
+
+    # 2. Mercury occupies his own sign which should be in the 5th from Lagna and the Moon and Mars should be in 11th.
+    if rashi_lord_5 == "Mercury": # 5th is Mercury sign
+         if check_planet_house("Mercury", 5) and check_planet_house("Moon", 11) and check_planet_house("Mars", 11):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = "Mercury in own sign in 5th, Moon and Mars in 11th."
+            return result
+
+    # 3. Saturn should occupy his own sign which should be in the 5th from Lagna, and Mercury and Mars should be positioned in 11th.
+    if rashi_lord_5 == "Saturn":
+        if check_planet_house("Saturn", 5) and check_planet_house("Mercury", 11) and check_planet_house("Mars", 11):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = "Saturn in own sign in 5th, Mercury and Mars in 11th."
+            return result
+            
+    # 4. The Sun must occupy his 5th identical with his own sign and Jupiter and Moon should be in 11th.
+    # "Sun must occupy his 5th identical with his own sign" -> Sun is in 5th house, and 5th house sign is Leo (Sun's sign).
+    if rashi_lord_5 == "Sun":
+        if check_planet_house("Sun", 5) and check_planet_house("Jupiter", 11) and check_planet_house("Moon", 11):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = "Sun in own sign in 5th, Jupiter and Moon in 11th."
+            return result
+
+    # 5. The 5th from the Lagna happens to be a house of Jupiter with Jupiter there and Mars and the Moon in the 11th.
+    if rashi_lord_5 == "Jupiter":
+        if check_planet_house("Jupiter", 5) and check_planet_house("Mars", 11) and check_planet_house("Moon", 11):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = "Jupiter in own sign in 5th, Mars and Moon in 11th."
+            return result
+
+    # 6. The Sun is in Lagna, identical with Leo, and aspected or joined by Mars and Jupiter.
+    lagna_sign = yoga.get_rashi_of_house(1)
+    if lagna_sign == "Leo" and check_planet_house("Sun", 1):
+        if joined_or_aspected("Sun", "Mars", "Jupiter"):
+             result["present"] = True
+             result["strength"] = 1.0
+             result["details"] = "Sun in Lagna (Leo), aspected/joined by Mars and Jupiter."
+             return result
+
+    # 7. The Moon is in Lagna identical with Cancer and aspected by Jupiter and Mars. (Text says aspected but usually implies joined too, keeping strict to text? "aspected by". Let's use joined_or_aspected for safety as usually implied).
+    # Text: "aspected by Jupiter and Mars"
+    if lagna_sign == "Cancer" and check_planet_house("Moon", 1):
+         # Checking aspect/join for safety
+         if joined_or_aspected("Moon", "Jupiter", "Mars"):
+             result["present"] = True
+             result["strength"] = 1.0
+             result["details"] = "Moon in Lagna (Cancer), aspected/joined by Jupiter and Mars."
+             return result
+
+    # 8. Mars should be in Lagna identical with Aries or Scorpio and joined or aspected by the Moon.
+    if (lagna_sign == "Aries" or lagna_sign == "Scorpio") and check_planet_house("Mars", 1):
+        if joined_or_aspected("Mars", "Moon"):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = f"Mars in Lagna ({lagna_sign}), aspected/joined by Moon."
+            return result
+
+    # 9. Mercury should be in Lagna identical with his own sign and joined or aspected by Saturn or Venus.
+    # Note: "joined or aspected by Saturn OR Venus".
+    if (lagna_sign == "Gemini" or lagna_sign == "Virgo") and check_planet_house("Mercury", 1):
+        # Special check for OR condition
+        saturn_rel = joined_or_aspected("Mercury", "Saturn")
+        venus_rel = joined_or_aspected("Mercury", "Venus")
+        if saturn_rel or venus_rel:
+            result["present"] = True
+            result["strength"] = 1.0
+            with_planet = "Saturn" if saturn_rel else "Venus" 
+            if saturn_rel and venus_rel: with_planet = "Saturn and Venus"
+            result["details"] = f"Mercury in Lagna ({lagna_sign}), aspected/joined by {with_planet}."
+            return result
+
+    # 10. Jupiter should be in Lagna identical with his own sign and joined or aspected by Mercury and Mars.
+    if (lagna_sign == "Sagittarius" or lagna_sign == "Pisces") and check_planet_house("Jupiter", 1):
+         if joined_or_aspected("Jupiter", "Mercury", "Mars"):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = f"Jupiter in Lagna ({lagna_sign}), aspected/joined by Mercury and Mars."
+            return result
+
+    # 11. Venus should be in Lagna identical with his own sign and joined or aspected by Saturn and Mercury.
+    if (lagna_sign == "Taurus" or lagna_sign == "Libra") and check_planet_house("Venus", 1):
+        if joined_or_aspected("Venus", "Saturn", "Mercury"):
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = f"Venus in Lagna ({lagna_sign}), aspected/joined by Saturn and Mercury."
+            return result
+
+    result["details"] = "No Dhana Yoga conditions met."
+    return result
