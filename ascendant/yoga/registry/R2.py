@@ -3038,3 +3038,63 @@ def Putramooladdhana(yoga: Yoga) -> YogaType:
 
     result["details"] = f"L2 ({l2}) is not joined by L5 ({l5}) or Jupiter."
     return result
+
+
+@register_yoga("Satrumooladdhana")
+def Satrumooladdhana(yoga: Yoga) -> YogaType:
+    """
+    The strong lord of the 2nd should join the lord of the 6th or Mars and the powerful lord of Lagna should be in Vaiseshikamsa.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Satrumooladdhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l2 = yoga.get_lord_of_house(2)
+    l6 = yoga.get_lord_of_house(6)
+    l1 = yoga.get_lord_of_house(1)
+
+    if not l2 or not l6 or not l1:
+        result["details"] = "Could not find lords of L1, L2, L6"
+        return result
+
+    # Check L1 Vaiseshikamsa (Strong)
+    p_l1 = yoga.get_planet_by_name(l1)
+    if not p_l1: return result
+    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
+    if not l1_strong:
+        result["details"] = f"L1 ({l1}) is not strong/Vaiseshikamsa."
+        return result
+
+    # Check L2 strong
+    p_l2 = yoga.get_planet_by_name(l2)
+    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    if not l2_strong:
+         result["details"] = f"L2 ({l2}) is not strong."
+         return result
+
+    # Check L2 conjunction with L6 OR Mars
+    h_l2 = yoga.get_house_of_planet(l2)
+    h_l6 = yoga.get_house_of_planet(l6)
+    h_mars = yoga.get_house_of_planet("Mars")
+
+    joined_l6 = (h_l2 == h_l6)
+    joined_mars = (h_l2 == h_mars)
+
+    if joined_l6 or joined_mars:
+        result["present"] = True
+        result["strength"] = 1.0
+        joined_with = []
+        if joined_l6: joined_with.append(f"L6 ({l6})")
+        if joined_mars: joined_with.append("Mars")
+        result["details"] = f"Strong L2 ({l2}) joined {' and '.join(joined_with)}. Strong L1 ({l1})."
+        return result
+
+    result["details"] = f"L2 ({l2}) is not joined by L6 ({l6}) or Mars."
+    return result
