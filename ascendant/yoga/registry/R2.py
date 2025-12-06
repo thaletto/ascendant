@@ -2387,3 +2387,54 @@ def Dehasthoulya(yoga: Yoga) -> YogaType:
 
     result["details"] = "None of the conditions for Dehasthoulya Yoga are met."
     return result
+
+
+@register_yoga("Sada Sanchara")
+def SadaSanchara(yoga: Yoga) -> YogaType:
+    """
+    The lord of either the Lagna or the sign occupied by Lagna lord must be movable sign.
+
+    This is a Positive Yoga
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Sada Sanchara",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    movable_signs = ["Aries", "Cancer", "Libra", "Capricorn"]
+
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not determine Lord of Lagna"
+        return result
+
+    h_l1 = yoga.get_house_of_planet(l1)
+    sign_l1 = yoga.get_rashi_of_house(h_l1)
+
+    # Condition 1: Lord of Lagna is in a movable sign
+    if sign_l1 in movable_signs:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"Lagna Lord ({l1}) is in a movable sign ({sign_l1})."
+        return result
+
+    # Condition 2: Lord of the sign occupied by Lagna Lord (dispositor) is in a movable sign
+    from ascendant.const import RASHI_LORD_MAP
+    dispositor_l1 = RASHI_LORD_MAP.get(sign_l1)
+    
+    if dispositor_l1:
+        h_disp = yoga.get_house_of_planet(dispositor_l1)
+        sign_disp = yoga.get_rashi_of_house(h_disp)
+        
+        if sign_disp in movable_signs:
+            result["present"] = True
+            result["strength"] = 1.0
+            result["details"] = f"Dispositor of Lagna Lord ({dispositor_l1}) is in a movable sign ({sign_disp})."
+            return result
+
+    result["details"] = "Neither Lagna Lord nor its dispositor are in movable signs."
+    return result
