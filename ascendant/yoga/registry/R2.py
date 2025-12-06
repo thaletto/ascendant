@@ -2837,3 +2837,92 @@ def BalyaDhana(yoga: Yoga) -> YogaType:
         f"L2 ({l2}) and L10 ({l10}) conjoined in Kendra ({conjunction_house}), aspected/joined by NL1 ({nl1_lord})."
     )
     return result
+
+
+@register_yoga("Bhratrumooladdhanaprapti")
+def Bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
+    """
+    The lords of Lagna and the 2nd should join the 3rd aspected by benefics.
+    or
+    The lord of the 3rd should be in the 2nd with Jupiter and aspected by or conjoined with the Lord of Lagna who should have attained Vaiseshikamsa.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Bhratrumooladdhanaprapti",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l1 = yoga.get_lord_of_house(1)
+    l2 = yoga.get_lord_of_house(2)
+    l3 = yoga.get_lord_of_house(3)
+
+    if not l1 or not l2 or not l3:
+        result["details"] = "Could not find lords of 1, 2, or 3."
+        return result
+
+    h_l1 = yoga.get_house_of_planet(l1)
+    h_l2 = yoga.get_house_of_planet(l2)
+    h_l3 = yoga.get_house_of_planet(l3)
+
+    # Helper for aspect check
+    def is_aspected_by_benefics(house):
+        aspecting_planets = []
+        for aspect in yoga.__chart__.graha_drishti(n=1):
+             if aspect["planet"] in BENEFIC_PLANETS:
+                 for house_data in aspect["aspect_houses"]:
+                     if house in house_data:
+                         aspecting_planets.append(aspect["planet"])
+        return len(aspecting_planets) > 0
+
+    def is_aspected_or_joined(target_house, by_planet):
+        # Joined
+        h_by = yoga.get_house_of_planet(by_planet)
+        if h_by == target_house:
+            return True
+        # Aspected
+        try:
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=by_planet)[0]
+            if any(target_house in h for h in aspects.get("aspect_houses", [])):
+                return True
+        except:
+            pass
+        return False
+        
+    p_l1 = yoga.get_planet_by_name(l1)
+    l1_powerful, _ = yoga.isPlanetPowerful(p_l1) # Proxy for Vaiseshikamsa
+
+    # Condition 1: L1 and L2 join 3rd house aspected by benefics
+    cond1 = False
+    details1 = ""
+    if h_l1 == 3 and h_l2 == 3:
+        if is_aspected_by_benefics(3):
+            cond1 = True
+            details1 = f"L1 ({l1}) and L2 ({l2}) in 3rd, aspected by benefics."
+
+    # Condition 2: L3 in 2nd with Jupiter, aspected/conjoined by L1 (who is powerful)
+    cond2 = False
+    details2 = ""
+    if h_l3 == 2 and yoga.get_house_of_planet("Jupiter") == 2:
+        if is_aspected_or_joined(2, l1):
+            if l1_powerful:
+                cond2 = True
+                details2 = f"L3 ({l3}) in 2nd with Jupiter, aspected/joined by powerful L1 ({l1})."
+
+    if cond1:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details1
+        return result
+    if cond2:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details2
+        return result
+
+    result["details"] = "Neither condition for Bhratrumooladdhanaprapti met."
+    return result
