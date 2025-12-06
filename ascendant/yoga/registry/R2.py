@@ -2607,3 +2607,60 @@ def Dhana(yoga: Yoga) -> YogaType:
 
     result["details"] = "No Dhana Yoga conditions met."
     return result
+
+
+@register_yoga("Bahudravyarjana")
+def Bahudravyarjana(yoga: Yoga) -> YogaType:
+    """
+    Lord of the Lagna in the 2nd, lord of the 2nd in the 11th and the lord of 11th in the Lagna.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Bahudravyarjana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    # Lord of Lagna in 2nd
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not find Lord of Lagna"
+        return result
+    h_l1 = yoga.get_house_of_planet(l1)
+
+    if h_l1 != 2:
+        result["details"] = f"Lord of Lagna ({l1}) is in {h_l1}, not 2nd."
+        return result
+
+    # Lord of 2nd in 11th
+    l2 = yoga.get_lord_of_house(2)
+    if not l2:
+        result["details"] = "Could not find Lord of 2nd"
+        return result
+    h_l2 = yoga.get_house_of_planet(l2)
+
+    if h_l2 != 11:
+        result["details"] = f"Lord of 2nd ({l2}) is in {h_l2}, not 11th."
+        return result
+
+    # Lord of 11th in Lagna (1st)
+    l11 = yoga.get_lord_of_house(11)
+    if not l11:
+        result["details"] = "Could not find Lord of 11th"
+        return result
+    h_l11 = yoga.get_house_of_planet(l11)
+
+    if h_l11 != 1:
+        result["details"] = f"Lord of 11th ({l11}) is in {h_l11}, not 1st."
+        return result
+
+    result["present"] = True
+    result["strength"] = 1.0
+    result["details"] = (
+        f"L1 ({l1}) in 2nd, L2 ({l2}) in 11th, L11 ({l11}) in Lagna."
+    )
+    return result
