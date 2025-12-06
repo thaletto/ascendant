@@ -12,6 +12,8 @@
 - [ ] Implement Madhya Vayasi Dhana Yoga
 - [ ] Add Upagrahas (Mandi etc.) support
 - [ ] Implement Jada Yoga (Requires Mandi)
+- [ ] Implement Sarpaganda Yoga
+- [ ] Implement Annadana Yoga
 
 ### Test
 
