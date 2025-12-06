@@ -2142,3 +2142,86 @@ def DehapushtiDehakashta(yoga: Yoga) -> Dict[str, YogaType]:
         )
 
     return results
+
+
+@register_yoga("Rogagrastha")
+def Rogagrastha(yoga: Yoga) -> YogaType:
+    """
+    Lord of Lagna occupies Lagna in conjunction with the lord of 6th or 8th or 12th house.
+    Or weak lord of Lagna joins a trine or a quadrant.
+
+    This is a Negative Yoga
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Rogagrastha",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Negative",
+    }
+
+    l1 = yoga.get_lord_of_house(1)
+    if not l1:
+        result["details"] = "Could not determine Lord of Lagna"
+        return result
+
+    h_l1 = yoga.get_house_of_planet(l1)
+
+    # Condition 1: Lord of Lagna occupies Lagna...
+    condition1 = False
+    details1 = ""
+    if h_l1 == 1:
+        # ...in conjunction with the lord of 6th or 8th or 12th house.
+        l6 = yoga.get_lord_of_house(6)
+        l8 = yoga.get_lord_of_house(8)
+        l12 = yoga.get_lord_of_house(12)
+
+        planets_in_1 = [p["name"] for p in yoga.planets_in_relative_house("Lagna", 1)]
+
+        conjoined = []
+        if l6 and l6 in planets_in_1:
+            conjoined.append(f"6th Lord ({l6})")
+        if l8 and l8 in planets_in_1:
+            conjoined.append(f"8th Lord ({l8})")
+        if l12 and l12 in planets_in_1:
+            conjoined.append(f"12th Lord ({l12})")
+
+        if conjoined:
+            condition1 = True
+            details1 = f"Lagna Lord ({l1}) is in Lagna with {', '.join(conjoined)}."
+
+    # Condition 2: Weak lord of Lagna joins a trine or a quadrant.
+    condition2 = False
+    details2 = ""
+
+    p_l1 = yoga.get_planet_by_name(l1)
+    if p_l1:
+        # Note: isPlanetPowerful returns (bool, strength)
+        is_powerful, _ = yoga.isPlanetPowerful(p_l1)
+        if not is_powerful:
+            # Weak lord of Lagna
+            # Check if in Trine (1, 5, 9) or Quadrant (1, 4, 7, 10).
+            # Combined: 1, 4, 5, 7, 9, 10
+            if h_l1 in [1, 4, 5, 7, 9, 10]:
+                condition2 = True
+                details2 = (
+                    f"Weak Lagna Lord ({l1}) is in house {h_l1} (Trine/Quadrant)."
+                )
+
+    if condition1:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details1
+        return result
+
+    if condition2:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = details2
+        return result
+
+    result["details"] = (
+        "Lagna Lord is not in Lagna with 6/8/12 lords, nor is it weak in Trine/Quadrant."
+    )
+    return result
