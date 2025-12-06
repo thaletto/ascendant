@@ -2225,3 +2225,45 @@ def Rogagrastha(yoga: Yoga) -> YogaType:
         "Lagna Lord is not in Lagna with 6/8/12 lords, nor is it weak in Trine/Quadrant."
     )
     return result
+
+
+@register_yoga("Krisanga")
+def Krisanga(yoga: Yoga) -> YogaType:
+    """
+    The Lagna Sign occupies a dry sign (Aries, Leo, Sagittarius, Taurus, Virgo, Capricorn)
+    or the Lagna lord is dry planet (Sun, Mars, Saturn and Mercury).
+
+    This is a Negative Yoga
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Krisanga",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Negative",
+    }
+
+    dry_signs = ["Aries", "Leo", "Sagittarius", "Taurus", "Virgo", "Capricorn"]
+    dry_planets = ["Sun", "Mars", "Saturn", "Mercury"]
+
+    # Condition 1
+    lagna_house = yoga.get_house_of_planet("Lagna")
+    lagna_sign = yoga.get_rashi_of_house(lagna_house)
+
+    if lagna_sign in dry_signs:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"Lagna Sign ({lagna_sign}) is a dry sign."
+        return result
+
+    # Condition 2
+    l1 = yoga.get_lord_of_house(1)
+    if l1 and l1 in dry_planets:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"Lagna Lord ({l1}) is a dry planet."
+        return result
+
+    result["details"] = "Lagna Sign is not dry and Lagna Lord is not a dry planet."
+    return result
