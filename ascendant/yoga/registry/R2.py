@@ -3240,3 +3240,42 @@ def AmarananthaDhana(yoga: Yoga) -> YogaType:
 
     result["details"] = "Multiple planets in 2nd, but not enough strong wealth karakas."
     return result
+
+
+@register_yoga("Ayatnadhanalabha")
+def Ayatnadhanalabha(yoga: Yoga) -> YogaType:
+    """
+    The lord of the Lagna and the 2nd must exchange places.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Ayatnadhanalabha",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    # Parivartana between L1 and L2
+    # L1 in 2nd house AND L2 in 1st house
+    
+    l1 = yoga.get_lord_of_house(1)
+    l2 = yoga.get_lord_of_house(2)
+    
+    if not l1 or not l2:
+        result["details"] = "Could not find lords of 1 or 2."
+        return result
+        
+    h_l1 = yoga.get_house_of_planet(l1)
+    h_l2 = yoga.get_house_of_planet(l2)
+    
+    if h_l1 == 2 and h_l2 == 1:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = f"L1 ({l1}) in 2nd and L2 ({l2}) in 1st (Exchange)."
+        return result
+        
+    result["details"] = f"No exchange. L1 is in {h_l1}, L2 is in {h_l2}."
+    return result
