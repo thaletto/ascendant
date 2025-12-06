@@ -3518,3 +3518,74 @@ def Daridhra(yoga: Yoga) -> YogaType:
 
     result["details"] = "No Daridhra conditions met."
     return result
+
+
+@register_yoga("Yukthi Samanwithavagmi")
+def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
+    """
+    1. The second Lord joins a benefic in a kendra or thrikona, or is exalted and combined with Jupiter.
+    2. The Lord of speech occupies a kendra, attains paramochha and gains Parvatamsa, while Jupiter or Venus is in Simhasanamsa.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Yukthi Samanwithavagmi",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    
+    l2 = yoga.get_lord_of_house(2) # Lord of 2nd (Lord of Speech)
+    if not l2:
+        return result
+
+    h_l2 = yoga.get_house_of_planet(l2)
+    p_l2 = yoga.get_planet_by_name(l2)
+    
+    # helper for benefic conjunction
+    def has_benefic_conjunction(house, planet_me):
+        planets = yoga.planets_in_relative_house("Lagna", house)
+        for p in planets:
+            if p["name"] in BENEFIC_PLANETS and p["name"] != planet_me:
+                return True
+        return False
+        
+    def is_exalted(planet_obj):
+        return "Exalted" in planet_obj.get("inSign", "")
+
+    # Condition 1:
+    # A) L2 joins benefic in Kendra/Trikona
+    is_in_kt = h_l2 in [1, 4, 7, 10, 5, 9]
+    if is_in_kt:
+        if has_benefic_conjunction(h_l2, l2):
+            result["present"] = True; result["strength"] = 1.0; result["details"] = f"L2 ({l2}) in Kendra/Trikona ({h_l2}) with Benefic."; return result
+            
+    # B) L2 is exalted and combined with Jupiter
+    if is_exalted(p_l2):
+        # Combined with Jupiter?
+        if yoga.get_house_of_planet("Jupiter") == h_l2:
+             result["present"] = True; result["strength"] = 1.0; result["details"] = f"L2 ({l2}) Exalted and with Jupiter."; return result
+
+    # Condition 2:
+    # L2 in Kendra
+    # AND Attains Paramochha (Deep Exaltation) - Proxy: Exalted
+    # AND Gains Parvatamsa (Varga strength) - Proxy: isPlanetPowerful
+    # AND Jupiter or Venus in Simhasanamsa (Varga strength) - Proxy: Jupiter or Venus is Powerful
+    
+    if h_l2 in [1, 4, 7, 10]:
+        if is_exalted(p_l2):
+             is_strong_l2, _ = yoga.isPlanetPowerful(p_l2)
+             if is_strong_l2:
+                 # Check Ju or Ve strong
+                 p_ju = yoga.get_planet_by_name("Jupiter")
+                 p_ve = yoga.get_planet_by_name("Venus")
+                 ju_strong = yoga.isPlanetPowerful(p_ju)[0] if p_ju else False
+                 ve_strong = yoga.isPlanetPowerful(p_ve)[0] if p_ve else False
+                 
+                 if ju_strong or ve_strong:
+                     result["present"] = True; result["strength"] = 1.0; result["details"] = f"L2 Exalted/Strong in Kendra. Ju/Ve Strong."; return result
+
+    result["details"] = "No Yukthi Samanwithavagmi conditions met."
+    return result
