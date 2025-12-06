@@ -2926,3 +2926,55 @@ def Bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
 
     result["details"] = "Neither condition for Bhratrumooladdhanaprapti met."
     return result
+
+
+@register_yoga("Matrumooladdhana")
+def Matrumooladdhana(yoga: Yoga) -> YogaType:
+    """
+    The lord of the 2nd joins the 4th lord or is aspected by him the above yoga.
+
+    [Positive Yoga]
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "Matrumooladdhana",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+
+    l2 = yoga.get_lord_of_house(2)
+    l4 = yoga.get_lord_of_house(4)
+
+    if not l2 or not l4:
+        result["details"] = "Could not find lords of 2 or 4."
+        return result
+
+    h_l2 = yoga.get_house_of_planet(l2)
+    h_l4 = yoga.get_house_of_planet(l4)
+
+    # Note: Text "The above yoga" implies this is a variation or addition. 
+    # Usually means "Dhana from Mother".
+    # Logic: L2 joins L4 OR L2 aspected by L4.
+
+    joined = (h_l2 == h_l4)
+    aspected = False
+    
+    if not joined:
+        try:
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=l4)[0]
+            if any(h_l2 in h for h in aspects.get("aspect_houses", [])):
+                aspected = True
+        except:
+            pass
+
+    if joined or aspected:
+        result["present"] = True
+        result["strength"] = 1.0
+        relation = "joined" if joined else "aspected by"
+        result["details"] = f"L2 ({l2}) is {relation} L4 ({l4})."
+        return result
+
+    result["details"] = f"L2 ({l2}) is neither joined nor aspected by L4 ({l4})."
+    return result
