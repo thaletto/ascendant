@@ -2042,3 +2042,38 @@ def HarshaSaralaVimala(yoga: Yoga) -> Dict[str, YogaType]:
         )
 
     return results
+
+
+@register_yoga("SareeraSoukhya")
+def SareeraSoukhya(yoga: Yoga) -> YogaType:
+    """
+    The lord of Lagna, Jupiter or Venus should occupy a quadrant
+    """
+    result: YogaType = {
+        "id": "",
+        "name": "SareeraSoukhya",
+        "present": False,
+        "strength": 0.0,
+        "details": "",
+        "type": "Positive",
+    }
+    LAsc = yoga.get_lord_of_house(1)
+    LJu = yoga.get_lord_of_planet("Jupiter")
+    LVe = yoga.get_lord_of_planet("Venus")
+
+    LAscH = yoga.get_house_of_planet(LAsc)
+    LJuH = yoga.get_house_of_planet(LJu)
+    LVeH = yoga.get_house_of_planet(LVe)
+
+    if LAscH in [1, 4, 7, 10] or LJuH in [1, 4, 7, 10] or LVeH in [1, 4, 7, 10]:
+        result["present"] = True
+        result["strength"] = 1.0
+        result["details"] = (
+            f"SareeraSoukhya formed. Lord of Lagna ({LAsc}), Lord of Jupiter ({LJu}), Lord of Venus ({LVe}) is in the {LAscH}, {LJuH}, {LVeH} house respectively."
+        )
+    else:
+        result["details"] = (
+            f"SareeraSoukhya not formed. Lord of Lagna ({LAsc}) or Lord of Jupiter ({LJu}) or Lord of Venus ({LVe}) is not in the kendra."
+        )
+
+    return result
