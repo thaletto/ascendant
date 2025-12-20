@@ -153,20 +153,20 @@ def show_yogas():
     print(f"Total Yogas Analyzed: {len(results)}\n")
 
     if present_yogas:
-        print(f"✓ PRESENT YOGAS ({len(present_yogas)}):")
+        print(f"[+] PRESENT YOGAS ({len(present_yogas)}):")
         print("-" * 70)
         for yoga_result in present_yogas:
-            print(f"  • {yoga_result['name']}")
+            print(f"  * {yoga_result['name']}")
             print(f"    {yoga_result.get('details', 'No details available')}")
             print()
     else:
-        print("✓ PRESENT YOGAS: None\n")
+        print("[+] PRESENT YOGAS: None\n")
 
     if absent_yogas:
-        print(f"✗ ABSENT YOGAS ({len(absent_yogas)}):")
+        print(f"[-] ABSENT YOGAS ({len(absent_yogas)}):")
         print("-" * 70)
         for yoga_result in absent_yogas:
-            print(f"  • {yoga_result['name']}")
+            print(f"  * {yoga_result['name']}")
             print(f"    {yoga_result.get('details', 'No details available')}")
             print()
 
@@ -194,14 +194,14 @@ def main():
     for test_name, test_func in tests:
         try:
             test_func()
-            print(f"✓ {test_name} - PASSED")
+            print(f"[OK] {test_name} - PASSED")
             passed += 1
         except AssertionError as e:
-            print(f"✗ {test_name} - FAILED")
+            print(f"[FAIL] {test_name} - FAILED")
             print(f"  Error: {e}")
             failed += 1
         except Exception as e:
-            print(f"✗ {test_name} - ERROR")
+            print(f"[ERR] {test_name} - ERROR")
             print(f"  Error: {e}")
             failed += 1
 
