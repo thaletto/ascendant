@@ -95,3 +95,17 @@ DEEP_EXALTATION_POINTS: DeepExaltationPointsType = {
     "Venus": {"sign": "Pisces", "degree": 27},
     "Saturn": {"sign": "Libra", "degree": 20},
 }
+
+MOVABLE_SIGNS = ["Aries", "Cancer", "Libra", "Capricorn"]
+
+FIXED_SIGNS = ["Taurus", "Leo", "Scorpio", "Aquarius"]
+
+BENEFIC_SIGNS = [
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Virgo",
+    "Libra",
+    "Sagittarius",
+    "Pisces",
+]
