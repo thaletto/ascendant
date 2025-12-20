@@ -5,7 +5,7 @@ from vedicastro.VedicAstro import VedicHoroscopeData
 
 from ascendant.utils import getHouseSystem
 
-load_dotenv("env.test.txt")
+load_dotenv(".env.test")
 
 birth_date_str = os.getenv("NATIVE_BIRTH_DATE")
 birth_time_str = os.getenv("NATIVE_BIRTH_TIME")
