@@ -1,19 +1,14 @@
-from typing import Dict, List, Optional
+from typing import Optional
 from ascendant.const import (
     BENEFIC_PLANETS,
     MALEFIC_PLANETS,
     RASHI_LORD_MAP,
-    CLASSICAL_PLANETS,
     MOVABLE_SIGNS,
     FIXED_SIGNS,
     BENEFIC_SIGNS,
 )
 from ascendant.types import YogaType, PLANETS
-from ascendant.yoga.base import Yoga, register_yoga, register_yogas
-from ascendant.utils import isSignOdd, getSignName
-
-# Helper constants (Removed local definitions)
-
+from ascendant.yoga.base import Yoga, register_yoga
 
 def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> Optional[str]:
     """Helper to get the Lord of the Navamsa occupied by a planet"""

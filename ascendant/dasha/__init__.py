@@ -56,15 +56,15 @@ class Dasha:
                 )
 
             # Add Mahadasha entry
-            dashas.append(
-                {
-                    "mahadasha": maha_planet,
-                    "start": maha_start,
-                    "end": maha_end,
-                    "antardashas": antardashas,
-                }
-            )
-
+            if maha_start and maha_end:
+                dashas.append(
+                    {
+                        "mahadasha": maha_planet,
+                        "start": maha_start,
+                        "end": maha_end,
+                        "antardashas": antardashas,
+                    }
+                )
         return dashas
 
     @staticmethod

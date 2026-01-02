@@ -139,7 +139,7 @@ def planetSignRelation(
         case "Virgo":
             match planet:
                 case "Mercury":
-                    results.extend(["Own", "Exalted"])  # Your requirement
+                    results.extend(["Own", "Exalted"])
                 case "Venus":
                     results.append("Debilitated")
                 case "Sun":
