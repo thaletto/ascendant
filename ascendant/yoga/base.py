@@ -1,5 +1,8 @@
 from typing import Callable, Dict, List, Tuple
+
 from vedicastro.VedicAstro import VedicHoroscopeData
+
+from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
 from ascendant.types import (
     HOUSES,
     PLANET_SIGN_RELATION,
@@ -7,11 +10,10 @@ from ascendant.types import (
     RASHI_LORDS,
     RASHIS,
     LagnaType,
-    PlanetType,
     PlanetsType,
+    PlanetType,
     YogaType,
 )
-from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP, MALEFIC_PLANETS
 from ascendant.utils import yogaNameToId
 
 YogaFunction = Callable[["Yoga"], YogaType]
@@ -153,11 +155,11 @@ class Yoga:
         self, planet: PLANETS_LAGNA
     ) -> PlanetType | LagnaType | None:
         if planet == "Lagna":
-            for house, data in self.chart.items():
+            for _, data in self.chart.items():
                 Lagna = data["lagna"]
                 return Lagna
         else:
-            for house, data in self.chart.items():
+            for _, data in self.chart.items():
                 planets = data["planets"]
                 for _planet in planets:
                     if _planet["name"] == planet:
