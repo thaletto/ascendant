@@ -1,23 +1,28 @@
+from typing import List, cast
+
 from vedicastro.VedicAstro import VedicHoroscopeData
+
 from ascendant.chart.utils import aspect_offsets_for_planet, get_divisional_target
 from ascendant.const import (
-    NODE_MAP,
-    SELECTED_PLANETS,
-    RASHIS,
     ALLOWED_DIVISIONS as DIVISIONS,
 )
-from typing import List
+from ascendant.const import (
+    NODE_MAP,
+    RASHIS,
+    SELECTED_PLANETS,
+)
 from ascendant.types import (
     ALLOWED_DIVISIONS,
     HOUSES,
     PLANETS,
     AspectType,
     ChartType,
+    HouseType,
     LagnaType,
-    PlanetType,
     PlanetsType,
+    PlanetType,
 )
-from ascendant.utils import planetSignRelation, getSignName
+from ascendant.utils import getSignName, planetSignRelation
 
 
 class Chart:
@@ -35,7 +40,7 @@ class Chart:
         self.lagna = self.get_lagna()
         self.chart = self.get_rasi_chart()
 
-    def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType:
+    def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType | None:
         """
         Retrieves the list of planets for a specified divisional chart (varga).
 
@@ -56,9 +61,11 @@ class Chart:
                 continue
             lon: float = _planet.lon
             data = self.__horoscope__.get_rl_nl_sl_data(lon)
+            if data is None:
+                continue
             target_sign, _ = get_divisional_target(lon, n)
             sign = getSignName(target_sign)
-            mapped_name = NODE_MAP.get(name, name)
+            mapped_name = NODE_MAP.get(name, name) or name
 
             planet: PlanetType = {
                 "name": mapped_name,
@@ -78,7 +85,7 @@ class Chart:
             planets.append(planet)
         return planets
 
-    def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType:
+    def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType | None:
         """
         Retrieves the Lagna (Ascendant) for a specified divisional chart (varga).
 
@@ -94,6 +101,8 @@ class Chart:
         asc = self.__chart__.getAngle("Asc")
         lon: float = asc.lon
         data = self.__horoscope__.get_rl_nl_sl_data(lon)
+        if data is None:
+            return None
         target_sign, _ = get_divisional_target(lon, n)
         sign = getSignName(target_sign)
 
@@ -121,26 +130,30 @@ class Chart:
             A ChartType object representing the Rasi chart.
         """
         chart: ChartType = {}
-
+        if self.lagna is None or self.planets is None:
+            return chart
         lagna_sign = self.lagna["sign"]["name"]
         lagna_index = RASHIS.index(lagna_sign)
 
         for i in range(12):
-            house_num: HOUSES = i + 1
+            house_num = cast(HOUSES, i + 1)
             sign_index = (lagna_index + i) % 12
             sign = RASHIS[sign_index]
 
             planets_in_house = [p for p in self.planets if p["sign"]["name"] == sign]
 
-            chart[house_num] = {
-                "sign": sign,
-                "planets": planets_in_house,
-                "lagna": self.lagna if house_num == 1 else None,
-            }
+            chart[house_num] = cast(
+                HouseType,
+                {
+                    "sign": sign,
+                    "planets": planets_in_house,
+                    "lagna": self.lagna if house_num == 1 else None,
+                },
+            )
 
         return chart
 
-    def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType:
+    def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType | None:
         """
         Generates a specific divisional chart (varga chakra) based on the given division number.
 
@@ -156,29 +169,36 @@ class Chart:
         chart: ChartType = {}
 
         lagna = self.get_lagna(n)
+        if lagna is None:
+            return None
         planets = self.get_planets(n)
+        if planets is None:
+            return None
 
         lagna_sign = lagna["sign"]["name"]
         lagna_index = RASHIS.index(lagna_sign)
 
         for i in range(12):
-            house_num: HOUSES = i + 1
+            house_num = cast(HOUSES, i + 1)
             sign_index = (lagna_index + i) % 12
             sign = RASHIS[sign_index]
 
             planets_in_house = [p for p in planets if p["sign"]["name"] == sign]
 
-            chart[house_num] = {
-                "sign": sign,
-                "planets": planets_in_house,
-                "lagna": lagna if house_num == 1 else None,
-            }
+            chart[house_num] = cast(
+                HouseType,
+                {
+                    "sign": sign,
+                    "planets": planets_in_house,
+                    "lagna": self.lagna if house_num == 1 else None,
+                },
+            )
 
         return chart
 
     def graha_drishti(
         self, n: ALLOWED_DIVISIONS, planet: PLANETS | None = None
-    ) -> List[AspectType]:
+    ) -> List[AspectType] | None:
         """
         Calculates and returns the planetary aspects (graha drishti) for a given divisional chart.
 
@@ -194,12 +214,15 @@ class Chart:
             return None
 
         chart = self.get_varga_chakra_chart(n)
+        if chart is None:
+            return None
 
         # Pre-process chart to create mappings for quick lookups
         planet_to_house = {}
         house_to_planets = {h: [] for h in range(1, 13)}
 
         for house_num in range(1, 13):
+            house_num = cast(HOUSES, house_num)
             house = chart.get(house_num)
             if not house:
                 continue
@@ -220,6 +243,7 @@ class Chart:
         # Build results using the pre-processed mappings
         results: List[AspectType] = []
         for planet_name, from_house in planets_to_process.items():
+            planet_name = cast(PLANETS, planet_name)
             aspected_houses = [
                 (from_house - 1 + offset) % 12 + 1
                 for offset in aspect_offsets_for_planet(planet_name)
