@@ -2808,7 +2808,6 @@ def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Balya Dhana")
-@register_yoga("Balya Dhana")
 def BalyaDhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
@@ -3482,8 +3481,10 @@ def Daridhra(yoga: Yoga) -> YogaType:
     for p in planets_in_1:
         if p["name"] in MALEFIC_PLANETS:
             cause = [
-                lord for lord in [l2, l7]
-                if lord is not None and is_joined_or_aspected(1, lord)  # Pyright sees l as PLANETS
+                lord
+                for lord in [l2, l7]
+                if lord is not None
+                and is_joined_or_aspected(1, lord)  # Pyright sees l as PLANETS
             ]
             if cause:
                 result.update(
