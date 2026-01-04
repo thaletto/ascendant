@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import re
-from typing import List, Union
+from typing import List, Union, cast
 
 from vedicastro.VedicAstro import HOUSE_SYSTEM_MAPPING
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
@@ -9,15 +9,12 @@ from ascendant.const import RASHIS as RASHI_MAP
 
 def isSignOdd(n: HOUSES) -> bool:
     """Return True if the rashi index is odd-numbered per this module's scheme."""
-    if not n:
-        return None
     return n % 2 == 0
 
 
 def getSignName(n: HOUSES) -> RASHIS:
-    if not n and n != 0:
-        return None
-    return RASHI_MAP[n]
+    rashi = cast(RASHIS, RASHI_MAP[n])
+    return rashi
 
 
 def getHouseSystem(house_system: str):
@@ -32,7 +29,7 @@ def getHouseSystem(house_system: str):
     return HOUSE_SYSTEM_MAPPING["Whole Sign"]
 
 
-def parseDate(s: Union[str, datetime]) -> datetime:
+def parseDate(s: Union[str, datetime]) -> datetime | None:
     if not s:
         return None
     if isinstance(s, datetime):
