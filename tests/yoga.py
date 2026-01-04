@@ -3,6 +3,7 @@ import time
 from typing import Dict
 from ascendant.chart import Chart, SELECTED_PLANETS
 from ascendant.yoga import Yoga, YOGA_REGISTRY
+from tests.helpers import print_timing_summary
 from tests.horoscope import my_horoscope
 
 chart = Chart(my_horoscope).get_rasi_chart()
@@ -79,37 +80,7 @@ def timeit_individual_yogas(func):
 
             total_elapsed = time.perf_counter() - total_start
 
-            # Print timing summary
-            print(f"\n{'=' * 70}")
-            print("YOGA TIMING SUMMARY")
-            print(f"{'=' * 70}")
-            print(f"Total time: {total_elapsed:.4f} seconds")
-            print(f"Number of yogas: {len(yoga_timings)}\n")
-
-            # Sort by time (slowest first)
-            yoga_timings.sort(key=lambda x: x[1], reverse=True)
-            print("Top 10 slowest yogas:")
-            print("-" * 70)
-            for name, elapsed in yoga_timings[:10]:
-                percentage = (elapsed / total_elapsed) * 100
-                print(f"  {name:30s}: {elapsed:8.6f} seconds ({percentage:5.2f}%)")
-
-            if len(yoga_timings) > 10:
-                print(f"\n... and {len(yoga_timings) - 10} more yogas\n")
-            else:
-                print()
-
-            # Print statistics
-            times = [t[1] for t in yoga_timings]
-            avg_time = sum(times) / len(times) if times else 0
-            min_time = min(times) if times else 0
-            max_time = max(times) if times else 0
-
-            print("Statistics:")
-            print(f"\nAverage time per yoga: {avg_time:.6f} seconds")
-            print(f"\nFastest yoga: {min_time:.6f} seconds")
-            print(f"\nSlowest yoga: {max_time:.6f} seconds")
-            print(f"{'=' * 70}\n")
+            print_timing_summary("YOGA", total_elapsed, yoga_timings, unit_name="yoga")
 
             return results
 
