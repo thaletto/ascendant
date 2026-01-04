@@ -5,7 +5,7 @@ from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
 from ascendant.types import RASHIS as RASHIS_TYPE
 
-__all__ = [RASHIS, NAKSHATRAS, "CLASSICAL_PLANETS"]
+__all__ = ["RASHIS", "NAKSHATRAS"]
 
 
 SELECTED_PLANETS: List[str] = [
