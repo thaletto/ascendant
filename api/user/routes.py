@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from vedicastro.VedicAstro import VedicHoroscopeData
 
 from api.database import get_db
-from api.models import BirthDetails, UserCreationOut, UserOut
+from api.models import BirthDetails, UserCreationOut
 from api.schemas import Chart, Dasha, User
 from ascendant.chart import Chart as AscendantChart
 from ascendant.const import ALLOWED_DIVISIONS as DIVISIONS
