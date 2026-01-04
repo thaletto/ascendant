@@ -26,12 +26,10 @@ def GajaKesari(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    moon_house = yoga.get_house_of_planet("Moon")
-    jupiter_house = yoga.get_house_of_planet("Jupiter")
-    if not moon_house or not jupiter_house:
-        result["present"] = False
-        result["details"] = "Moon or Jupiter not found"
-        result["strength"] = 0
+    if (moon_house := yoga.get_house_of_planet("Moon")) is None:
+        raise ValueError("Moon not found")
+    if (jupiter_house := yoga.get_house_of_planet("Jupiter")) is None:
+        raise ValueError("Jupiter not found")
 
     present = yoga.planet_in_kendra_from(moon_house, "Jupiter")
     result["present"] = present
@@ -101,10 +99,8 @@ def Anapha(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    planets = yoga.planets_in_relative_house("Moon", 12)
-    if not planets:
-        result["details"] = "No planets in 12th house from Moon"
-        return result
+    if (planets := yoga.planets_in_relative_house("Moon", 12)) is None:
+        raise ValueError("Planets in 12th house from Moon not found")
 
     WEIGHTS: Dict[PLANETS, float] = {
         "Jupiter": 1.0,
@@ -121,9 +117,10 @@ def Anapha(yoga: Yoga) -> YogaType:
         strength = WEIGHTS.get(name, DEFAULT_WEIGHT)
         strengths.append(strength)
         names.append(f"{name}({strength})")
-
-    result["present"] = len(planets) > 0
-    result["strength"] = sum(strengths) / len(strengths)
+    
+    if (present := len(planets) > 0):
+        result["present"] = present
+        result["strength"] = sum(strengths) / len(strengths)
     result["details"] = "Planets in 12th house from Moon: " + ", ".join(names)
 
     return result
@@ -215,7 +212,7 @@ def ChandraAdhi(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    HOUSE_STRENGTH = {6: 0.75, 7: 1.0, 8: 0.75}
+    HOUSE_STRENGTH: Dict[HOUSES, float] = {6: 0.75, 7: 1.0, 8: 0.75}
 
     # Collect planets in 6, 7, 8
     planets_6 = yoga.planets_in_relative_house("Moon", 6)
@@ -232,8 +229,9 @@ def ChandraAdhi(yoga: Yoga) -> YogaType:
     strength_sum = 0.0
     for p in planets:
         if p["name"] in BENEFIC_PLANETS:
-            relative_pos = yoga.relative_house("Moon", p["name"])
-            strength_sum += HOUSE_STRENGTH.get(relative_pos, 0)
+            if (relative_pos := yoga.relative_house("Moon", p["name"])) is None:
+                raise ValueError(f"Relative house of {p['name']} from Moon not found")
+            strength_sum += HOUSE_STRENGTH[relative_pos]
 
     # Normalize
     result["strength"] = strength_sum / len(BENEFIC_PLANETS)
@@ -276,8 +274,9 @@ def LagnaAdhi(yoga: Yoga) -> YogaType:
     strength_sum = 0.0
     for p in planets:
         if p["name"] in BENEFIC_PLANETS:
-            relative_pos = yoga.relative_house("Lagna", p["name"])
-            strength_sum += HOUSE_STRENGTH.get(relative_pos, 0)
+            if (relative_pos := yoga.relative_house("Lagna", p["name"])) is None:
+                raise ValueError(f"Relative house of {p['name']} from Lagna not found")
+            strength_sum += HOUSE_STRENGTH[relative_pos]
 
     # Normalize
     result["strength"] = strength_sum / len(BENEFIC_PLANETS)
@@ -303,10 +302,14 @@ def Chatussagara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    house_1 = yoga.planets_in_relative_house("Lagna", 1)
-    house_4 = yoga.planets_in_relative_house("Lagna", 4)
-    house_7 = yoga.planets_in_relative_house("Lagna", 7)
-    house_10 = yoga.planets_in_relative_house("Lagna", 10)
+    if (house_1 := yoga.planets_in_relative_house("Lagna", 1)) is None:
+        raise ValueError("Relative house of 1st from Lagna not found")
+    if (house_4 := yoga.planets_in_relative_house("Lagna", 4)) is None:
+        raise ValueError("Relative house of 4th from Lagna not found")
+    if (house_7 := yoga.planets_in_relative_house("Lagna", 7)) is None:
+        raise ValueError("Relative house of 7th from Lagna not found")
+    if (house_10 := yoga.planets_in_relative_house("Lagna", 10)) is None:
+        raise ValueError("Relative house of 10th from Lagna not found")
 
     houses = [house_1, house_4, house_7, house_10]
 
@@ -315,13 +318,13 @@ def Chatussagara(yoga: Yoga) -> YogaType:
 
     # Details text
     details = []
-    if house_1:
+    if len(house_1) > 0:
         details.append(f"1st house: {', '.join([p['name'] for p in house_1])}")
-    if house_4:
+    if len(house_4) > 0:
         details.append(f"4th house: {', '.join([p['name'] for p in house_4])}")
-    if house_7:
+    if len(house_7) > 0:
         details.append(f"7th house: {', '.join([p['name'] for p in house_7])}")
-    if house_10:
+    if len(house_10) > 0:
         details.append(f"10th house: {', '.join([p['name'] for p in house_10])}")
 
     if result["present"]:
@@ -611,22 +614,17 @@ def Kahala(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    lord_of_4 = yoga.get_lord_of_house(4)
-    lord_of_9 = yoga.get_lord_of_house(9)
+    if (lord_of_4 := yoga.get_lord_of_house(4)) is None or (
+        lord_of_9 := yoga.get_lord_of_house(9)
+    ) is None:
+        raise ValueError("Could not determine lords of 4th and 9th houses.")
 
-    if not lord_of_4 or not lord_of_9:
-        result["details"] = "Could not determine lords of 4th and 9th houses."
-        return result
-
-    house_of_lord_of_4 = yoga.get_house_of_planet(lord_of_4)
-    house_of_lord_of_9 = yoga.get_house_of_planet(lord_of_9)
-
-    if not house_of_lord_of_4 or not house_of_lord_of_9:
-        result["details"] = "Could not find house for lord of 4th or 9th."
-        return result
+    if (house_of_lord_of_4 := yoga.get_house_of_planet(lord_of_4)) is None or (
+        house_of_lord_of_9 := yoga.get_house_of_planet(lord_of_9)
+    ) is None:
+        raise ValueError("Could not find house for lord of 4th or 9th.")
 
     result["present"] = yoga.planet_in_kendra_from(house_of_lord_of_4, lord_of_9)
-
     result["details"] = (
         f"Lord of 4th house ({lord_of_4}) in house {house_of_lord_of_4} & Lord of 9th house ({lord_of_9}) in house {house_of_lord_of_9}."
     )
@@ -839,12 +837,11 @@ def Sasa(yoga: Yoga) -> YogaType:
         "type": "Neutral",
     }
 
-    sa_house = yoga.get_house_of_planet("Saturn")
-    if not sa_house:
-        result["details"] = "Saturn not found."
-        return result
+    if (sa_house := yoga.get_house_of_planet("Saturn")) is None:
+        raise ValueError("Saturn not found.")
 
-    sa_rashi = yoga.get_rashi_of_house(sa_house)
+    if (sa_rashi := yoga.get_rashi_of_house(sa_house)) is None:
+        raise ValueError("Saturn's rashi not found.")
 
     own_signs: List[RASHIS] = ["Capricorn", "Aquarius"]
     exaltation_sign: RASHIS = "Libra"
@@ -1004,17 +1001,18 @@ def Pushkala(yoga: Yoga) -> YogaType:
     }
 
     # Basic lookups
-    moon_house = yoga.get_house_of_planet("Moon")
-    lagna_house = yoga.get_house_of_planet("Lagna")
-
-    if not moon_house or not lagna_house:
-        result["details"] = "Pushkala Yoga not formed because Moon or Lagna not found."
-        return result
-
-    moon_lord = yoga.get_lord_of_house(moon_house)
-    lagna_lord = yoga.get_lord_of_house(lagna_house)
-    moon_lord_house = yoga.get_house_of_planet(moon_lord)
-    lagna_lord_house = yoga.get_house_of_planet(lagna_lord)
+    if (moon_house := yoga.get_house_of_planet("Moon")) is None:
+        raise ValueError("Moon not found.")
+    if (lagna_house := yoga.get_house_of_planet("Lagna")) is None:
+        raise ValueError("Lagna not found.")
+    if (moon_lord := yoga.get_lord_of_house(moon_house)) is None:
+        raise ValueError("Moon's lord not found.")
+    if (lagna_lord := yoga.get_lord_of_house(lagna_house)) is None:
+        raise ValueError("Lagna's lord not found.")
+    if (moon_lord_house := yoga.get_house_of_planet(moon_lord)) is None:
+        raise ValueError("Moon's lord house not found.")
+    if (lagna_lord_house := yoga.get_house_of_planet(lagna_lord)) is None:
+        raise ValueError("Lagna's lord house not found.")
 
     if not all([moon_lord, lagna_lord, moon_lord_house, lagna_lord_house]):
         result["details"] = (
@@ -1109,9 +1107,12 @@ def Lakshmi(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    lagna_lord = yoga.get_lord_of_planet("Lagna")
-    Lagna_Lord_Planet = yoga.get_planet_by_name(lagna_lord)
-    if Lagna_Lord_Planet is None or Lagna_Lord_Planet["name"] == "Lagna":
+    if (lagna_lord := yoga.get_lord_of_planet("Lagna")) is None:
+        raise ValueError("Lagna Lord not found.")
+
+    if (
+        Lagna_Lord_Planet := yoga.get_planet_by_name(lagna_lord)
+    ) is None or Lagna_Lord_Planet["name"] == "Lagna":
         raise ValueError(
             f"Invalid planet type for Lagna Lord, either found LagnaType or None: {Lagna_Lord_Planet}"
         )
@@ -1123,6 +1124,9 @@ def Lakshmi(yoga: Yoga) -> YogaType:
         return result
 
     lord_of_9 = yoga.get_lord_of_house(9)
+    if not lord_of_9:
+        result["details"] = "Lakshmi Yoga not formed because Lord of 9th not found."
+        return result
     lord_of_9_planet = yoga.get_planet_by_name(lord_of_9)
     if lord_of_9_planet is None:
         raise ValueError(f"Planet not found for L9: {lord_of_9}")
@@ -1227,8 +1231,10 @@ def Gauri(yoga: Yoga) -> YogaType:
         result["details"] = f"{NSL_planet['name']} not in 10th house"
         return result
 
-    LL = yoga.get_lord_of_planet("Lagna")
-    LLH = yoga.get_house_of_planet(LL)
+    if (LL := yoga.get_lord_of_planet("Lagna")) is None:
+        raise ValueError("Lagna Lord not found.")
+    if (LLH := yoga.get_house_of_planet(LL)) is None:
+        raise ValueError("Lagna House not found.")
 
     if LLH != 10:
         result["details"] = (
@@ -1258,24 +1264,25 @@ def Bharathi(yoga: Yoga) -> YogaType:
     }
 
     # Lords of 2, 5, 11
-    L2 = yoga.get_lord_of_house(2)
-    L5 = yoga.get_lord_of_house(5)
-    L11 = yoga.get_lord_of_house(11)
+    if (L2 := yoga.get_lord_of_house(2)) is None:
+        raise ValueError("Lord of 2nd house not found")
+    if (L5 := yoga.get_lord_of_house(5)) is None:
+        raise ValueError("Lord of 5th house not found")
+    if (L11 := yoga.get_lord_of_house(11)) is None:
+        raise ValueError("Lord of 11th house not found")
 
-    key_lords = [L2, L5, L11]
+    key_lords: List[RASHI_LORDS] = [L2, L5, L11]
 
-    D9 = yoga.__chart__.get_varga_chakra_chart(9)
-    if D9 is None:
+    if (D9 := yoga.__chart__.get_varga_chakra_chart(9)) is None:
         raise ValueError("D9 chart not found")
-    navamsa_sign_lords = []
 
+    navamsa_sign_lords = []
     # --- STEP 1: Find Navamsa Sign Lords occupied by 2L, 5L, 11L ---
     for _, data in D9.items():
         for planet in data["planets"]:
             if planet["name"] in key_lords:
                 sign = planet["sign"]["name"]
-                nsl = RASHI_LORD_MAP.get(sign)
-                if nsl:
+                if (nsl := RASHI_LORD_MAP.get(sign)) is not None:
                     navamsa_sign_lords.append(nsl)
 
     if not navamsa_sign_lords:
@@ -1283,8 +1290,10 @@ def Bharathi(yoga: Yoga) -> YogaType:
         return result
 
     # --- STEP 2: Check each Navamsa-sign-lord ---
-    L9 = yoga.get_lord_of_house(9)
-    L9_house = yoga.get_house_of_planet(L9)
+    if (L9 := yoga.get_lord_of_house(9)) is None:
+        raise ValueError("Lord of 9th house not found")
+    if (L9_house := yoga.get_house_of_planet(L9)) is None:
+        raise ValueError("House of L9 not found")
 
     for NSL in navamsa_sign_lords:
         NSL_house = yoga.get_house_of_planet(NSL)
@@ -1331,19 +1340,16 @@ def Chapa(yoga: Yoga) -> YogaType:
     }
 
     # Get Lagna Lord
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    if not lagna_house:
-        result["details"] = "Lagna not found"
-        return result
+    if (lagna_house := yoga.get_house_of_planet("Lagna")) is None:
+        raise ValueError("Lagna not found")
 
-    lagna_lord = yoga.get_lord_of_house(lagna_house)
-    if not lagna_lord:
-        result["details"] = "Could not determine Lagna Lord"
-        return result
+    if (lagna_lord := yoga.get_lord_of_house(lagna_house)) is None:
+        raise ValueError("Lagna Lord result")
 
     # Check if Lagna Lord is exalted
-    lagna_lord_planet = yoga.get_planet_by_name(lagna_lord)
-    if lagna_lord_planet is None or lagna_lord_planet["name"] == "Lagna":
+    if (
+        lagna_lord_planet := yoga.get_planet_by_name(lagna_lord)
+    ) is None or lagna_lord_planet["name"] == "Lagna":
         raise ValueError(f"Could not find Lagna Lord ({lagna_lord}) in chart")
 
     is_exalted = any(flag == "Exalted" for flag in lagna_lord_planet["inSign"])
@@ -1352,20 +1358,16 @@ def Chapa(yoga: Yoga) -> YogaType:
         return result
 
     # Get 4th and 10th house lords
-    lord_of_4 = yoga.get_lord_of_house(4)
-    lord_of_10 = yoga.get_lord_of_house(10)
-
-    if not lord_of_4 or not lord_of_10:
-        result["details"] = "Could not determine lords of 4th and 10th houses"
-        return result
+    if (lord_of_4 := yoga.get_lord_of_house(4)) is None or (
+        lord_of_10 := yoga.get_lord_of_house(10)
+    ) is None:
+        raise ValueError("Could not find lords of 4th and 10th houses")
 
     # Get houses where these lords are located
-    house_of_lord_4 = yoga.get_house_of_planet(lord_of_4)
-    house_of_lord_10 = yoga.get_house_of_planet(lord_of_10)
-
-    if not house_of_lord_4 or not house_of_lord_10:
-        result["details"] = "Could not find houses for lords of 4th and 10th"
-        return result
+    if (house_of_lord_4 := yoga.get_house_of_planet(lord_of_4)) is None or (
+        house_of_lord_10 := yoga.get_house_of_planet(lord_of_10)
+    ) is None:
+        raise ValueError("Could not find houses for lords of 4th and 10th")
 
     # Check if they have interchanged houses (lord of 4th in 10th, lord of 10th in 4th)
     houses_interchanged = (house_of_lord_4 == 10) and (house_of_lord_10 == 4)
@@ -1404,19 +1406,18 @@ def Sreenatha(yoga: Yoga) -> YogaType:
     }
 
     # Get 7th, 9th, and 10th house lords
-    lord_of_7 = yoga.get_lord_of_house(7)
-    lord_of_9 = yoga.get_lord_of_house(9)
-    lord_of_10 = yoga.get_lord_of_house(10)
-
-    if not lord_of_7 or not lord_of_9 or not lord_of_10:
-        result["details"] = "Could not determine lords of 7th, 9th, or 10th houses"
-        return result
+    if (lord_of_7 := yoga.get_lord_of_house(7)) is None:
+        raise ValueError("Could not find lord of 7th house")
+    if (lord_of_9 := yoga.get_lord_of_house(9)) is None:
+        raise ValueError("Could not find lord of 9th house")
+    if (lord_of_10 := yoga.get_lord_of_house(10)) is None:
+        raise ValueError("Could not find lord of 10th house")
 
     # Check if Lord of 7th is exalted
-    lord_of_7_planet = yoga.get_planet_by_name(lord_of_7)
-    if lord_of_7_planet is None or lord_of_7_planet["name"] == "Lagna":
-        result["details"] = f"Could not find planet {lord_of_7}"
-        return result
+    if (
+        lord_of_7_planet := yoga.get_planet_by_name(lord_of_7)
+    ) is None or lord_of_7_planet["name"] == "Lagna":
+        raise ValueError(f"Could not find planet {lord_of_7}")
 
     is_exalted = any(flag == "Exalted" for flag in lord_of_7_planet["inSign"])
     if not is_exalted:
@@ -1424,10 +1425,8 @@ def Sreenatha(yoga: Yoga) -> YogaType:
         return result
 
     # Check if Lord of 7th occupies 10th house
-    house_of_lord_7 = yoga.get_house_of_planet(lord_of_7)
-    if not house_of_lord_7:
-        result["details"] = f"Could not find house for {lord_of_7}"
-        return result
+    if (house_of_lord_7 := yoga.get_house_of_planet(lord_of_7)) is None:
+        raise ValueError(f"Could not find house for {lord_of_7}")
 
     in_10th_house = house_of_lord_7 == 10
     if not in_10th_house:
@@ -1508,14 +1507,14 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
         for _, (name, type) in MALIKA_YOGAS.items()
     }
 
-    planets = yoga.__chart__.get_planets()
-    if planets is None:
+    if (planets := yoga.__chart__.get_planets()) is None:
         raise ValueError("Chart has no planets")
 
-    planet_houses = {
-        p["name"]: yoga.get_house_of_planet(p["name"])
+    planet_houses: dict[str, HOUSES] = {
+        name: house
         for p in planets
-        if p["name"] not in ("Rahu", "Ketu")
+        if (name := p["name"]) not in ("Rahu", "Ketu")
+        if (house := yoga.get_house_of_planet(name)) is not None
     }
 
     if any(h is None for h in planet_houses.values()):
@@ -1523,7 +1522,7 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
             results[name]["details"] = "Could not locate all classical planets."
         return results
 
-    occupied_houses = set(planet_houses.values())
+    occupied_houses = {h for h in planet_houses.values() if h is not None}
 
     if len(occupied_houses) != 7:
         for name in results.values():
@@ -1577,20 +1576,16 @@ def Sankha(yoga: Yoga) -> YogaType:
     }
 
     # Get lords of 5th and 6th houses
-    lord_of_5 = yoga.get_lord_of_house(5)
-    lord_of_6 = yoga.get_lord_of_house(6)
-
-    if not lord_of_5 or not lord_of_6:
-        result["details"] = "Could not determine lords of 5th and 6th houses."
-        return result
+    if (lord_of_5 := yoga.get_lord_of_house(5)) is None:
+        raise ValueError("Could not determine lord of 5th house.")
+    if (lord_of_6 := yoga.get_lord_of_house(6)) is None:
+        raise ValueError("Could not determine lord of 6th house.")
 
     # Get houses where these lords are located
-    house_of_lord_5 = yoga.get_house_of_planet(lord_of_5)
-    house_of_lord_6 = yoga.get_house_of_planet(lord_of_6)
-
-    if not house_of_lord_5 or not house_of_lord_6:
-        result["details"] = "Could not find houses for lords of 5th and 6th."
-        return result
+    if (house_of_lord_5 := yoga.get_house_of_planet(lord_of_5)) is None:
+        raise ValueError("Could not determine house of lord of 5th house.")
+    if (house_of_lord_6 := yoga.get_house_of_planet(lord_of_6)) is None:
+        raise ValueError("Could not determine house of lord of 6th house.")
 
     # Check if they are in mutual kendras
     lord_5_in_kendra_from_lord_6 = yoga.planet_in_kendra_from(
@@ -1609,15 +1604,13 @@ def Sankha(yoga: Yoga) -> YogaType:
         return result
 
     # Check if lord of lagna is powerful
-    lagna_lord = yoga.get_lord_of_house(1)
-    if not lagna_lord:
-        result["details"] = "Could not determine lord of lagna."
-        return result
+    if (lagna_lord := yoga.get_lord_of_house(1)) is None:
+        raise ValueError("Could not determine lord of lagna.")
 
-    lagna_lord_planet = yoga.get_planet_by_name(lagna_lord)
-    if lagna_lord_planet is None or lagna_lord_planet["name"] == "Lagna":
-        result["details"] = f"Could not find planet {lagna_lord}."
-        return result
+    if (
+        lagna_lord_planet := yoga.get_planet_by_name(lagna_lord)
+    ) is None or lagna_lord_planet["name"] == "Lagna":
+        raise ValueError(f"Could not find planet {lagna_lord}.")
 
     is_powerful, lagna_lord_strength = yoga.isPlanetPowerful(lagna_lord_planet)
 
@@ -1661,12 +1654,10 @@ def Bheri(yoga: Yoga) -> YogaType:
     }
 
     # Get houses where Venus and Jupiter are located
-    house_of_venus = yoga.get_house_of_planet("Venus")
-    house_of_jupiter = yoga.get_house_of_planet("Jupiter")
-
-    if not house_of_venus or not house_of_jupiter:
-        result["details"] = "Could not find houses for Venus and Jupiter."
-        return result
+    if (house_of_venus := yoga.get_house_of_planet("Venus")) is None or (
+        house_of_jupiter := yoga.get_house_of_planet("Jupiter")
+    ) is None:
+        raise ValueError("Could not find houses for Venus or Jupiter.")
 
     # Check if they are in mutual kendras
     venus_in_kendra_from_jupiter = yoga.planet_in_kendra_from(house_of_jupiter, "Venus")
@@ -1682,15 +1673,13 @@ def Bheri(yoga: Yoga) -> YogaType:
         return result
 
     # Check if lord of 9th is powerful
-    lord_of_9 = yoga.get_lord_of_house(9)
-    if not lord_of_9:
-        result["details"] = "Could not determine lord of 9th house."
-        return result
+    if (lord_of_9 := yoga.get_lord_of_house(9)) is None:
+        raise ValueError("Could not determine lord of 9th house.")
 
-    lord_of_9_planet = yoga.get_planet_by_name(lord_of_9)
-    if lord_of_9_planet is None or lord_of_9_planet["name"] == "Lagna":
-        result["details"] = f"Could not find planet {lord_of_9}."
-        return result
+    if (
+        lord_of_9_planet := yoga.get_planet_by_name(lord_of_9)
+    ) is None or lord_of_9_planet["name"] == "Lagna":
+        raise ValueError(f"Could not find planet {lord_of_9}.")
 
     is_powerful, lord_of_9_strength = yoga.isPlanetPowerful(lord_of_9_planet)
 
@@ -1733,22 +1722,16 @@ def Gaja(yoga: Yoga) -> YogaType:
     }
 
     # Calculate 9th house from 11th: (11 + 9 - 1) % 12 = 7
-    lord_of_7 = yoga.get_lord_of_house(7)
-    if not lord_of_7:
-        result["details"] = "Could not determine lord of 7th house."
-        return result
+    if (lord_of_7 := yoga.get_lord_of_house(7)) is None:
+        raise ValueError("Could not determine lord of 7th house.")
 
     # Get lord of 11th house
-    lord_of_11 = yoga.get_lord_of_house(11)
-    if not lord_of_11:
-        result["details"] = "Could not determine lord of 11th house."
-        return result
+    if (lord_of_11 := yoga.get_lord_of_house(11)) is None:
+        raise ValueError("Could not determine lord of 11th house.")
 
     # Check if lord of 7th is in house 11
-    house_of_lord_7 = yoga.get_house_of_planet(lord_of_7)
-    if not house_of_lord_7:
-        result["details"] = f"Could not find house for lord of 7th ({lord_of_7})."
-        return result
+    if (house_of_lord_7 := yoga.get_house_of_planet(lord_of_7)) is None:
+        raise ValueError(f"Could not find house for lord of 7th ({lord_of_7}).")
 
     if house_of_lord_7 != 11:
         result["details"] = (
@@ -1769,12 +1752,11 @@ def Gaja(yoga: Yoga) -> YogaType:
         return result
 
     # Check if lord of 11th aspects house 11
-    chart = yoga.__chart__
-    if chart is None:
+    if (chart := yoga.__chart__) is None:
         raise ValueError("Chart not found.")
+
     try:
-        aspects = chart.graha_drishti(n=1, planet=lord_of_11)
-        if not aspects:
+        if (aspects := chart.graha_drishti(n=1, planet=lord_of_11)) is None:
             raise ValueError("Graha drishti of L11 was not found.")
         lord_of_11_aspects = aspects[0]
         aspect_houses = lord_of_11_aspects.get("aspect_houses", [])
@@ -1795,12 +1777,15 @@ def Gaja(yoga: Yoga) -> YogaType:
     aspect_strength = 0.8  # Lord of 11th aspects house 11
 
     # Check if lord of 7th is powerful for additional strength
-    lord_of_7_planet = yoga.get_planet_by_name(lord_of_7)
     lord_of_7_power_strength = 0.5  # default
-    if lord_of_7_planet is not None and lord_of_7_planet["name"] != "Lagna":
-        is_powerful, power_strength = yoga.isPlanetPowerful(lord_of_7_planet)
-        if is_powerful:
-            lord_of_7_power_strength = power_strength
+    if (
+        lord_of_7_planet := yoga.get_planet_by_name(lord_of_7)
+    ) is None or lord_of_7_planet["name"] == "Lagna":
+        raise ValueError("Lord of 7th not found.")
+
+    is_powerful, power_strength = yoga.isPlanetPowerful(lord_of_7_planet)
+    if is_powerful:
+        lord_of_7_power_strength = power_strength
 
     result["present"] = True
     result["strength"] = (
@@ -1829,10 +1814,8 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
     }
 
     # Check if Jupiter is in 2nd or 5th house
-    jupiter_house = yoga.get_house_of_planet("Jupiter")
-    if not jupiter_house:
-        result["details"] = "Could not find Jupiter."
-        return result
+    if (jupiter_house := yoga.get_house_of_planet("Jupiter")) is None:
+        raise ValueError("Could not find Jupiter.")
 
     if jupiter_house not in [2, 5]:
         result["details"] = (
@@ -1841,10 +1824,8 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
         return result
 
     # Get the sign of Jupiter's house and check if it's Taurus, Libra, Gemini, or Virgo
-    jupiter_house_sign = yoga.get_rashi_of_house(jupiter_house)
-    if not jupiter_house_sign:
-        result["details"] = f"Could not determine sign of house {jupiter_house}."
-        return result
+    if (jupiter_house_sign := yoga.get_rashi_of_house(jupiter_house)) is None:
+        raise ValueError(f"Could not determine sign of house {jupiter_house}.")
 
     # Check if the sign is Taurus, Libra, Gemini, or Virgo
     if jupiter_house_sign not in ["Taurus", "Libra", "Gemini", "Virgo"]:
@@ -1855,22 +1836,19 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
         return result
 
     # Check if Jupiter is associated with Mercury (conjunction or aspect)
-    mercury_house = yoga.get_house_of_planet("Mercury")
-    if not mercury_house:
-        result["details"] = "Could not find Mercury."
-        return result
+    if (mercury_house := yoga.get_house_of_planet("Mercury")) is None:
+        raise ValueError("Could not find Mercury.")
 
     # Check conjunction (same house)
     jupiter_mercury_conjunction = jupiter_house == mercury_house
 
     # Check aspect
-    chart = yoga.__chart__
-    jupiter_mercury_aspect = False
-    if chart is None:
+    if (chart := yoga.__chart__) is None:
         raise ValueError("Chart not found.")
+    jupiter_mercury_aspect = False
+
     try:
-        aspects = chart.graha_drishti(n=1, planet="Mercury")
-        if not aspects:
+        if (aspects := chart.graha_drishti(n=1, planet="Mercury")) is None:
             raise ValueError("Graha drishti of Mercury was not found.")
         mercury_aspects = aspects[0]
         aspect_houses = mercury_aspects.get("aspect_houses", [])
@@ -1878,7 +1856,7 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
             jupiter_house in house_dict for house_dict in aspect_houses
         )
     except (KeyError, IndexError, TypeError):
-        pass
+        print("Error occurred while checking aspect")
 
     jupiter_mercury_associated = jupiter_mercury_conjunction or jupiter_mercury_aspect
 
@@ -1890,21 +1868,16 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
         return result
 
     # Check if Jupiter is associated with Venus (conjunction or aspect)
-    venus_house = yoga.get_house_of_planet("Venus")
-    if not venus_house:
-        result["details"] = "Could not find Venus."
-        return result
+    if (venus_house := yoga.get_house_of_planet("Venus")) is None:
+        raise ValueError("Could not find Venus.")
 
     # Check conjunction (same house)
     jupiter_venus_conjunction = jupiter_house == venus_house
 
     # Check aspect
     jupiter_venus_aspect = False
-    if chart is None:
-        raise ValueError("Chart not found.")
     try:
-        aspects = chart.graha_drishti(n=1, planet="Venus")
-        if not aspects:
+        if (aspects := chart.graha_drishti(n=1, planet="Venus")) is None:
             raise ValueError("Graha drishti of Venus was not found.")
         venus_aspects = aspects[0]
         aspect_houses = venus_aspects.get("aspect_houses", [])
@@ -1912,7 +1885,7 @@ def Kalanidhi(yoga: Yoga) -> YogaType:
             jupiter_house in house_dict for house_dict in aspect_houses
         )
     except (KeyError, IndexError, TypeError):
-        pass
+        print("Error occurred while checking aspects")
 
     jupiter_venus_associated = jupiter_venus_conjunction or jupiter_venus_aspect
 
@@ -1961,16 +1934,17 @@ def Amsavatara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    # Get Lagna house and sign
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    if not lagna_house:
-        result["details"] = "Could not find Lagna."
-        return result
+    if (venus_house := yoga.get_house_of_planet("Venus")) is None:
+        raise ValueError("Could not find Venus.")
+    if (jupiter_house := yoga.get_house_of_planet("Jupiter")) is None:
+        raise ValueError("Could not find Jupiter.")
+    if (saturn_house := yoga.get_house_of_planet("Saturn")) is None:
+        raise ValueError("Could not find Saturn.")
+    if (lagna_house := yoga.get_house_of_planet("Lagna")) is None:
+        raise ValueError("Could not find Lagna.")
 
-    lagna_sign = yoga.get_rashi_of_house(lagna_house)
-    if not lagna_sign:
-        result["details"] = f"Could not determine sign of Lagna house {lagna_house}."
-        return result
+    if (lagna_sign := yoga.get_rashi_of_house(lagna_house)) is None:
+        raise ValueError(f"Could not determine sign of Lagna house {lagna_house}.")
 
     # Check if Lagna is in a movable sign (Aries, Cancer, Libra, Capricorn)
     movable_signs = ["Aries", "Cancer", "Libra", "Capricorn"]
@@ -1983,7 +1957,6 @@ def Amsavatara(yoga: Yoga) -> YogaType:
     # Check if Venus is in a Kendra (from Lagna, house 1)
     venus_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Venus")
     if not venus_in_kendra:
-        venus_house = yoga.get_house_of_planet("Venus")
         result["details"] = (
             f"Venus is not in a Kendra from Lagna "
             f"(Venus in house {venus_house}, Lagna in house {lagna_house})."
@@ -1993,7 +1966,6 @@ def Amsavatara(yoga: Yoga) -> YogaType:
     # Check if Jupiter is in a Kendra (from Lagna, house 1)
     jupiter_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Jupiter")
     if not jupiter_in_kendra:
-        jupiter_house = yoga.get_house_of_planet("Jupiter")
         result["details"] = (
             f"Jupiter is not in a Kendra from Lagna "
             f"(Jupiter in house {jupiter_house}, Lagna in house {lagna_house})."
@@ -2001,10 +1973,8 @@ def Amsavatara(yoga: Yoga) -> YogaType:
         return result
 
     # Check if Saturn is exalted
-    saturn_planet = yoga.get_planet_by_name("Saturn")
-    if not saturn_planet or saturn_planet["name"] == "Lagna":
-        result["details"] = "Could not find Saturn."
-        return result
+    if (saturn_planet := yoga.get_planet_by_name("Saturn")) is None or saturn_planet["name"] == "Lagna":
+        raise ValueError("Could not find Saturn.")
 
     is_exalted = any(flag == "Exalted" for flag in saturn_planet["inSign"])
     if not is_exalted:
@@ -2014,7 +1984,6 @@ def Amsavatara(yoga: Yoga) -> YogaType:
     # Check if Saturn is in a Kendra (from Lagna, house 1)
     saturn_in_kendra = yoga.planet_in_kendra_from(lagna_house, "Saturn")
     if not saturn_in_kendra:
-        saturn_house = yoga.get_house_of_planet("Saturn")
         result["details"] = (
             f"Saturn is exalted but not in a Kendra from Lagna "
             f"(Saturn in house {saturn_house}, Lagna in house {lagna_house})."
@@ -2022,10 +1991,6 @@ def Amsavatara(yoga: Yoga) -> YogaType:
         return result
 
     # All conditions met - calculate strength
-    venus_house = yoga.get_house_of_planet("Venus")
-    jupiter_house = yoga.get_house_of_planet("Jupiter")
-    saturn_house = yoga.get_house_of_planet("Saturn")
-
     # Kendra strength map (1st=1.0, 4th=0.75, 7th=0.9, 10th=0.75)
     kendra_strength_map = {1: 1.0, 4: 0.75, 7: 0.9, 10: 0.75}
 
@@ -2085,49 +2050,52 @@ def HariHaraBrahma(yoga: Yoga) -> YogaType:
     strengths = []
 
     # Condition 1
-    lord_of_2 = yoga.get_lord_of_house(2)
-    if lord_of_2:
-        planets_8th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 8)
-        planets_12th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 12)
-        benefics_in_8th = [
-            p["name"] for p in planets_8th_from_L2 if p["name"] in BENEFIC_PLANETS
-        ]
-        benefics_in_12th = [
-            p["name"] for p in planets_12th_from_L2 if p["name"] in BENEFIC_PLANETS
-        ]
+    if (lord_of_2 := yoga.get_lord_of_house(2)) is None:
+        raise ValueError("Lord of house 2 not found")
 
-        if benefics_in_8th or benefics_in_12th:
-            detail_str = f"Benefics in 8th/12th from 2nd lord ({lord_of_2}): "
-            if benefics_in_8th:
-                detail_str += f"8th house -> {', '.join(benefics_in_8th)}; "
-            if benefics_in_12th:
-                detail_str += f"12th house -> {', '.join(benefics_in_12th)}"
-            details.append(detail_str)
-            strengths.append(0.8)
+    planets_8th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 8)
+    planets_12th_from_L2 = yoga.planets_in_relative_house(lord_of_2, 12)
+    benefics_in_8th: list[PLANETS] = [
+        p["name"] for p in planets_8th_from_L2 if p["name"] in BENEFIC_PLANETS
+    ]
+    benefics_in_12th: list[PLANETS] = [
+        p["name"] for p in planets_12th_from_L2 if p["name"] in BENEFIC_PLANETS
+    ]
+
+    if benefics_in_8th or benefics_in_12th:
+        detail_str = f"Benefics in 8th/12th from 2nd lord ({lord_of_2}): "
+        if benefics_in_8th:
+            detail_str += f"8th house -> {', '.join(benefics_in_8th)}; "
+        if benefics_in_12th:
+            detail_str += f"12th house -> {', '.join(benefics_in_12th)}"
+        details.append(detail_str)
+        strengths.append(0.8)
 
     # Condition 2
-    lord_of_7 = yoga.get_lord_of_house(7)
-    if lord_of_7:
-        ju_in_4th = yoga.relative_house(lord_of_7, "Jupiter") == 4
-        mo_in_9th = yoga.relative_house(lord_of_7, "Moon") == 9
-        me_in_8th = yoga.relative_house(lord_of_7, "Mercury") == 8
-        if ju_in_4th and mo_in_9th and me_in_8th:
-            details.append(
-                f"From 7th lord ({lord_of_7}): Jupiter is in 4th, Moon in 9th, and Mercury in 8th."
-            )
-            strengths.append(1.0)
+    if (lord_of_7 := yoga.get_lord_of_house(7)) is None:
+        raise ValueError("Lord of house 7 not found")
+
+    ju_in_4th = yoga.relative_house(lord_of_7, "Jupiter") == 4
+    mo_in_9th = yoga.relative_house(lord_of_7, "Moon") == 9
+    me_in_8th = yoga.relative_house(lord_of_7, "Mercury") == 8
+    if ju_in_4th and mo_in_9th and me_in_8th:
+        details.append(
+            f"From 7th lord ({lord_of_7}): Jupiter is in 4th, Moon in 9th, and Mercury in 8th."
+        )
+        strengths.append(1.0)
 
     # Condition 3
-    lagna_lord = yoga.get_lord_of_house(1)
-    if lagna_lord:
-        su_in_4th = yoga.relative_house(lagna_lord, "Sun") == 4
-        ve_in_10th = yoga.relative_house(lagna_lord, "Venus") == 10
-        ma_in_11th = yoga.relative_house(lagna_lord, "Mars") == 11
-        if su_in_4th and ve_in_10th and ma_in_11th:
-            details.append(
-                f"From Lagna lord ({lagna_lord}): Sun is in 4th, Venus in 10th, and Mars in 11th."
-            )
-            strengths.append(1.0)
+    if (lagna_lord := yoga.get_lord_of_house(1)) is None:
+        raise ValueError("Lagna lord not found")
+
+    su_in_4th = yoga.relative_house(lagna_lord, "Sun") == 4
+    ve_in_10th = yoga.relative_house(lagna_lord, "Venus") == 10
+    ma_in_11th = yoga.relative_house(lagna_lord, "Mars") == 11
+    if su_in_4th and ve_in_10th and ma_in_11th:
+        details.append(
+            f"From Lagna lord ({lagna_lord}): Sun is in 4th, Venus in 10th, and Mars in 11th."
+        )
+        strengths.append(1.0)
 
     if strengths:
         result["present"] = True
@@ -2156,9 +2124,9 @@ def Mridanga(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    LL_name = yoga.get_lord_of_planet("Lagna")
-    LL = yoga.get_planet_by_name(LL_name)
-    if not LL or LL["name"] == "Lagna":
+    if (LL_name := yoga.get_lord_of_planet("Lagna")) is None:
+        raise ValueError("Lagna Lord not found.")
+    if (LL := yoga.get_planet_by_name(LL_name)) is None or LL["name"] == "Lagna":
         raise ValueError("Lagna Lord not found.")
     LL_isPowerful = yoga.isPlanetPowerful(LL)
 
@@ -2166,9 +2134,9 @@ def Mridanga(yoga: Yoga) -> YogaType:
         result["details"] = f"Lagna Lord, {LL_name} is not powerful"
         return result
 
-    L9_name = yoga.get_lord_of_house(9)
-    L9 = yoga.get_planet_by_name(L9_name)
-    if not L9 or L9["name"] == "Lagna":
+    if (L9_name := yoga.get_lord_of_house(9)) is None:
+        raise ValueError("L9 not found.")
+    if (L9 := yoga.get_planet_by_name(L9_name)) is None or L9["name"] == "Lagna":
         raise ValueError("L9 not found.")
     L9_isPowerful = yoga.isPlanetPowerful(L9)
 
@@ -2203,9 +2171,10 @@ def Parijatha(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    LL_name = yoga.get_lord_of_planet("Lagna")
-    LL = yoga.get_planet_by_name(LL_name)
-    if not LL or LL["name"] == "Lagna":
+
+    if (LL_name := yoga.get_lord_of_planet("Lagna")) is None:
+        raise ValueError("Lagna Lord Name not found.")
+    if (LL := yoga.get_planet_by_name(LL_name)) is None or LL["name"] == "Lagna":
         raise ValueError("Lagna Lord not found.")
     LL_isPowerful = yoga.isPlanetPowerful(LL)
 
@@ -2218,8 +2187,8 @@ def Parijatha(yoga: Yoga) -> YogaType:
         result["details"] = f"Lagna lord is placed in {LL_house} not in Kendra/Trikona"
         return result
 
-    D9 = yoga.__chart__.get_varga_chakra_chart(9)
-    if D9 is None:
+
+    if (D9 := yoga.__chart__.get_varga_chakra_chart(9)) is None:
         raise ValueError("D9 not found.")
 
     NL_LL_name: RASHI_LORDS | None = None
@@ -2234,8 +2203,7 @@ def Parijatha(yoga: Yoga) -> YogaType:
     if not NL_LL_name:
         raise ValueError("Navamsa Lord of Lagna Lord not found.")
 
-    NL_LL = yoga.get_planet_by_name(NL_LL_name)
-    if NL_LL is None or NL_LL["name"] == "Lagna":
+    if (NL_LL := yoga.get_planet_by_name(NL_LL_name)) is None or NL_LL["name"] == "Lagna":
         raise ValueError("Navamsa Lord of Lagna Lord not found.")
 
     if yoga.isPlanetPowerful(NL_LL):
