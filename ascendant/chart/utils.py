@@ -1,7 +1,8 @@
-from typing import List, Tuple
+from typing import List, Tuple, cast
+
 from ascendant.const import FIXED, MOVABLE
-from ascendant.utils import isSignOdd
 from ascendant.types import ALLOWED_DIVISIONS, HOUSES, PLANETS
+from ascendant.utils import isSignOdd
 
 
 def aspect_offsets_for_planet(planet_name: PLANETS) -> List[int]:
@@ -27,11 +28,11 @@ def get_divisional_target(
 
     # Fast path for D1
     if division == 1:
-        sign_index = int(longitude // 30)  # [0, 11]
+        sign_index = cast(HOUSES, int(longitude // 30))  # [0, 11]
         degree_in_target = longitude % 30  # [0, 30]
         return sign_index, degree_in_target
 
-    sign_index = int(longitude // 30)  # [0, 11]
+    sign_index = cast(HOUSES, int(longitude // 30))  # [0, 11]
     pos_in_sign = longitude % 30  # [0, 30]
     part_size = 30.0 / division  # size of each part
     part_index = int(pos_in_sign // part_size)
@@ -43,26 +44,32 @@ def get_divisional_target(
 
     # =====D2=====
     if division == 2:
-        target_sign = (
-            (sign_index * 2 + part_index)
-            if sign_index <= 5
-            else ((sign_index - 6) * 2 + part_index)
+        target_sign = cast(
+            HOUSES,
+            (
+                (sign_index * 2 + part_index)
+                if sign_index <= 5
+                else ((sign_index - 6) * 2 + part_index)
+            ),
         )
 
     # =====D3=====
     elif division == 3:
-        target_sign = (sign_index + [0, 4, 8][part_index]) % 12
+        target_sign = cast(HOUSES, (sign_index + [0, 4, 8][part_index]) % 12)
 
     # =====D4=====
     elif division == 4:
-        target_sign = (sign_index + [0, 3, 6, 9][part_index]) % 12
+        target_sign = cast(HOUSES, (sign_index + [0, 3, 6, 9][part_index]) % 12)
 
     # =====D7=====
     elif division == 7:
-        target_sign = (
-            (sign_index + part_index) % 12
-            if isSignOdd(sign_index)
-            else (sign_index + 6 + part_index) % 12
+        target_sign = cast(
+            HOUSES,
+            (
+                (sign_index + part_index) % 12
+                if isSignOdd(sign_index)
+                else (sign_index + 6 + part_index) % 12
+            ),
         )
 
     # =====D9=====
@@ -73,31 +80,31 @@ def get_divisional_target(
             start = (sign_index + 8) % 12
         else:
             start = (sign_index + 4) % 12
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D10=====
     elif division == 10:
         start = sign_index if isSignOdd(sign_index) else (sign_index + 8) % 12
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D12=====
     elif division == 12:
-        target_sign = (sign_index + part_index) % 12
+        target_sign = cast(HOUSES, (sign_index + part_index) % 12)
 
     # =====D16=====
     elif division == 16:
         start = 0 if sign_index in MOVABLE else 4 if sign_index in FIXED else 8
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D20=====
     elif division == 20:
         start = 0 if sign_index in MOVABLE else 8 if sign_index in FIXED else 4
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D24=====
     elif division == 24:
         start = 4 if isSignOdd(sign_index) else 3
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D27=====
     elif division == 27:
@@ -110,7 +117,7 @@ def get_divisional_target(
             if sign_index in [2, 6, 10]
             else 9
         )
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D30=====
     elif division == 30:
@@ -120,22 +127,24 @@ def get_divisional_target(
             targets, edges = [1, 5, 11, 9, 7], [5, 12, 20, 25]
         for i, edge in enumerate(edges):
             if pos_in_sign < edge:
-                target_sign = targets[i]
+                target_sign = cast(HOUSES, targets[i])
                 break
         else:
-            target_sign = targets[-1]
+            target_sign = cast(HOUSES, targets[-1])
 
     # =====D40=====
     elif division == 40:
-        target_sign = ((0 if isSignOdd(sign_index) else 6) + part_index) % 12
+        target_sign = cast(
+            HOUSES, ((0 if isSignOdd(sign_index) else 6) + part_index) % 12
+        )
 
     # =====D45=====
     elif division == 45:
         start = 0 if sign_index in MOVABLE else 4 if sign_index in FIXED else 8
-        target_sign = (start + part_index) % 12
+        target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # =====D60=====
     elif division == 60:
-        target_sign = (sign_index + part_index) % 12
+        target_sign = cast(HOUSES, (sign_index + part_index) % 12)
 
     return target_sign, degree_in_target

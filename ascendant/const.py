@@ -1,9 +1,11 @@
-from typing import List
+from typing import Dict, Final, List
+
 from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
-from ascendant.types import PLANETS, DeepExaltationPointsType
 
+from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
+from ascendant.types import RASHIS as RASHIS_TYPE
 
-__all__ = [RASHIS, NAKSHATRAS, "CLASSICAL_PLANETS"]
+__all__ = ["RASHIS", "NAKSHATRAS"]
 
 
 SELECTED_PLANETS: List[str] = [
@@ -18,7 +20,7 @@ SELECTED_PLANETS: List[str] = [
     "South Node",
 ]
 
-CLASSICAL_PLANETS: List[str] = [
+CLASSICAL_PLANETS: Final[tuple[PLANETS, ...]] = (
     "Sun",
     "Moon",
     "Mars",
@@ -26,7 +28,7 @@ CLASSICAL_PLANETS: List[str] = [
     "Jupiter",
     "Venus",
     "Saturn",
-]
+)
 
 PLANETS_LIST: List[PLANETS] = [
     "Sun",
@@ -37,14 +39,14 @@ PLANETS_LIST: List[PLANETS] = [
     "Venus",
     "Saturn",
     "Rahu",
-    "Ketu"
+    "Ketu",
 ]
 
-NODE_MAP = {"North Node": "Rahu", "South Node": "Ketu"}
+NODE_MAP: dict[str, PLANETS] = {"North Node": "Rahu", "South Node": "Ketu"}
 
-BENEFIC_PLANETS: List[str] = ["Mercury", "Jupiter", "Venus"]
+BENEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mercury", "Jupiter", "Venus")
 
-MALEFIC_PLANETS: List[str] = ["Mars", "Saturn", "Rahu", "Ketu"]
+MALEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mars", "Saturn", "Rahu", "Ketu")
 
 ALLOWED_DIVISIONS: List[int] = [
     1,
@@ -69,7 +71,7 @@ MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
 FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
 DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
 
-RASHI_LORD_MAP = {
+RASHI_LORD_MAP: Dict[RASHIS_TYPE, RASHI_LORDS] = {
     "Aries": "Mars",
     "Taurus": "Venus",
     "Gemini": "Mercury",

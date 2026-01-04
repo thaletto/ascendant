@@ -1,5 +1,8 @@
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, cast
+
 from vedicastro.VedicAstro import VedicHoroscopeData
+
+from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
 from ascendant.types import (
     HOUSES,
     PLANET_SIGN_RELATION,
@@ -7,11 +10,10 @@ from ascendant.types import (
     RASHI_LORDS,
     RASHIS,
     LagnaType,
-    PlanetType,
     PlanetsType,
+    PlanetType,
     YogaType,
 )
-from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP, MALEFIC_PLANETS
 from ascendant.utils import yogaNameToId
 
 YogaFunction = Callable[["Yoga"], YogaType]
@@ -71,7 +73,7 @@ class Yoga:
         self.__chart__ = Chart(horoscope)
         self.chart = self.__chart__.get_rasi_chart()
 
-    def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES:
+    def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES | None:
         """Return house number where planet is located in the chart"""
         if planet == "Lagna":
             for house, data in self.chart.items():
@@ -85,7 +87,7 @@ class Yoga:
                         return house
         return None
 
-    def get_house_of_rashi(self, rashi: RASHIS) -> HOUSES:
+    def get_house_of_rashi(self, rashi: RASHIS) -> HOUSES | None:
         """Returns the house number of Rashi"""
         for house, data in self.chart.items():
             sign = data["sign"]
@@ -117,47 +119,50 @@ class Yoga:
         if not base_house:
             return []
         target_house = (base_house + relative_pos - 1) % 12
-        target_house = 12 if target_house == 0 else target_house
+        target_house = cast(HOUSES, 12 if target_house == 0 else target_house)
         return list(self.chart[target_house]["planets"])
 
-    def get_lord_of_house(self, house_number: HOUSES) -> RASHI_LORDS:
+    def get_lord_of_house(self, house_number: HOUSES) -> RASHI_LORDS | None:
         """Return House Lord for give house number"""
         if house_number in self.chart:
             sign = self.chart[house_number]["sign"]
             return RASHI_LORD_MAP.get(sign)
         return None
 
-    def get_lord_of_planet(self, planet: PLANETS_LAGNA) -> RASHI_LORDS:
+    def get_lord_of_planet(self, planet: PLANETS_LAGNA) -> RASHI_LORDS | None:
         """Return House Lord of the Planet"""
         planet_house = self.get_house_of_planet(planet)
+        if not planet_house:
+            return None
         house_lord = self.get_lord_of_house(planet_house)
         return house_lord
 
-    def get_rashi_of_house(self, house_number: HOUSES) -> RASHIS:
+    def get_rashi_of_house(self, house_number: HOUSES) -> RASHIS | None:
         """Return Sign of the house"""
         if house_number in self.chart:
             sign = self.chart[house_number]["sign"]
             return sign
         return None
 
-    def relative_house(self, planet1: PLANETS_LAGNA, planet2: PLANETS_LAGNA) -> HOUSES:
+    def relative_house(self, planet1: PLANETS_LAGNA, planet2: PLANETS_LAGNA) -> HOUSES | None:
         """Return the relative house number of planet2 from planet1"""
         house1 = self.get_house_of_planet(planet1)
         house2 = self.get_house_of_planet(planet2)
         if not house1 or not house2:
             return None
         relative_pos = (house2 - house1) % 12 + 1
-        return relative_pos if relative_pos != 0 else 12
+        pos = cast(HOUSES, relative_pos if relative_pos != 0 else 12)
+        return pos
 
     def get_planet_by_name(
         self, planet: PLANETS_LAGNA
     ) -> PlanetType | LagnaType | None:
         if planet == "Lagna":
-            for house, data in self.chart.items():
+            for _, data in self.chart.items():
                 Lagna = data["lagna"]
                 return Lagna
         else:
-            for house, data in self.chart.items():
+            for _, data in self.chart.items():
                 planets = data["planets"]
                 for _planet in planets:
                     if _planet["name"] == planet:
@@ -166,9 +171,9 @@ class Yoga:
 
     def isPlanetPowerful(self, planet: PlanetType) -> Tuple[bool, float]:
         """Checks if a planet in the chart is powerful"""
-        relation = planet.get("inSign")
+        relations = planet.get("inSign")
         name = planet.get("name")
-        if not relation or not name:
+        if not relations or not name:
             return False, 0.0
 
         strength_map: Dict[PLANET_SIGN_RELATION, float] = {
@@ -180,12 +185,6 @@ class Yoga:
 
         is_powerful = False
         strength = 0.0
-
-        relations: List[PLANET_SIGN_RELATION]
-        if isinstance(relation, str):
-            relations = [relation]
-        else:
-            relations = list(relation)
 
         for relation_status in relations:
             if relation_status not in strength_map:
@@ -230,7 +229,7 @@ class Yoga:
                 continue
 
         return True
-    
+
     def is_house_benefic_aspected(self, house: HOUSES) -> bool:
         """
         Check if a house is has benefic or aspected by benefic
@@ -241,23 +240,27 @@ class Yoga:
                 for planet in planets:
                     if planet["name"] in BENEFIC_PLANETS:
                         if planet["name"] == "Mercury":
-                            Me_is_unafflicted = self.is_planet_unafflicted(planet, house_)
+                            Me_is_unafflicted = self.is_planet_unafflicted(
+                                planet, house_
+                            )
                             if Me_is_unafflicted:
                                 return True
                             else:
                                 continue
                         else:
                             return True
-                        
-        for aspect in self.__chart__.graha_drishti(n=1):
+        
+        aspects = self.__chart__.graha_drishti(n=1)
+        if aspects is None:
+            return False
+        for aspect in aspects:
             if aspect["planet"] in BENEFIC_PLANETS:
                 for aspect_house in aspect["aspect_houses"]:
                     for house_, data in aspect_house.items():
                         if house_ == house:
                             return True
-        
+
         return False
-                        
 
     def compute_all(self) -> List[Dict]:
         """Compute all registered yogas"""

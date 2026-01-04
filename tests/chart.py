@@ -1,8 +1,11 @@
 import functools
-import prettytable
 import time
-from ascendant.const import ALLOWED_DIVISIONS
+from typing import cast
+
 from ascendant.chart import Chart
+from ascendant.const import ALLOWED_DIVISIONS
+from ascendant.types import ALLOWED_DIVISIONS as ALLOWED_DIVISIONS_LITERAL
+from tests.helpers import format_and_print_table, print_timing_summary
 from tests.horoscope import my_horoscope
 
 chart = Chart(my_horoscope)
@@ -39,38 +42,12 @@ def timeit_individual_divisions(func):
 
             # Print timing summary
             if division_timings:
-                print(f"\n{'=' * 70}")
-                print("CHART DIVISION TIMING SUMMARY")
-                print(f"{'=' * 70}")
-                print(f"Total time: {total_elapsed:.4f} seconds")
-                print(f"Number of divisions: {len(division_timings)}\n")
-
-                # Sort by time (slowest first)
-                division_timings.sort(key=lambda x: x[1], reverse=True)
-                print("Top 10 slowest divisions:")
-                print("-" * 70)
-                for division, elapsed in division_timings[:10]:
-                    percentage = (elapsed / total_elapsed) * 100
-                    print(
-                        f"  Division {division:2d}: {elapsed:8.6f} seconds ({percentage:5.2f}%)"
-                    )
-
-                if len(division_timings) > 10:
-                    print(f"\n... and {len(division_timings) - 10} more divisions\n")
-                else:
-                    print()
-
-                # Print statistics
-                times = [t[1] for t in division_timings]
-                avg_time = sum(times) / len(times) if times else 0
-                min_time = min(times) if times else 0
-                max_time = max(times) if times else 0
-
-                print("Statistics:")
-                print(f"\nAverage time per division: {avg_time:.6f} seconds")
-                print(f"\nFastest division: {min_time:.6f} seconds")
-                print(f"\nSlowest division: {max_time:.6f} seconds")
-                print(f"{'=' * 70}\n")
+                print_timing_summary(
+                    "CHART DIVISION",
+                    total_elapsed,
+                    division_timings,
+                    unit_name="division",
+                )
 
             return result
         finally:
@@ -84,7 +61,8 @@ def timeit_individual_divisions(func):
 def test_generate_varga_chart_runs_for_allowed_divisions():
     """Test that varga charts can be generated for all allowed divisions"""
     for division in ALLOWED_DIVISIONS:
-        result = chart.get_varga_chakra_chart(n=division)
+        div = cast(ALLOWED_DIVISIONS_LITERAL, division)
+        result = chart.get_varga_chakra_chart(n=div)
 
         # Result should be a dictionary (ChartType)
         assert isinstance(result, dict)
@@ -143,7 +121,9 @@ def test_generate_varga_chart_runs_for_allowed_divisions():
 def test_generate_varga_chart_longitude_ranges():
     """Test that longitudes are within valid ranges"""
     for division in ALLOWED_DIVISIONS:
-        result = chart.get_varga_chakra_chart(n=division)
+        div = cast(ALLOWED_DIVISIONS_LITERAL, division)
+        if (result := chart.get_varga_chakra_chart(n=div)) is None:
+            raise ValueError(f"Division {division} should return None")
 
         for house_num, house_data in result.items():
             for planet_data in house_data["planets"]:
@@ -159,7 +139,8 @@ def test_generate_varga_chart_returns_consistent_structure():
     # Test a few divisions to ensure consistent structure
     test_divisions = [1, 9, 10]
     for division in test_divisions:
-        result = chart.get_varga_chakra_chart(n=division)
+        div = cast(ALLOWED_DIVISIONS_LITERAL, division)
+        result = chart.get_varga_chakra_chart(n=div)
         assert isinstance(result, dict)
         assert len(result) == 12
         assert 1 in result
@@ -171,11 +152,11 @@ def test_non_allowed_divisions():
     non_allowed = [d for d in range(61) if d not in ALLOWED_DIVISIONS]
 
     for division in non_allowed:
-        result = chart.get_varga_chakra_chart(n=division)
+        div = cast(ALLOWED_DIVISIONS_LITERAL, division)
+        result = chart.get_varga_chakra_chart(n=div)
         assert result is None, (
             f"Division {division} should return None, got {type(result)}"
         )
-
 
 
 def format_chart_markdown(division, chart_data):
@@ -195,14 +176,14 @@ def format_chart_markdown(division, chart_data):
     for house_num in range(1, 13):
         house = chart_data.get(house_num, {})
         sign_data = house.get("sign", "N/A")
-        
+
         # Handle sign data which might be a string or dict
         if isinstance(sign_data, dict):
-            sign_name = sign_data.get("name", "Unknown") 
+            sign_name = sign_data.get("name", "Unknown")
             sign_lord = sign_data.get("lord", "Unknown")
         else:
             sign_name = str(sign_data)
-            sign_lord = "-" # Can't get lord easily if just string
+            sign_lord = "-"  # Can't get lord easily if just string
 
         planets = house.get("planets", [])
         planet_strs = []
@@ -211,9 +192,9 @@ def format_chart_markdown(division, chart_data):
             p_long = p.get("longitude", 0)
             p_retro = "(R)" if p.get("is_retrograde") else ""
             planet_strs.append(f"{p_name}{p_retro} ({p_long:.2f}°)")
-        
+
         planets_display = ", ".join(planet_strs) if planet_strs else "-"
-        
+
         lines.append(f"| {house_num} | {sign_name} | {sign_lord} | {planets_display} |")
 
     lines.append("\n")
@@ -222,39 +203,29 @@ def format_chart_markdown(division, chart_data):
 
 def save_chart(division, content):
     """Save chart content to sample/chart/ directory."""
-    import os
     from pathlib import Path
 
     output_dir = Path("sample/chart")
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     filename = output_dir / f"chart_D{division}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"Saved Division {division} chart to: {filename}")
 
 
-
-
-def format_chart_table(division, chart_data):
-    """Format a single chart's data into a PrettyTable string."""
-    try:
-        from prettytable import PrettyTable
-    except ImportError:
-        return f"Division {division}: prettytable library not found. Install with 'pip install prettytable'"
-
+def print_chart_table(division, chart_data):
+    """Format and print a single chart's data into a table."""
     if not chart_data:
-        return f"Division {division}: No data available."
+        print(f"Division {division}: No data available.")
+        return
 
-    table = PrettyTable()
-    table.title = f"DIVISION {division} CHART"
-    table.field_names = ["House", "Sign", "Lord", "Planets"]
-    table.align = "l"
-
+    headers = ["House", "Sign", "Lord", "Planets"]
+    rows = []
     for house_num in range(1, 13):
         house = chart_data.get(house_num, {})
         sign_data = house.get("sign", "N/A")
-        
+
         if isinstance(sign_data, dict):
             sign_name = sign_data.get("name", "?")
             sign_lord = sign_data.get("lord", "?")
@@ -268,38 +239,40 @@ def format_chart_table(division, chart_data):
             p_name = p.get("name", "?")
             p_long = p.get("longitude", 0)
             p_retro = "(R)" if p.get("is_retrograde") else ""
-            # Match Markdown format: Name(R) (Long°)
             planet_strs.append(f"{p_name}{p_retro} ({p_long:.2f}°)")
-        
+
         planets_display = ", ".join(planet_strs) if planet_strs else "-"
-        
-        table.add_row([str(house_num), sign_name, sign_lord, planets_display])
 
-    return str(table)
+        rows.append([str(house_num), sign_name, sign_lord, planets_display])
 
+    format_and_print_table(headers, rows, title=f"DIVISION {division} CHART")
 
 
 def process_charts(divisions_to_process, save_mode=False):
     """Process specific divisions: display and optionally save."""
-    import sys
-    
+
     print(f"\nProcessing Divisions: {divisions_to_process}\n")
-    
+
     for div in divisions_to_process:
         try:
-           result = chart.get_varga_chakra_chart(n=div)
-           
-           # console output (Pretty Table)
-           print(format_chart_table(div, result))
-           
-           # file output (Markdown)
-           if save_mode:
-               markdown_output = format_chart_markdown(div, result)
-               save_chart(div, markdown_output)
-               
+            div = cast(ALLOWED_DIVISIONS_LITERAL, div)
+            result = chart.get_varga_chakra_chart(n=div)
+
+            # console output (table)
+            print_chart_table(div, result)
+
+            # file output (Markdown)
+            if save_mode:
+                markdown_output = format_chart_markdown(div, result)
+                save_chart(div, markdown_output)
+
         except Exception as e:
             print(f"Error processing Division {div}: {e}")
 
+
+def show_chart():
+    """Display all allowed division charts"""
+    process_charts(ALLOWED_DIVISIONS, save_mode=False)
 
 
 def handle_cli():
@@ -307,40 +280,79 @@ def handle_cli():
     import sys
 
     parser = argparse.ArgumentParser(description="Ascendant Chart Generator & Tester")
-    parser.add_argument("--d", action="append", type=int, help="Specific division(s) to generate (e.g. --d 1 --d 9)")
-    parser.add_argument("--save", action="store_true", help="Save the generated charts to sample/chart/ folder")
-    parser.add_argument("--show-chart", "-c", action="store_true", help="Show summary table of all charts (legacy mode)")
-    
-    # Check if any unknown args are present that might be for unittest main
-    # If we are running pure tests, we might confuse argparse. 
-    # But user requirement implies this script is dual-purpose.
-    # We'll parse known args.
-    args, unknown = parser.parse_known_args()
+    parser.add_argument(
+        "--d",
+        action="append",
+        type=int,
+        help="Specific division(s) to generate (e.g., --d 1 or --d 1 --d 9)",
+    )
+    parser.add_argument(
+        "--save",
+        action="store_true",
+        help="Save the generated charts to sample/chart/ folder",
+    )
+    parser.add_argument(
+        "--show-chart",
+        "-c",
+        action="store_true",
+        help="Show summary table of all charts (legacy mode)",
+    )
 
-    # If --d or --save is used, we run the new logic
+    args, _ = parser.parse_known_args()
+
     if args.d or args.save:
-        divisions = []
-        if args.d:
-            divisions = args.d
-        else:
-            # If no --d but --save is present, save ALL allowed divisions
-            divisions = ALLOWED_DIVISIONS
-            
+        divisions = args.d or ALLOWED_DIVISIONS
         process_charts(divisions, save_mode=args.save)
         return
 
-    # Legacy flag support
     if args.show_chart:
         show_chart()
         return
 
-    # Default to running tests if no relevant args found
-    # We need to construct sys.argv for unittest/main if needed, 
-    # but here we call main() which runs custom tests
     success = main()
     sys.exit(0 if success else 1)
 
 
+def main():
+    """Run all chart tests"""
+    tests = [
+        (
+            "Generate varga chart for allowed divisions",
+            test_generate_varga_chart_runs_for_allowed_divisions,
+        ),
+        ("Longitude ranges", test_generate_varga_chart_longitude_ranges),
+        (
+            "Consistent structure",
+            test_generate_varga_chart_returns_consistent_structure,
+        ),
+        ("Non-allowed divisions", test_non_allowed_divisions),
+    ]
+
+    passed = 0
+    failed = 0
+
+    print("Running chart tests...\n")
+
+    for test_name, test_func in tests:
+        try:
+            test_func()
+            print(f"✓ {test_name} - PASSED")
+            passed += 1
+        except AssertionError as e:
+            print(f"✗ {test_name} - FAILED")
+            print(f"  Error: {e}")
+            failed += 1
+        except Exception as e:
+            print(f"✗ {test_name} - ERROR")
+            print(f"  Error: {e}")
+            failed += 1
+
+    print(f"\n{'=' * 70}")
+    print(f"Results: {passed} passed, {failed} failed")
+    print(f"{'=' * 70}")
+
+    return failed == 0
+
+
 if __name__ == "__main__":
     handle_cli()
-

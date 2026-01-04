@@ -1,6 +1,8 @@
 from datetime import datetime, timezone
 from typing import List, Union
+
 from vedicastro.VedicAstro import VedicHoroscopeData
+
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType
 from ascendant.utils import parseDate
 
@@ -56,15 +58,15 @@ class Dasha:
                 )
 
             # Add Mahadasha entry
-            dashas.append(
-                {
-                    "mahadasha": maha_planet,
-                    "start": maha_start,
-                    "end": maha_end,
-                    "antardashas": antardashas,
-                }
-            )
-
+            if maha_start and maha_end:
+                dashas.append(
+                    {
+                        "mahadasha": maha_planet,
+                        "start": maha_start,
+                        "end": maha_end,
+                        "antardashas": antardashas,
+                    }
+                )
         return dashas
 
     @staticmethod
@@ -93,18 +95,18 @@ class Dasha:
         Returns:
             An AntarDashaType object if found, otherwise None.
         """
-        maha = self.get_mahadasha_by_index(0, date)
-        if not maha:
+        if (maha := self.get_mahadasha_by_index(0, date)) is None:
             return None
 
-        antardashas = maha.get("antardashas", [])
-        if not antardashas:
+        if (antardashas := maha.get("antardashas", [])) is None:
             return None
 
         if date:
             target_date = parseDate(date)
         else:
             target_date = datetime.now(timezone.utc)
+        if target_date is None:
+            return None
 
         current_index = self._find_current_index_by_date(antardashas, target_date)
         if current_index is None:
@@ -138,10 +140,12 @@ class Dasha:
             target_date = parseDate(date)
         else:
             target_date = datetime.now(timezone.utc)
+        if target_date is None:
+            return None
 
-        current_index = self._find_current_index_by_date(self.dasha, target_date)
-
-        if current_index is None:
+        if (
+            current_index := self._find_current_index_by_date(self.dasha, target_date)
+        ) is None:
             return None
 
         target = current_index + n

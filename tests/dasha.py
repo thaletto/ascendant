@@ -1,8 +1,10 @@
 import functools
 import time
 from datetime import datetime
+from typing import Union
 
 from ascendant.dasha import Dasha
+from tests.helpers import format_and_print_table, print_timing_summary
 from tests.horoscope import my_horoscope
 
 dasha = Dasha(my_horoscope)
@@ -20,8 +22,11 @@ def timeit_individual_dashas(func):
         # Track timings
         get_dasha_timeline_calls = []
         get_antardasha_timings = []
+        mahadasha_timings = []
+        antardasha_timings = []
 
         def timed_get_dasha_timeline():
+            nonlocal mahadasha_timings, antardasha_timings
             start = time.perf_counter()
             result = original_get_dasha_timeline()
             elapsed = time.perf_counter() - start
@@ -29,7 +34,7 @@ def timeit_individual_dashas(func):
 
             # Time individual mahadashas (by measuring each entry processing)
             if result:
-                mahadasha_timings = []
+                current_mahadasha_timings = []
                 for entry in result:
                     mahadasha_start = time.perf_counter()
                     # Simulate processing time by accessing all fields
@@ -38,16 +43,13 @@ def timeit_individual_dashas(func):
                     _ = entry.get("end")
                     _ = len(entry.get("antardashas", []))
                     mahadasha_elapsed = time.perf_counter() - mahadasha_start
-                    mahadasha_timings.append(
+                    current_mahadasha_timings.append(
                         (entry.get("mahadasha"), mahadasha_elapsed)
                     )
-
-                # Store mahadasha timings for later display
-                if mahadasha_timings:
-                    wrapper._mahadasha_timings = mahadasha_timings
+                mahadasha_timings = current_mahadasha_timings
 
                 # Time individual antardashas
-                antardasha_timings = []
+                current_antardasha_timings = []
                 for entry in result:
                     mahadasha = entry.get("mahadasha")
                     for antardasha in entry.get("antardashas", []):
@@ -56,25 +58,23 @@ def timeit_individual_dashas(func):
                         _ = antardasha.get("start")
                         _ = antardasha.get("end")
                         antardasha_elapsed = time.perf_counter() - antardasha_start
-                        antardasha_timings.append(
+                        current_antardasha_timings.append(
                             (
-                                mahadasha,
-                                antardasha.get("antardasha"),
+                                f"{mahadasha} - {antardasha.get('antardasha')}",
                                 antardasha_elapsed,
                             )
                         )
-
-                # Store antardasha timings for later display
-                if antardasha_timings:
-                    wrapper._antardasha_timings = antardasha_timings
+                antardasha_timings = current_antardasha_timings
 
             return result
 
-        def timed_get_antardasha_by_index(n):
+        def timed_get_antardasha_by_index(
+            n: int, date: Union[str, datetime] | None = None
+        ):
             start = time.perf_counter()
             result = original_get_antardasha_by_index(n)
             elapsed = time.perf_counter() - start
-            get_antardasha_timings.append((n, elapsed))
+            get_antardasha_timings.append((f"Index {n}", elapsed))
             return result
 
         # Temporarily replace methods with timed versions
@@ -94,78 +94,29 @@ def timeit_individual_dashas(func):
                 print(f"{'=' * 70}")
                 print(f"Total test time: {total_elapsed:.4f} seconds\n")
 
-                # Display get_dasha_timeline timing
-                if get_dasha_timeline_calls:
-                    timeline_time = sum(get_dasha_timeline_calls)
-                    print(
-                        f"get_dasha_timeline() calls: {len(get_dasha_timeline_calls)}"
-                    )
-                    print(
-                        f"Total timeline computation time: {timeline_time:.4f} seconds"
-                    )
-                    print(
-                        f"Average per call: {timeline_time / len(get_dasha_timeline_calls):.6f} seconds"
+                if mahadasha_timings:
+                    print_timing_summary(
+                        "Mahadasha Processing",
+                        sum(t[1] for t in mahadasha_timings),
+                        mahadasha_timings,
+                        unit_name="mahadasha",
                     )
 
-                    # Display mahadasha timings if available
-                    if (
-                        hasattr(wrapper, "_mahadasha_timings")
-                        and wrapper._mahadasha_timings
-                    ):
-                        print(
-                            f"\nMahadashas processed: {len(wrapper._mahadasha_timings)}"
-                        )
-                        mahadasha_times = [t[1] for t in wrapper._mahadasha_timings]
-                        avg_maha = (
-                            sum(mahadasha_times) / len(mahadasha_times)
-                            if mahadasha_times
-                            else 0
-                        )
-                        print(
-                            f"Average mahadasha processing time: {avg_maha:.6f} seconds"
-                        )
+                if antardasha_timings:
+                    print_timing_summary(
+                        "Antardasha Processing",
+                        sum(t[1] for t in antardasha_timings),
+                        antardasha_timings,
+                        unit_name="antardasha",
+                    )
 
-                    # Display antardasha timings if available
-                    if (
-                        hasattr(wrapper, "_antardasha_timings")
-                        and wrapper._antardasha_timings
-                    ):
-                        print(
-                            f"\nAntardashas processed: {len(wrapper._antardasha_timings)}"
-                        )
-                        antardasha_times = [t[2] for t in wrapper._antardasha_timings]
-                        avg_antar = (
-                            sum(antardasha_times) / len(antardasha_times)
-                            if antardasha_times
-                            else 0
-                        )
-                        min_antar = min(antardasha_times) if antardasha_times else 0
-                        max_antar = max(antardasha_times) if antardasha_times else 0
-                        print(
-                            f"Average antardasha processing time: {avg_antar:.6f} seconds"
-                        )
-                        print(f"Fastest antardasha: {min_antar:.6f} seconds")
-                        print(f"Slowest antardasha: {max_antar:.6f} seconds")
-
-                # Display get_antardasha_by_index timings
                 if get_antardasha_timings:
-                    print(
-                        f"\nget_antardasha_by_index() calls: {len(get_antardasha_timings)}"
+                    print_timing_summary(
+                        "Antardasha Index Lookup",
+                        sum(t[1] for t in get_antardasha_timings),
+                        get_antardasha_timings,
+                        unit_name="lookup",
                     )
-                    antar_index_times = [t[1] for t in get_antardasha_timings]
-                    total_antar_index = sum(antar_index_times)
-                    avg_antar_index = (
-                        total_antar_index / len(antar_index_times)
-                        if antar_index_times
-                        else 0
-                    )
-                    print(f"Total index lookup time: {total_antar_index:.6f} seconds")
-                    print(f"Average per lookup: {avg_antar_index:.6f} seconds")
-                    print("\nIndividual lookup timings:")
-                    for idx, elapsed in get_antardasha_timings:
-                        print(f"  Index {idx:4d}: {elapsed:.6f} seconds")
-
-                print(f"{'=' * 70}\n")
 
             return result
         finally:
@@ -369,57 +320,37 @@ def show_dasha():
         result = dasha.get_dasha_timeline()
 
         # Build summary table
-        rows = []
-        for entry in result:
-            mahadasha = entry["mahadasha"]
-            start = entry["start"]
-            end = entry["end"]
-            num_antardashas = len(entry["antardashas"])
-            rows.append([mahadasha, start, end, str(num_antardashas)])
-
         headers = ["Mahadasha", "Start", "End", "Antardashas"]
-        col_widths = [len(h) for h in headers]
-        for r in rows:
-            for i, cell in enumerate(r):
-                if len(cell) > col_widths[i]:
-                    col_widths[i] = len(cell)
-
-        def format_row(vals):
-            return " | ".join(val.ljust(col_widths[i]) for i, val in enumerate(vals))
-
+        rows = [
+            [
+                entry["mahadasha"],
+                entry["start"],
+                entry["end"],
+                str(len(entry["antardashas"])),
+            ]
+            for entry in result
+        ]
         if rows:
             print(f"\nTotal Mahadashas: {len(result)}\n")
-            print(format_row(headers))
-            print("-+-".join("-" * w for w in col_widths))
-            for r in rows:
-                print(format_row(r))
+            format_and_print_table(
+                headers, rows, title="Vimshottari Dasha Mahadashas"
+            )
 
         # Display sample antardashas for first mahadasha
         if result:
             print("\n" + "=" * 70)
             print(f"SAMPLE ANTARDASHAS FOR {result[0]['mahadasha']}")
             print("=" * 70)
-            sample_rows = []
-            for antardasha in result[0]["antardashas"]:
-                sample_rows.append(
-                    [
-                        antardasha["antardasha"],
-                        antardasha["start"],
-                        antardasha["end"],
-                    ]
-                )
-
             sample_headers = ["Antardasha", "Start", "End"]
-            sample_col_widths = [len(h) for h in sample_headers]
-            for r in sample_rows:
-                for i, cell in enumerate(r):
-                    if len(cell) > sample_col_widths[i]:
-                        sample_col_widths[i] = len(cell)
-
-            print(format_row(sample_headers))
-            print("-+-".join("-" * w for w in sample_col_widths))
-            for r in sample_rows:
-                print(format_row(r))
+            sample_rows = [
+                [antardasha["antardasha"], antardasha["start"], antardasha["end"]]
+                for antardasha in result[0]["antardashas"]
+            ]
+            format_and_print_table(
+                sample_headers,
+                sample_rows,
+                title=f"Antardashas for {result[0]['mahadasha']}",
+            )
 
     except Exception as err:
         print(f"\nError in get_dasha_timeline: {err}")
@@ -502,14 +433,14 @@ def main():
     for test_name, test_func in tests:
         try:
             test_func()
-            print(f"✓ {test_name} - PASSED")
+            print(f"[OK] {test_name} - PASSED")
             passed += 1
         except AssertionError as e:
-            print(f"✗ {test_name} - FAILED")
+            print(f"[FAIL] {test_name} - FAILED")
             print(f"  Error: {e}")
             failed += 1
         except Exception as e:
-            print(f"✗ {test_name} - ERROR")
+            print(f"[ERR] {test_name} - ERROR")
             print(f"  Error: {e}")
             failed += 1
 
@@ -525,6 +456,17 @@ if __name__ == "__main__":
 
     # Check if --show-dasha flag is passed
     if "--show-dasha" in sys.argv or "-d" in sys.argv:
+        show_dasha()
+    else:
+        success = main()
+        exit(0 if success else 1)
+
+
+if __name__ == "__main__":
+    import sys
+
+    # Check if --show-dasha flag is passed
+    if "--show-dasha" in sys.argv:
         show_dasha()
     else:
         success = main()
