@@ -37,3 +37,8 @@ dist/
 
 # Sample Files
 sample/
+
+# IDE
+.vscode/
+.zed/
+.cursor/
