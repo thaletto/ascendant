@@ -107,5 +107,4 @@ class YogaResponse(BaseModel):
 
 
 class DashaResponse(BaseModel):
-    timeline: List[Dict[str, Any]]
     current: Optional[Dict[str, Any]] = None

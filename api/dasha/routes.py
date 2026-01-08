@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -28,6 +29,7 @@ async def get_dasha_for_user(user_id: int, db: Session = Depends(get_db)):
         )
 
     dasha = user.dasha
+    user_utc = user.utc
 
     if not dasha or not dasha.dasha_data:
         logger.warning(f"No dasha found for user_id: {user_id}")
@@ -38,7 +40,9 @@ async def get_dasha_for_user(user_id: int, db: Session = Depends(get_db)):
 
     timeline = dasha.dasha_data
     current_mahadasha = None
-    now = datetime.now()
+    
+    tz = ZoneInfo(user_utc) if user_utc else ZoneInfo("UTC")
+    now = datetime.now(tz)
 
     for mahadasha in timeline:
         try:
@@ -53,4 +57,4 @@ async def get_dasha_for_user(user_id: int, db: Session = Depends(get_db)):
             continue
 
     logger.info(f"Successfully retrieved dasha for user_id: {user_id}")
-    return {"timeline": timeline, "current": current_mahadasha}
+    return {"current": current_mahadasha}
