@@ -8,4 +8,4 @@ python-jose[cryptography]==3.5.0
 passlib[bcrypt]==1.7.4
 python-dotenv==1.1.1
 vedicastro
-git+https://github.com/diliprk/flatlib.git@sidereal#egg=flatlib
+git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
