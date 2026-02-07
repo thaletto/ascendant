@@ -4,6 +4,14 @@ Ascendant is a Python library for Vedic Astrology calculations, providing functi
 
 ## Installation
 
+Install via pip:
+
+```bash
+pip install astro-ascendant
+```
+
+For local development:
+
 ```bash
 pip install .
 ```
@@ -14,6 +22,14 @@ To install with test dependencies:
 pip install ".[test]"
 ```
 
+## Documentation
+
+For more detailed information, check out the documentation in the [docs](docs/index.md) folder:
+
+- [Divisional Charts (Vargas)](docs/charts.md)
+- [Dasha Systems](docs/dasha.md)
+- [Yoga Combinations](docs/yoga.md)
+
 ## Core Functionalities:
 
 - **Chart Calculations**: Compute and analyze divisional astrological charts (Varga chakras).
@@ -23,7 +39,7 @@ pip install ".[test]"
 ## Usage
 
 ```python
-from ascendant-astro import Ascendant
+from ascendant import Ascendant
 
 # Initialize with birth details
 astro = Ascendant(
