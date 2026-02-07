@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ascendant"
+version = "0.1.0"
+description = "Vedic Astrology Calculation Library"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "vedicastro",
+    "flatlib @ git+https://github.com/thaletto/flatlib.git@sidereal",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "prettytable",
+]
+
+[project.urls]
+Homepage = "https://github.com/thaletto/ascendant"
+
+[tool.setuptools.packages.find]
+include = ["ascendant*"]
