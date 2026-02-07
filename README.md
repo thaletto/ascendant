@@ -23,7 +23,7 @@ pip install ".[test]"
 ## Usage
 
 ```python
-from ascendant import Ascendant
+from ascendant-astro import Ascendant
 
 # Initialize with birth details
 astro = Ascendant(
