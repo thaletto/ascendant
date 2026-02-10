@@ -10,12 +10,6 @@ Install via pip:
 pip install astro-ascendant
 ```
 
-> `PyPI` no longer supports specifying external packages (eg: git repo URLs) in `pyproject.toml` file. To install the required the package `flatlib` from the `sidereal` branch, run the following command, after completion of above `pip install astro-ascendant` command:
-
-```bash
-pip install git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
-```
-
 ## Documentation
 
 For more detailed information, check out the documentation in the [docs](docs/index.md) folder:
