@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astro-ascendant"
-version = "0.1.4"
+version = "0.1.5"
 description = "Vedic Astrology Calculation Library"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,4 +24,4 @@ test = [
 Homepage = "https://github.com/thaletto/ascendant"
 
 [tool.setuptools.packages.find]
-include = ["ascendant*", "flatlib*"]
+include = ["ascendant*"]
