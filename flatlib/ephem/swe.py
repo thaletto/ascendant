@@ -52,14 +52,15 @@ SWE_HOUSESYS = {
 
 # Map ayanamsas
 SWE_AYANAMSAS = {
-    const.AY_FAGAN_BRADLEY: 0,
+
     const.AY_LAHIRI: 1,
-    const.AY_DELUCE: 2,
-    const.AY_RAMAN: 3,
+    const.AY_LAHIRI_1940: swisseph.SIDM_LAHIRI_1940,
+    const.AY_LAHIRI_VP285: swisseph.SIDM_LAHIRI_VP285,
+    const.AY_LAHIRI_ICRC: swisseph.SIDM_LAHIRI_ICRC,
     const.AY_KRISHNAMURTI: 5,
-    const.AY_SASSANIAN: 16,
-    const.AY_ALDEBARAN_15TAU: 14,
-    const.AY_GALCENTER_5SAG: 17
+    const.AY_KRISHNAMURTI_SENTHILATHIBAN: swisseph.SIDM_KRISHNAMURTI_VP291,
+    const.AY_RAMAN: 3,
+
 }
 
 # SWE flags for computations
@@ -119,7 +120,7 @@ def sweNextTransit(obj, jd, lat, lon, flag):
 
 
 # === Houses and angles === #
-        
+
 def sweHouses(jd, lat, lon, hsys):
     """ Returns lists of houses and angles. """
     hsys = SWE_HOUSESYS[hsys]
@@ -141,7 +142,7 @@ def sweHouses(jd, lat, lon, hsys):
         {'id': const.IC, 'lon': angle.norm(ascmc[1] + 180)}
     ]
     return (houses, angles)
-    
+
 
 def sweHousesLon(jd, lat, lon, hsys):
     """ Returns lists with house and angle longitudes. """
@@ -215,7 +216,7 @@ def get_ayanamsa(jd, mode):
     """
     eph_mode = SWE_AYANAMSAS[mode]
     swisseph.set_sid_mode(eph_mode, 0, 0)
-    return swisseph.get_ayanamsa_ut(jd)
+    return swisseph.get_ayanamsa_ex_ut(jd, flags = SEFLG_SWIEPH | SEFLG_SIDEREAL)[1]
 
 
 # === Sidereal and topocentric functions == #
@@ -235,18 +236,18 @@ def swe_object(obj, jd, lat=None, lon=None, alt=None, mode=None):
     :return: swiss ephem object dict
     """
     swe_obj = SWE_OBJECTS[obj]
-    flags = SEFLG_SWIEPH + SEFLG_SPEED
+    flags = SEFLG_SWIEPH | SEFLG_SPEED
 
     # Use topocentric positions
     if lat and lon and alt:
         swisseph.set_topo(lat, lon, alt)
-        flags += SEFLG_TOPOCTR
+        flags |= SEFLG_TOPOCTR
 
     # Use sidereal zodiac
     if mode:
         eph_mode = SWE_AYANAMSAS[mode]
         swisseph.set_sid_mode(eph_mode, 0, 0)
-        flags += SEFLG_SIDEREAL
+        flags |= SEFLG_SIDEREAL
 
     # Compute and return positions
     swelist, flg = swisseph.calc_ut(jd, swe_obj, flags)

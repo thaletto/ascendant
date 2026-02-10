@@ -97,11 +97,13 @@ SATURN = 'Saturn'
 URANUS = 'Uranus'
 NEPTUNE = 'Neptune'
 PLUTO = 'Pluto'
-CHIRON = 'Chiron'
+
 NORTH_NODE = 'North Node'
 SOUTH_NODE = 'South Node'
-SYZYGY = 'Syzygy'
+
 PARS_FORTUNA = 'Pars Fortuna'
+SYZYGY = 'Syzygy'
+CHIRON = 'Chiron'
 NO_PLANET = 'None'
 
 # Object movement
@@ -163,7 +165,7 @@ HOUSES_AZIMUTHAL = 'Azimuthal'
 HOUSES_POLICH_PAGE = 'Polich Page'
 HOUSES_ALCABITUS = 'Alcabitus'
 HOUSES_MORINUS = 'Morinus'
-HOUSES_DEFAULT = HOUSES_ALCABITUS
+HOUSES_DEFAULT = HOUSES_PLACIDUS
 
 
 # === Angles === */
@@ -256,14 +258,15 @@ ALL_ASPECTS = MAJOR_ASPECTS + MINOR_ASPECTS
 
 # === Ayanamsas / Sidereal Zodiac === */
 
-AY_FAGAN_BRADLEY = "Ayanamsa Fagan Bradley"
+
 AY_LAHIRI = "Ayanamsa Lahiri"
-AY_DELUCE = "Ayanamsa De Luce"
-AY_RAMAN = "Ayanamsa Raman"
+AY_LAHIRI_1940 = "Ayanamsa Lahiri 1940"
+AY_LAHIRI_VP285 = "Ayanamsa Lahiri VP285"
+AY_LAHIRI_ICRC = "Ayanamsa Lahiri ICRC"
 AY_KRISHNAMURTI = "Ayanamsa Krishnamurti"
-AY_SASSANIAN = "Ayanamsa Sassanian"
-AY_ALDEBARAN_15TAU = "Ayanamsa Aldebaran 15 Taurus"
-AY_GALCENTER_5SAG = "Ayanamsa Galactic Eq. 05 Sag"
+AY_KRISHNAMURTI_SENTHILATHIBAN = "Ayanamsa Krishnamurti VP291"
+AY_RAMAN = "Ayanamsa Raman"
+
 
 
 # === Some Lists === */
@@ -281,8 +284,8 @@ LIST_OBJECTS = [
 
 LIST_OBJECTS_TRADITIONAL = [
     SUN, MOON, MERCURY, VENUS, MARS, JUPITER, SATURN,
-    NORTH_NODE, SOUTH_NODE, SYZYGY, PARS_FORTUNA
-]
+    NORTH_NODE, SOUTH_NODE, PARS_FORTUNA
+    ]
 
 LIST_SEVEN_PLANETS = [
     SUN, MOON, MERCURY, VENUS, MARS, JUPITER, SATURN
