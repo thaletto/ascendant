@@ -52,3 +52,29 @@ yogas = astro.get_yogas()
 # Get Dasha Timeline
 dasha = astro.get_dasha_timeline()
 ```
+
+# Advanced Usage
+```
+astro = Ascendant(
+    ...
+    ayanamsa = "krishnamurti"
+    house_system = "equal"
+)
+```
+
+## Available Ayanamsa
+
+- Lahiri (default)
+- Lahiri_1940
+- Lahiri_VP285
+- Lahiri_ICRC
+- Raman
+- Krishnamurti
+- Krishnamurti_Senthilathiban
+
+## Available House System
+
+- Whole Sign (default)
+- Placidus
+- Equal
+- Equal 2

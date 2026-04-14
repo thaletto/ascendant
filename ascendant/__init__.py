@@ -13,6 +13,7 @@ class Ascendant:
     """
     Super class to manage Chart, Yoga, and Dasha calculations.
     """
+
     def __init__(
         self,
         year: int,
@@ -25,7 +26,7 @@ class Ascendant:
         longitude: float,
         utc: str,
         ayanamsa: str = "Lahiri",
-        house_system: str = "whole_sign"
+        house_system: str = "Whole Sign",
     ):
         self.horoscope_data = VedicHoroscopeData(
             year=year,
@@ -38,9 +39,9 @@ class Ascendant:
             latitude=latitude,
             longitude=longitude,
             ayanamsa=ayanamsa,
-            house_system=getHouseSystem(house_system)
+            house_system=getHouseSystem(house_system),
         )
-        
+
         self.chart_module = Chart(self.horoscope_data)
         self.yoga_module = Yoga(self.horoscope_data)
         self.dasha_module = Dasha(self.horoscope_data)
@@ -63,8 +64,5 @@ class Ascendant:
         # Since logic is in get_antardasha_by_index(0), we can expose similar functionality
         mahadasha = self.dasha_module.get_mahadasha_by_index(0, date)
         antardasha = self.dasha_module.get_antardasha_by_index(0, date)
-        
-        return {
-            "mahadasha": mahadasha,
-            "antardasha": antardasha
-        }
+
+        return {"mahadasha": mahadasha, "antardasha": antardasha}
