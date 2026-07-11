@@ -18,7 +18,14 @@ pip install git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
 
 ## Documentation
 
-For more detailed information, check out the documentation in the [docs](docs/index.md) folder:
+The documentation is a Fumadocs app backed by the Markdown files in the [docs](docs/index.md) folder.
+
+```bash
+bun install
+bun run dev
+```
+
+Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the source pages directly:
 
 - [Divisional Charts (Vargas)](docs/charts.md)
 - [Dasha Systems](docs/dasha.md)

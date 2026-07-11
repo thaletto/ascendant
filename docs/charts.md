@@ -1,4 +1,7 @@
-# Divisional Charts (Vargas)
+---
+title: Divisional Charts (Vargas)
+description: Calculate and inspect Ascendant's supported Vedic divisional charts.
+---
 
 Ascendant supports various divisional charts (Varga chakras) used in Vedic Astrology.
 

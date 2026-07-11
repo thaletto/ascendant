@@ -1,13 +1,9 @@
-# Ascendant Documentation
+---
+title: Getting Started
+description: Install Ascendant and create your first Vedic astrology chart.
+---
 
 Welcome to the Ascendant documentation. Ascendant is a comprehensive Python library for Vedic Astrology (Jyotish) calculations.
-
-## Contents
-
-- [Getting Started](index.md)
-- [Divisional Charts (Vargas)](charts.md)
-- [Dasha Systems](dasha.md)
-- [Yoga Combinations](yoga.md)
 
 ## Installation
 

@@ -34,11 +34,19 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+.next/
+.source/
+node_modules/
+.vercel/
+.output/
+.nitro/
+.tanstack/
 
 # Sample Files
 sample/
 
 # IDE
+.DS_Store
 .vscode/
 .zed/
 .cursor/

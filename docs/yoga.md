@@ -1,4 +1,7 @@
-# Yoga Combinations
+---
+title: Yoga Combinations
+description: Identify and inspect classical planetary combinations in a chart.
+---
 
 Yogas are specific planetary combinations in a chart that produce unique results. Ascendant includes a comprehensive registry of hundreds of classical Yogas.
 

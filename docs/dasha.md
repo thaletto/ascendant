@@ -1,4 +1,7 @@
-# Dasha System
+---
+title: Dasha System
+description: Work with Vimshottari Dasha timelines and current planetary periods.
+---
 
 The library implements the **Vimshottari Dasha** system, which is the most widely used planetary period system in Vedic Astrology.
 
