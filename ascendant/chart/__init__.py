@@ -214,8 +214,10 @@ class Chart:
             return None
 
         # Pre-process chart to create mappings for quick lookups
-        planet_to_house = {}
-        house_to_planets = {h: [] for h in range(1, 13)}
+        planet_to_house: dict[PLANETS, HOUSES] = {}
+        house_to_planets: dict[HOUSES, list[PLANETS]] = {
+            cast(HOUSES, h): [] for h in range(1, 13)
+        }
 
         for house_num in range(1, 13):
             house_num = cast(HOUSES, house_num)
@@ -229,7 +231,7 @@ class Chart:
                     planet_to_house[planet_name] = house_num
 
         # Determine which planets to process
-        planets_to_process = {}
+        planets_to_process: dict[PLANETS, HOUSES] = {}
         if planet:
             if planet in planet_to_house:
                 planets_to_process = {planet: planet_to_house[planet]}
@@ -239,13 +241,12 @@ class Chart:
         # Build results using the pre-processed mappings
         results: list[AspectType] = []
         for planet_name, from_house in planets_to_process.items():
-            planet_name = cast(PLANETS, planet_name)
-            aspected_houses = [
-                (from_house - 1 + offset) % 12 + 1
+            aspected_houses: list[HOUSES] = [
+                cast(HOUSES, (from_house - 1 + offset) % 12 + 1)
                 for offset in aspect_offsets_for_planet(planet_name)
             ]
 
-            aspected_houses_info = [
+            aspected_houses_info: list[dict[HOUSES, list[PLANETS]]] = [
                 {house: house_to_planets.get(house, [])} for house in aspected_houses
             ]
 
