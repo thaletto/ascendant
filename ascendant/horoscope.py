@@ -6,7 +6,7 @@ from typing import Final, TypedDict, cast
 import swisseph as swe
 
 from ascendant.const import NAKSHATRAS, SIGN_LORDS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
-from ascendant.ephemeris import EphemerisChart, build_sidereal_chart
+from ascendant.ephemeris import ChartInput, EphemerisChart, build_sidereal_chart
 from ascendant.types import NAKSHATRAS as NAKSHATRA_NAMES
 from ascendant.types import PADA, PLANETS, RASHI_LORDS
 
@@ -84,6 +84,20 @@ class HoroscopeData:
         self.ayanamsa = ayanamsa
         self.house_system = house_system
 
+    def chart_input(self) -> ChartInput:
+        """Return the immutable data consumed by the Swiss Ephemeris adapter."""
+        return ChartInput(
+            year=self.year,
+            month=self.month,
+            day=self.day,
+            hour=self.hour,
+            minute=self.minute,
+            second=self.second,
+            utc=self.utc,
+            latitude=self.latitude,
+            longitude=self.longitude,
+        )
+
     def get_ayanamsa(self) -> int:
         """Return the requested sidereal mode, defaulting to Lahiri."""
         return AYANAMSA_MAPPING.get(
@@ -95,15 +109,7 @@ class HoroscopeData:
 
     def generate_chart(self) -> EphemerisChart:
         return build_sidereal_chart(
-            year=self.year,
-            month=self.month,
-            day=self.day,
-            hour=self.hour,
-            minute=self.minute,
-            second=self.second,
-            utc=self.utc,
-            latitude=self.latitude,
-            longitude=self.longitude,
+            birth=self.chart_input(),
             ayanamsa=self.get_ayanamsa(),
             house_system=self.get_house_system(),
         )

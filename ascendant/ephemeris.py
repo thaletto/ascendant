@@ -11,6 +11,7 @@ import swisseph as swe
 
 
 SIDEREAL_FLAGS: Final[int] = swe.FLG_SWIEPH | swe.FLG_SPEED | swe.FLG_SIDEREAL
+DEFAULT_SIDEREAL_MODE: Final[int] = swe.SIDM_FAGAN_BRADLEY
 _SIDEREAL_LOCK: Final[RLock] = RLock()
 _UTC_OFFSET_PATTERN: Final[re.Pattern[str]] = re.compile(
     r"^(?P<sign>[+-])?(?P<hours>\d{1,2}):(?P<minutes>\d{1,2})(?::(?P<seconds>\d{1,2}))?$"
@@ -52,6 +53,21 @@ def julian_day(
     """Return the UTC Julian day for a local Gregorian birth time."""
     local_hour = hour + minute / 60 + second / 3600
     return swe.julday(year, month, day, local_hour - _utc_offset_hours(utc), swe.GREG_CAL)
+
+
+@dataclass(frozen=True)
+class ChartInput:
+    """The birth details and calculation settings needed for one chart."""
+
+    year: int
+    month: int
+    day: int
+    hour: int
+    minute: int
+    second: int
+    utc: str
+    latitude: float
+    longitude: float
 
 
 @dataclass(frozen=True)
@@ -103,15 +119,7 @@ class EphemerisChart:
 
 def build_sidereal_chart(
     *,
-    year: int,
-    month: int,
-    day: int,
-    hour: int,
-    minute: int,
-    second: int,
-    utc: str,
-    latitude: float,
-    longitude: float,
+    birth: ChartInput,
     ayanamsa: int,
     house_system: bytes,
 ) -> EphemerisChart:
@@ -121,11 +129,24 @@ def build_sidereal_chart(
     lock keeps that state stable from setting the mode through every position
     and house calculation for a chart.
     """
-    jd = julian_day(year, month, day, hour, minute, second, utc)
+    jd = julian_day(
+        birth.year,
+        birth.month,
+        birth.day,
+        birth.hour,
+        birth.minute,
+        birth.second,
+        birth.utc,
+    )
     with _SIDEREAL_LOCK:
-        swe.set_sid_mode(ayanamsa, 0.0, 0.0)
-        objects = _calculate_objects(jd)
-        houses, angles = _calculate_houses(jd, latitude, longitude, house_system)
+        try:
+            swe.set_sid_mode(ayanamsa, 0.0, 0.0)
+            objects = _calculate_objects(jd)
+            houses, angles = _calculate_houses(
+                jd, birth.latitude, birth.longitude, house_system
+            )
+        finally:
+            swe.set_sid_mode(DEFAULT_SIDEREAL_MODE, 0.0, 0.0)
     return EphemerisChart(objects=objects, houses=houses, angles=angles)
 
 
