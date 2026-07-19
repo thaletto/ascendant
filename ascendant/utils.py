@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 import re
-from typing import cast
 
 from ascendant.horoscope import normalize_house_system
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
@@ -14,7 +13,7 @@ def isSignOdd(n: HOUSES) -> bool:
 
 def getSignName(n: HOUSES) -> RASHIS:
     """Return the rashi name for a zero-based sign index."""
-    rashi = cast(RASHIS, RASHI_MAP[n])
+    rashi = RASHI_MAP[n]
     return rashi
 
 
