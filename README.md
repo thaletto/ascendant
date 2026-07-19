@@ -36,6 +36,7 @@ The docs app is independent: create or configure its Vercel project with `docs/`
 - **Chart Calculations**: Compute and analyze divisional astrological charts (Varga chakras).
 - **Dasha System**: Implementation of the Vimshottari Dasha system for planetary periods.
 - **Yoga Combinations**: Identification and interpretation of various Yoga (planetary combinations).
+- **Ashtakavarga**: Classical Bhinnashtakavarga, Sarvashtakavarga, Shodhana, and Shodhya Pinda calculations.
 
 ## Usage
 
@@ -58,6 +59,10 @@ yogas = astro.get_yogas()
 
 # Get Dasha Timeline
 dasha = astro.get_dasha_timeline()
+
+# Get Ashtakavarga / Sarvashtakavarga
+ashtakavarga = astro.get_sav()
+sarva = ashtakavarga["sarva"]
 ```
 
 # Advanced Usage

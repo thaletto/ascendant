@@ -1,6 +1,7 @@
 from ascendant.chart import Chart
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
+from ascendant.sav import Ashtakavarga, AshtakavargaResult
 from ascendant.types import ALLOWED_DIVISIONS
 from ascendant.utils import get_house_system
 from ascendant.yoga.base import Yoga
@@ -42,6 +43,9 @@ class Ascendant:
         self.chart_module: Chart = Chart(self.horoscope_data)
         self.yoga_module: Yoga = Yoga(self.horoscope_data)
         self.dasha_module: Dasha = Dasha(self.horoscope_data)
+        self.ashtakavarga_module: Ashtakavarga = Ashtakavarga(
+            self.horoscope_data
+        )
 
     def get_chart(self, division: ALLOWED_DIVISIONS):
         """Get the divisional chart."""
@@ -58,8 +62,12 @@ class Ascendant:
     def get_current_dasha(self, date: str | None = None):
         """Get current Mahadasha and Antardasha."""
         # This is a helper accessing the internal dasha logic if needed
-        # Since logic is in get_antardasha_by_index(0), we can expose similar functionality
+        # Reuse the first indexed period as the current-period helper.
         mahadasha = self.dasha_module.get_mahadasha_by_index(0, date)
         antardasha = self.dasha_module.get_antardasha_by_index(0, date)
 
         return {"mahadasha": mahadasha, "antardasha": antardasha}
+
+    def get_sav(self) -> AshtakavargaResult:
+        """Return the complete Ashtakavarga result."""
+        return self.ashtakavarga_module.calculate()
