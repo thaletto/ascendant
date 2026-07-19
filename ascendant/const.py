@@ -50,6 +50,20 @@ NAKSHATRAS: Final[list[str]] = [
     "Revati",
 ]
 
+VIMSHOTTARI_PLANETS: Final[list[str]] = [
+    "Ketu",
+    "Venus",
+    "Sun",
+    "Moon",
+    "Mars",
+    "Rahu",
+    "Jupiter",
+    "Saturn",
+    "Mercury",
+]
+
+VIMSHOTTARI_YEARS: Final[list[int]] = [7, 20, 6, 10, 7, 18, 16, 19, 17]
+
 
 SELECTED_PLANETS: List[str] = [
     "Sun",
@@ -128,6 +142,8 @@ RASHI_LORD_MAP: Dict[RASHIS_TYPE, RASHI_LORDS] = {
     "Aquarius": "Saturn",
     "Pisces": "Jupiter",
 }
+
+SIGN_LORDS: Final[list[RASHI_LORDS]] = list(RASHI_LORD_MAP.values())
 
 HOUSES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 

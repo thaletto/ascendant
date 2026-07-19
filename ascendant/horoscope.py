@@ -7,7 +7,7 @@ from flatlib.chart import Chart as FlatlibChart
 from flatlib.datetime import Datetime
 from flatlib.geopos import GeoPos
 
-from ascendant.const import NAKSHATRAS
+from ascendant.const import NAKSHATRAS, SIGN_LORDS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 
 AYANAMSA_MAPPING = {
     "Lahiri": const.AY_LAHIRI,
@@ -26,33 +26,17 @@ HOUSE_SYSTEM_MAPPING = {
     "Whole Sign": const.HOUSES_WHOLE_SIGN,
 }
 
-SIGN_LORDS = [
-    "Mars",
-    "Venus",
-    "Mercury",
-    "Moon",
-    "Sun",
-    "Mercury",
-    "Venus",
-    "Mars",
-    "Jupiter",
-    "Saturn",
-    "Saturn",
-    "Jupiter",
-]
 
-VIMSHOTTARI_PLANETS = [
-    "Ketu",
-    "Venus",
-    "Sun",
-    "Moon",
-    "Mars",
-    "Rahu",
-    "Jupiter",
-    "Saturn",
-    "Mercury",
-]
-VIMSHOTTARI_YEARS = [7, 20, 6, 10, 7, 18, 16, 19, 17]
+def _canonical_name(value: str, supported: dict[str, Any]) -> str:
+    for name in supported:
+        if value.casefold() == name.casefold():
+            return name
+    return value
+
+
+def normalize_house_system(house_system: str) -> Any:
+    key = house_system.replace("_", " ").strip().title()
+    return HOUSE_SYSTEM_MAPPING.get(key, HOUSE_SYSTEM_MAPPING["Whole Sign"])
 
 
 class HoroscopeData:
@@ -85,12 +69,13 @@ class HoroscopeData:
         self.house_system = house_system
 
     def get_ayanamsa(self) -> Any:
-        return AYANAMSA_MAPPING.get(self.ayanamsa)
+        if not isinstance(self.ayanamsa, str):
+            return None
+        return AYANAMSA_MAPPING.get(_canonical_name(self.ayanamsa, AYANAMSA_MAPPING))
 
     def get_house_system(self) -> Any:
         if isinstance(self.house_system, str):
-            key = self.house_system.replace("_", " ").strip().title()
-            return HOUSE_SYSTEM_MAPPING.get(key, self.house_system)
+            return normalize_house_system(self.house_system)
         return self.house_system
 
     def generate_chart(self) -> FlatlibChart:

@@ -67,7 +67,7 @@ dasha = astro.get_dasha_timeline()
 ```
 astro = Ascendant(
     ...
-    ayanamsa = "krishnamurti"
+    ayanamsa = "Krishnamurti"
     house_system = "equal"
 )
 ```

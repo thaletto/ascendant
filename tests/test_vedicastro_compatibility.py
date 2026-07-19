@@ -53,6 +53,18 @@ def test_house_system_normalization_is_preserved():
     assert HoroscopeData(
         1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, house_system="whole_sign"
     ).get_house_system() == HOUSE_SYSTEM_MAPPING["Whole Sign"]
+    assert HoroscopeData(
+        1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, house_system="unknown"
+    ).get_house_system() == HOUSE_SYSTEM_MAPPING["Whole Sign"]
+
+
+def test_ayanamsa_normalization_accepts_documented_lowercase_name():
+    horoscope = HoroscopeData(
+        1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, ayanamsa="krishnamurti"
+    )
+    assert horoscope.get_ayanamsa() == HoroscopeData(
+        1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, ayanamsa="Krishnamurti"
+    ).get_ayanamsa()
 
 
 def test_horoscope_data_is_public_advanced_api():

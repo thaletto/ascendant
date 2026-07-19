@@ -38,6 +38,12 @@ jobs:
         
     - name: Build package
       run: python -m build
+    - name: Smoke test wheel
+      run: |
+        python -m venv /tmp/ascendant-wheel-test
+        /tmp/ascendant-wheel-test/bin/pip install "flatlib @ git+https://github.com/thaletto/flatlib.git@2618c348ce1ab2588548f935ff65f031630b4872" dist/*.whl
+        cd /tmp
+        /tmp/ascendant-wheel-test/bin/python -c "from ascendant import Ascendant; assert len(Ascendant(1990, 1, 1, 12, 0, 0, 28.6139, 77.2090, '+5:30').get_chart(1)) == 12"
       
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
