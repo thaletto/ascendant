@@ -1,0 +1,4 @@
+git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
+.
+fastapi==0.139.2
+fastmcp==3.4.4

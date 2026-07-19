@@ -10,7 +10,7 @@ Install via pip:
 pip install astro-ascendant
 ```
 
-> `PyPI` no longer supports specifying external packages (eg:git repo URLs) in `dependencies` in the `pyproject.toml` file. To install the required package `flatlib` from the sidereal branch, run the following command, after completion of above `pip install astro-ascendant` command:
+> `PyPI` no longer supports specifying external packages (eg:git repo URLs) in `dependencies` in the `pyproject.toml` file. The repository's `requirements.txt` installs the required `flatlib` sidereal branch. For a standalone PyPI installation, run the following command after `pip install astro-ascendant`:
 
 ```bash
 pip install git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
@@ -18,18 +18,51 @@ pip install git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
 
 ## Documentation
 
-The documentation is a Fumadocs app backed by the Markdown files in the [docs](docs/index.md) folder.
+The documentation is a separate Fumadocs app in [`docs/`](docs), backed by Markdown files in [`docs/content/`](docs/content/index.md).
 
 ```bash
+cd docs
 bun install
 bun run dev
 ```
 
 Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the source pages directly:
 
-- [Divisional Charts (Vargas)](docs/charts.md)
-- [Dasha Systems](docs/dasha.md)
-- [Yoga Combinations](docs/yoga.md)
+- [Divisional Charts (Vargas)](docs/content/charts.md)
+- [Dasha Systems](docs/content/dasha.md)
+- [Yoga Combinations](docs/content/yoga.md)
+
+## MCP server
+
+The repository root is a public Streamable HTTP MCP server, ready for deployment as a Vercel Python Function. It exposes tools for divisional charts, dasha timelines, current dashas, and yogas.
+
+```bash
+pip install -r requirements.txt
+vercel dev
+```
+
+After deploying this repository with its root directory set to the repository root, configure an MCP client with:
+
+```json
+{
+  "mcpServers": {
+    "ascendant": {
+      "url": "https://YOUR-VERCEL-PROJECT.vercel.app/api/mcp"
+    }
+  }
+}
+```
+
+The docs app is independent: create or configure its Vercel project with `docs/` as the project root.
+
+## Development
+
+Install the test-only dependencies, including `prettytable`, into the repository virtual environment:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+```
 
 ## Core Functionalities:
 
