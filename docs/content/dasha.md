@@ -3,7 +3,7 @@ title: Dasha System
 description: Work with Vimshottari Dasha timelines and current planetary periods.
 ---
 
-The library implements the **Vimshottari Dasha** system, which is the most widely used planetary period system in Vedic Astrology.
+The library implements the **Vimshottari Dasha** system as structured Mahadasha and Antardasha records. Applications and agents can inspect the active period without parsing prose.
 
 ## Concepts
 
@@ -25,7 +25,7 @@ for mahadasha in timeline:
 
 ### Get Current Dasha
 
-You can get the current Mahadasha and Antardasha for the current time or a specific date.
+You can get the current Mahadasha and Antardasha for the current time or a specific date in `DD-MM-YYYY` format.
 
 ```python
 # Get current dasha for now
@@ -37,3 +37,5 @@ print(f"Current AD: {current['antardasha']['antardasha']}")
 specific_date = "15-08-2025"
 dasha_then = astro.get_current_dasha(date=specific_date)
 ```
+
+`mahadasha` or `antardasha` can be `None` when the requested date falls outside the computed timeline. Check the result before presenting a period as active.

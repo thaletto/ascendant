@@ -15,11 +15,31 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Ascendant',
+        title: 'Ascendant — Vedic astrology, expressed as code',
       },
       {
         name: 'description',
-        content: 'Documentation for the Ascendant Vedic astrology Python library.',
+        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+      },
+      {
+        property: 'og:title',
+        content: 'Ascendant — Vedic astrology, expressed as code',
+      },
+      {
+        property: 'og:description',
+        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+      },
+      {
+        property: 'og:image',
+        content: '/og.png',
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'twitter:image',
+        content: '/og.png',
       },
     ],
     links: [
@@ -32,12 +52,12 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="flex flex-col min-h-screen">
-        <RootProvider theme={{ enabled: false }}>
+        <RootProvider>
           <Outlet />
         </RootProvider>
         <Scripts />

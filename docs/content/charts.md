@@ -3,7 +3,7 @@ title: Divisional Charts (Vargas)
 description: Calculate and inspect Ascendant's supported Vedic divisional charts.
 ---
 
-Ascendant supports various divisional charts (Varga chakras) used in Vedic Astrology.
+Ascendant supports sixteen divisional charts (Varga chakras). Each call returns a twelve-house dictionary with the sign, planets, and Lagna data needed by applications and agents.
 
 ## Supported Divisions
 
@@ -33,6 +33,9 @@ The following divisions are supported:
 To get a specific divisional chart:
 
 ```python
+from ascendant import Ascendant
+
+# Create `astro` as shown in Getting Started.
 # Get the Navamsa (D9) chart
 d9_chart = astro.get_chart(division=9)
 
@@ -42,3 +45,7 @@ for house, data in d9_chart.items():
     for planet in data['planets']:
         print(f"  - {planet['name']} at {planet['longitude']:.2f}°")
 ```
+
+Each planet includes its longitude, retrograde status, sign relationship, sign lord, Nakshatra, Nakshatra lord, and Pada. This lets an agent cite the exact placement behind an interpretation instead of working from a rendered chart alone.
+
+Passing a division outside the supported list raises `ValueError`.
