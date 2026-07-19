@@ -2,6 +2,8 @@ import functools
 import time
 from typing import cast
 
+import pytest
+
 from ascendant.chart import Chart
 from ascendant.const import ALLOWED_DIVISIONS
 from ascendant.types import ALLOWED_DIVISIONS as ALLOWED_DIVISIONS_LITERAL
@@ -127,8 +129,7 @@ def test_generate_varga_chart_longitude_ranges():
     """Test that longitudes are within valid ranges"""
     for division in ALLOWED_DIVISIONS:
         div = cast(ALLOWED_DIVISIONS_LITERAL, division)
-        if (result := chart.get_varga_chakra_chart(n=div)) is None:
-            raise ValueError(f"Division {division} should return None")
+        result = chart.get_varga_chakra_chart(n=div)
 
         for house_num, house_data in result.items():
             for planet_data in house_data["planets"]:
@@ -153,15 +154,13 @@ def test_generate_varga_chart_returns_consistent_structure():
 
 
 def test_non_allowed_divisions():
-    """Test that non-allowed divisions return None"""
+    """Test that non-allowed divisions raise ValueError."""
     non_allowed = [d for d in range(61) if d not in ALLOWED_DIVISIONS]
 
     for division in non_allowed:
         div = cast(ALLOWED_DIVISIONS_LITERAL, division)
-        result = chart.get_varga_chakra_chart(n=div)
-        assert result is None, (
-            f"Division {division} should return None, got {type(result)}"
-        )
+        with pytest.raises(ValueError, match=f"Division {division} not allowed"):
+            chart.get_varga_chakra_chart(n=div)
 
 
 def format_chart_markdown(division, chart_data):

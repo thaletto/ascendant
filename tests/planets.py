@@ -14,10 +14,6 @@ def test_graha_drishthi_runs_for_allowed_divisions(division: ALLOWED_DIVISIONS):
     chart = Chart(my_horoscope)
     result = chart.graha_drishti(n=division)
 
-    # Result can be None if varga chart generation fails.
-    if result is None:
-        return
-
     assert isinstance(result, list)
 
     # If there are no planets with aspects (unlikely), it's still valid to be empty
@@ -49,9 +45,6 @@ def test_graha_drishthi_for_single_planet():
     # Test for Sun in D1 chart
     result = chart.graha_drishti(n=1, planet="Sun")
 
-    if result is None:
-        return  # might be none if chart fails
-
     assert isinstance(result, list)
     # Should only contain one element for the Sun's aspects
     assert len(result) <= 1
@@ -64,7 +57,8 @@ def test_graha_drishthi_for_non_allowed_division():
     non_allowed = [d for d in range(61) if d not in DIVISIONS]
     for d in non_allowed:
         div = cast(ALLOWED_DIVISIONS, d)
-        assert chart.graha_drishti(n=div) is None
+        with pytest.raises(ValueError, match=f"Division {d} not allowed"):
+            chart.graha_drishti(n=div)
 
 
 if __name__ == "__main__":
@@ -108,10 +102,6 @@ if __name__ == "__main__":
         if isinstance(res_list, dict) and "__error__" in res_list:
             error_lines.append(f"Division {division}: {res_list['__error__']}")
             continue
-        if res_list is None:
-            rows.append([str(division), "-", "-", "No chart data", "-"])
-            continue
-
         for aspect_data in res_list:
             planet_name = aspect_data.get("planet", "?")
             from_house = aspect_data.get("from_house", "?")

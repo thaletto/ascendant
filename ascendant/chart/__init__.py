@@ -36,11 +36,11 @@ class Chart:
         self.__horoscope__: HoroscopeData = horoscope
         self.__chart__: EphemerisChart = horoscope.generate_chart()
 
-        self.planets: PlanetsType | None = self.get_planets()
-        self.lagna: LagnaType | None = self.get_lagna()
+        self.planets: PlanetsType = self.get_planets()
+        self.lagna: LagnaType = self.get_lagna()
         self.chart: ChartType = self.get_rasi_chart()
 
-    def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType | None:
+    def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType:
         """
         Retrieves the list of planets for a specified divisional chart (varga).
 
@@ -48,10 +48,13 @@ class Chart:
             n: The divisional chart number (e.g., 1 for Rasi, 9 for Navamsa). Defaults to 1.
 
         Returns:
-            A list of PlanetType objects, or None if the division is not allowed.
+            A list of PlanetType objects.
+
+        Raises:
+            ValueError: If the division is not allowed or planet metadata cannot be resolved.
         """
         if n not in DIVISIONS:
-            return None
+            raise ValueError(f"Division {n} not allowed.")
 
         planets: PlanetsType = []
 
@@ -62,7 +65,9 @@ class Chart:
             lon: float = _planet.lon
             data = self.__horoscope__.get_rl_nl_sl_data(lon)
             if data is None:
-                continue
+                raise ValueError(
+                    f"Planet metadata could not be resolved for {name} at longitude {lon}."
+                )
             target_sign, _ = get_divisional_target(lon, n)
             sign = get_sign_name(target_sign)
             mapped_name = cast(PLANETS, NODE_MAP.get(name, name) or name)
@@ -85,7 +90,7 @@ class Chart:
             planets.append(planet)
         return planets
 
-    def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType | None:
+    def get_lagna(self, n: ALLOWED_DIVISIONS = 1) -> LagnaType:
         """
         Retrieves the Lagna (Ascendant) for a specified divisional chart (varga).
 
@@ -93,16 +98,21 @@ class Chart:
             n: The divisional chart number. Defaults to 1.
 
         Returns:
-            A LagnaType object, or None if the division is not allowed.
+            A LagnaType object.
+
+        Raises:
+            ValueError: If the division is not allowed or Lagna metadata cannot be resolved.
         """
         if n not in DIVISIONS:
-            return None
+            raise ValueError(f"Division {n} not allowed.")
 
         asc = self.__chart__.get_angle("Asc")
         lon: float = asc.lon
         data = self.__horoscope__.get_rl_nl_sl_data(lon)
         if data is None:
-            return None
+            raise ValueError(
+                f"Lagna metadata could not be resolved at longitude {lon}."
+            )
         target_sign, _ = get_divisional_target(lon, n)
         sign = get_sign_name(target_sign)
 
@@ -130,8 +140,6 @@ class Chart:
             A ChartType object representing the Rasi chart.
         """
         chart: ChartType = {}
-        if self.lagna is None or self.planets is None:
-            return chart
         lagna_sign = self.lagna["sign"]["name"]
         lagna_index = RASHIS.index(lagna_sign)
 
@@ -152,7 +160,7 @@ class Chart:
 
         return chart
 
-    def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType | None:
+    def get_varga_chakra_chart(self, n: ALLOWED_DIVISIONS) -> ChartType:
         """
         Generates a specific divisional chart (varga chakra) based on the given division number.
 
@@ -160,19 +168,18 @@ class Chart:
             n: The divisional chart number.
 
         Returns:
-            A ChartType object representing the specified divisional chart, or None if the division is not allowed.
+            A ChartType object representing the specified divisional chart.
+
+        Raises:
+            ValueError: If the division is not allowed or chart data cannot be resolved.
         """
         if n not in DIVISIONS:
-            return None
+            raise ValueError(f"Division {n} not allowed.")
 
         chart: ChartType = {}
 
         lagna = self.get_lagna(n)
-        if lagna is None:
-            return None
         planets = self.get_planets(n)
-        if planets is None:
-            return None
 
         lagna_sign = lagna["sign"]["name"]
         lagna_index = RASHIS.index(lagna_sign)
@@ -188,7 +195,7 @@ class Chart:
             house: HouseType = {
                 "sign": sign,
                 "planets": planets_in_house,
-                "lagna": self.lagna if house_num == 1 else None,
+                "lagna": lagna if house_num == 1 else None,
             }
             chart[house_num] = house
 
@@ -196,7 +203,7 @@ class Chart:
 
     def graha_drishti(
         self, n: ALLOWED_DIVISIONS, planet: PLANETS | None = None
-    ) -> list[AspectType] | None:
+    ) -> list[AspectType]:
         """
         Calculates and returns the planetary aspects (graha drishti) for a given divisional chart.
 
@@ -206,14 +213,14 @@ class Chart:
 
         Returns:
             A list of AspectType objects, each detailing a planet's aspects and the planets in aspected houses.
-            Returns None if the division is not allowed.
+
+        Raises:
+            ValueError: If the division is not allowed or chart data cannot be resolved.
         """
         if n not in DIVISIONS:
-            return None
+            raise ValueError(f"Division {n} not allowed.")
 
         chart = self.get_varga_chakra_chart(n)
-        if chart is None:
-            return None
 
         # Pre-process chart to create mappings for quick lookups
         planet_to_house: dict[PLANETS, HOUSES] = {}
