@@ -185,7 +185,8 @@ def _calculate_objects(jd: float) -> tuple[EphemerisObject, ...]:
 def _calculate_houses(
     jd: float, latitude: float, longitude: float, house_system: bytes
 ) -> tuple[tuple[EphemerisObject, ...], tuple[EphemerisObject, ...]]:
-    cusps, ascmc = swe.houses_ex(jd, latitude, longitude, house_system, swe.FLG_SIDEREAL)
+    cusps, ascmc = swe.houses_ex(
+        jd, latitude, longitude, house_system, swe.FLG_SIDEREAL)
     houses = tuple(
         EphemerisObject(
             id=f"House{index + 1}",

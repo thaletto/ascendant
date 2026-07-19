@@ -80,7 +80,8 @@ def timeit_individual_yogas(func):
 
             total_elapsed = time.perf_counter() - total_start
 
-            print_timing_summary("YOGA", total_elapsed, yoga_timings, unit_name="yoga")
+            print_timing_summary("YOGA", total_elapsed,
+                                 yoga_timings, unit_name="yoga")
 
             return results
 
@@ -117,7 +118,8 @@ def show_yogas():
     print(
         f"Birth Time: {my_horoscope.day}/{my_horoscope.month}/{my_horoscope.year} {my_horoscope.hour}:{my_horoscope.minute}:{my_horoscope.second} {my_horoscope.utc}"
     )
-    print(f"Latitude & Longitude: {my_horoscope.latitude}, {my_horoscope.longitude}")
+    print(
+        f"Latitude & Longitude: {my_horoscope.latitude}, {my_horoscope.longitude}")
     print(f"Ayanamsa: {my_horoscope.ayanamsa}")
     print(f"House System: {my_horoscope.house_system}")
     print("=" * 70)

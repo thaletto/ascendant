@@ -249,7 +249,7 @@ class Yoga:
                                 continue
                         else:
                             return True
-        
+
         aspects = self.__chart__.graha_drishti(n=1)
         if aspects is None:
             return False

@@ -106,10 +106,12 @@ class Dasha:
         duration = dasa_order[nakshatra_lord]
         elapsed_duration = duration - (duration / 800) * remaining_arc_mins
 
-        start = self._compute_new_date(self._chart_date(), elapsed_duration, "backward")
+        start = self._compute_new_date(
+            self._chart_date(), elapsed_duration, "backward")
         dashas: _VimshottariData = {}
         for dasa, length in zip(sequence, lengths):
-            end = self._compute_new_date(self._date_tuple(start), length, "forward")
+            end = self._compute_new_date(
+                self._date_tuple(start), length, "forward")
             bhuktis: dict[PLANETS, _DashaPeriod] = {}
             dashas[dasa] = {
                 "start": start.strftime("%d-%m-%Y"),
@@ -121,8 +123,11 @@ class Dasha:
             bhukti_sequence = sequence[index:] + sequence[:index]
             bhukti_lengths = lengths[index:] + lengths[:index]
             for bhukti, bhukti_length in zip(bhukti_sequence, bhukti_lengths):
+                bhukti_duration = length * bhukti_length / 120
                 bhukti_end = self._compute_new_date(
-                    self._date_tuple(bhukti_start), length * bhukti_length / 120, "forward"
+                    self._date_tuple(bhukti_start),
+                    bhukti_duration,
+                    "forward",
                 )
                 bhuktis[bhukti] = {
                     "start": bhukti_start.strftime("%d-%m-%Y"),
@@ -213,7 +218,8 @@ class Dasha:
         if target_date is None:
             return None
 
-        current_index = self._find_current_index_by_date(antardashas, target_date)
+        current_index = self._find_current_index_by_date(
+            antardashas, target_date)
         if current_index is None:
             return None
 

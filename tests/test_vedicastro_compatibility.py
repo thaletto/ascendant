@@ -12,7 +12,8 @@ from ascendant.utils import get_house_system
 
 def _digest(value) -> str:
     normalized = json.loads(json.dumps(value, ensure_ascii=False))
-    payload = json.dumps(normalized, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    payload = json.dumps(normalized, sort_keys=True,
+                         separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(payload.encode()).hexdigest()
 
 
@@ -74,7 +75,8 @@ def test_horoscope_data_is_public_advanced_api():
     horoscope = HoroscopeData(
         1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, house_system="Whole Sign"
     )
-    assert horoscope.generate_chart().get_angle("Asc").lon == pytest.approx(343.9226400242266)
+    assert horoscope.generate_chart().get_angle(
+        "Asc").lon == pytest.approx(343.9226400242266)
 
 
 @pytest.mark.parametrize(

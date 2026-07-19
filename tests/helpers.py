@@ -24,7 +24,11 @@ def print_timing_summary(
     print("-" * 70)
 
     for item, elapsed in timings[:top_n]:
-        percentage = (elapsed / total_elapsed) * 100 if total_elapsed > 0 else 0
+        percentage = (
+            (elapsed / total_elapsed) * 100
+            if total_elapsed > 0
+            else 0
+        )
         if isinstance(item, str):
             # For string items like yoga names, left-align them
             print(f"  {item:<30s}: {elapsed:8.6f} seconds ({percentage:5.2f}%)")
@@ -72,7 +76,8 @@ def format_and_print_table(headers: List[str], rows: List[List[str]], title: str
 
         all_lines = [headers] + [[str(c) for c in r] for r in rows]
 
-        col_widths = [max(len(item) for item in col) for col in zip(*all_lines)]
+        col_widths = [max(len(item) for item in col)
+                      for col in zip(*all_lines)]
 
         def format_row(vals):
             return " | ".join(str(val).ljust(col_widths[i]) for i, val in enumerate(vals))

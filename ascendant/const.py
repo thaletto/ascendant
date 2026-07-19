@@ -104,7 +104,8 @@ NODE_MAP: dict[str, PLANETS] = {"North Node": "Rahu", "South Node": "Ketu"}
 
 BENEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mercury", "Jupiter", "Venus")
 
-MALEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mars", "Saturn", "Rahu", "Ketu")
+MALEFIC_PLANETS: Final[tuple[PLANETS, ...]] = (
+    "Mars", "Saturn", "Rahu", "Ketu")
 
 ALLOWED_DIVISIONS: list[int] = [
     1,

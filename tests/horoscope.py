@@ -12,7 +12,8 @@ DEFAULT_UTC = "+5:30"
 birth_date_str = os.getenv("NATIVE_BIRTH_DATE", DEFAULT_BIRTH_DATE)
 birth_time_str = os.getenv("NATIVE_BIRTH_TIME", DEFAULT_BIRTH_TIME)
 
-birth_date = datetime.strptime(f"{birth_date_str} {birth_time_str}", "%Y-%m-%d %H:%M")
+birth_date = datetime.strptime(
+    f"{birth_date_str} {birth_time_str}", "%Y-%m-%d %H:%M")
 
 lat = float(os.getenv("NATIVE_LATITUDE", DEFAULT_LATITUDE))
 lng = float(os.getenv("NATIVE_LONGITUDE", DEFAULT_LONGITUDE))

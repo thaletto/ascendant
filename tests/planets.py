@@ -26,7 +26,8 @@ def test_graha_drishthi_runs_for_allowed_divisions(division: ALLOWED_DIVISIONS):
 
     for aspect_data in result:
         assert isinstance(aspect_data, dict)
-        assert "planet" in aspect_data and isinstance(aspect_data["planet"], str)
+        assert "planet" in aspect_data and isinstance(
+            aspect_data["planet"], str)
         assert "from_house" in aspect_data and isinstance(
             aspect_data["from_house"], int
         )
@@ -69,7 +70,8 @@ def test_graha_drishthi_for_non_allowed_division():
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Ascendant Planet Aspect Tester")
+    parser = argparse.ArgumentParser(
+        description="Ascendant Planet Aspect Tester")
     parser.add_argument(
         "--d",
         action="append",
@@ -99,7 +101,8 @@ if __name__ == "__main__":
     # Build table rows
     rows = []
     error_lines = []
-    headers = ["Division", "Planet", "From", "Aspects on Houses", "Planets Aspected"]
+    headers = ["Division", "Planet", "From",
+               "Aspects on Houses", "Planets Aspected"]
 
     for division, res_list in allowed_results.items():
         if isinstance(res_list, dict) and "__error__" in res_list:
@@ -115,7 +118,8 @@ if __name__ == "__main__":
 
             aspected_houses_info = aspect_data.get("aspect_houses", [])
 
-            house_numbers = sorted([list(h.keys())[0] for h in aspected_houses_info])
+            house_numbers = sorted([list(h.keys())[0]
+                                   for h in aspected_houses_info])
             aspected_houses_str = ", ".join(map(str, house_numbers))
 
             planets_aspected_parts = []
@@ -127,7 +131,8 @@ if __name__ == "__main__":
                         )
 
             planets_aspected_str = (
-                " | ".join(planets_aspected_parts) if planets_aspected_parts else "-"
+                " | ".join(
+                    planets_aspected_parts) if planets_aspected_parts else "-"
             )
 
             rows.append(

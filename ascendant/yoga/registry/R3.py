@@ -91,7 +91,8 @@ def bhratruvriddhi(yoga: Yoga) -> YogaType:
 
     h3_cond = False
     planets_in_3 = yoga.planets_in_relative_house("Lagna", 3)
-    benefics_in_3 = [p["name"] for p in planets_in_3 if p["name"] in BENEFIC_PLANETS]
+    benefics_in_3 = [p["name"]
+                     for p in planets_in_3 if p["name"] in BENEFIC_PLANETS]
     h3_aspected = yoga.is_house_benefic_aspected(3)
 
     if benefics_in_3 or h3_aspected:
@@ -1268,7 +1269,8 @@ def kapata(yoga: Yoga) -> YogaType:
     # Cond 3
     c3 = False
     c3_details = ""
-    p_l4_neighbors = [p["name"] for p in yoga.planets_in_relative_house("Lagna", h_l4)]
+    p_l4_neighbors = [p["name"]
+                      for p in yoga.planets_in_relative_house("Lagna", h_l4)]
     if "Saturn" in p_l4_neighbors and "Rahu" in p_l4_neighbors and l4 in p_l4_neighbors:
         # Check aspect
         aspected = False
@@ -1330,7 +1332,8 @@ def nishkapata(yoga: Yoga) -> YogaType:
     c1_details = ""
     # 4th house occupied by benefic
     planets_4_objs = yoga.planets_in_relative_house("Lagna", 4)
-    benefics_in_4 = [p["name"] for p in planets_4_objs if p["name"] in BENEFIC_PLANETS]
+    benefics_in_4 = [p["name"]
+                     for p in planets_4_objs if p["name"] in BENEFIC_PLANETS]
 
     if benefics_in_4:
         c1 = True
@@ -1339,7 +1342,8 @@ def nishkapata(yoga: Yoga) -> YogaType:
         # occupied by planet in exalt/friend/own
         strong_planets = []
         for p in planets_4_objs:
-            statuses = [s for s in ["Exalted", "Friend", "Own"] if s in p["inSign"]]
+            statuses = [s for s in ["Exalted",
+                                    "Friend", "Own"] if s in p["inSign"]]
             if statuses:
                 strong_planets.append(f"{p['name']} ({statuses[0]})")
 
@@ -1526,14 +1530,14 @@ def vahana(yoga: Yoga) -> YogaType:
 
     if (l4 := yoga.get_lord_of_house(4)) is None:
         raise ValueError("House of Fourth Lord not found")
-        
+
     if (p_l4 := yoga.get_planet_by_name(l4)) is None or p_l4["name"] == "Lagna":
         raise ValueError("Planet of Fourth Lord not found")
     if "Exalted" in p_l4["inSign"]:
         # Lord of Exaltation Sign
         if (h_l4 := yoga.get_house_of_planet(l4)) is None:
             raise ValueError("House of Fourth Lord not found")
-        
+
         if (exalt_sign := yoga.get_rashi_of_house(h_l4)) is None:
             raise ValueError("Exaltation Sign not found")
         disp = RASHI_LORD_MAP.get(exalt_sign)

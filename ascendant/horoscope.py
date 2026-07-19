@@ -101,7 +101,8 @@ class HoroscopeData:
     def get_ayanamsa(self) -> int:
         """Return the requested sidereal mode, defaulting to Lahiri."""
         return AYANAMSA_MAPPING.get(
-            _canonical_name(self.ayanamsa, AYANAMSA_MAPPING), AYANAMSA_MAPPING["Lahiri"]
+            _canonical_name(
+                self.ayanamsa, AYANAMSA_MAPPING), AYANAMSA_MAPPING["Lahiri"]
         )
 
     def get_house_system(self) -> bytes:

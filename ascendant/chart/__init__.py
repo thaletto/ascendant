@@ -140,7 +140,8 @@ class Chart:
             sign_index = (lagna_index + i) % 12
             sign = RASHIS[sign_index]
 
-            planets_in_house = [p for p in self.planets if p["sign"]["name"] == sign]
+            planets_in_house = [
+                p for p in self.planets if p["sign"]["name"] == sign]
 
             house: HouseType = {
                 "sign": sign,
@@ -181,7 +182,8 @@ class Chart:
             sign_index = (lagna_index + i) % 12
             sign = RASHIS[sign_index]
 
-            planets_in_house = [p for p in planets if p["sign"]["name"] == sign]
+            planets_in_house = [
+                p for p in planets if p["sign"]["name"] == sign]
 
             house: HouseType = {
                 "sign": sign,

@@ -144,7 +144,8 @@ def test_get_vimshottari_dasha_structure():
     for entry in result:
         assert isinstance(entry, dict)
         assert "mahadasha" in entry and isinstance(entry["mahadasha"], str)
-        assert "antardashas" in entry and isinstance(entry["antardashas"], list)
+        assert "antardashas" in entry and isinstance(
+            entry["antardashas"], list)
         assert "start" in entry and isinstance(entry["start"], str)
         assert "end" in entry and isinstance(entry["end"], str)
 
@@ -154,7 +155,8 @@ def test_get_vimshottari_dasha_structure():
             assert "antardasha" in antardasha and isinstance(
                 antardasha["antardasha"], str
             )
-            assert "start" in antardasha and isinstance(antardasha["start"], str)
+            assert "start" in antardasha and isinstance(
+                antardasha["start"], str)
             assert "end" in antardasha and isinstance(antardasha["end"], str)
 
 
@@ -311,7 +313,8 @@ def show_dasha():
     print(
         f"Birth Time: {my_horoscope.day}/{my_horoscope.month}/{my_horoscope.year} {my_horoscope.hour}:{my_horoscope.minute}:{my_horoscope.second} {my_horoscope.utc}"
     )
-    print(f"Latitude & Longitude: {my_horoscope.latitude}, {my_horoscope.longitude}")
+    print(
+        f"Latitude & Longitude: {my_horoscope.latitude}, {my_horoscope.longitude}")
     print(f"Ayanamsa: {my_horoscope.ayanamsa}")
     print(f"House System: {my_horoscope.house_system}")
     print("=" * 70)
@@ -366,7 +369,8 @@ def show_dasha():
     try:
         current = dasha.get_antardasha_by_index(n=0)
         if current:
-            print(f"Current Dasha: {current['mahadasha']} - {current['antardasha']}")
+            print(
+                f"Current Dasha: {current['mahadasha']} - {current['antardasha']}")
             print(f"Start: {current['start']}")
             print(f"End: {current['end']}")
 
@@ -408,7 +412,8 @@ def show_dasha():
 def main():
     """Run all dasha tests"""
     tests = [
-        ("Get Dasha Timeline Returns List", test_get_vimshottari_dasha_returns_list),
+        ("Get Dasha Timeline Returns List",
+         test_get_vimshottari_dasha_returns_list),
         ("Dasha Structure", test_get_vimshottari_dasha_structure),
         ("Date Format", test_get_vimshottari_dasha_date_format),
         ("Mahadashas Sorted", test_get_vimshottari_dasha_sorted),

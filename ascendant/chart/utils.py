@@ -59,7 +59,8 @@ def get_divisional_target(
 
     # D4 chaturthamsha.
     elif division == 4:
-        target_sign = cast(HOUSES, (sign_index + [0, 3, 6, 9][part_index]) % 12)
+        target_sign = cast(
+            HOUSES, (sign_index + [0, 3, 6, 9][part_index]) % 12)
 
     # D7 saptamsha.
     elif division == 7:
@@ -84,7 +85,8 @@ def get_divisional_target(
 
     # D10 dashamsha.
     elif division == 10:
-        start = sign_index if is_sign_odd(sign_index) else (sign_index + 8) % 12
+        start = sign_index if is_sign_odd(
+            sign_index) else (sign_index + 8) % 12
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # D12 dvadashamsha.

@@ -76,25 +76,30 @@ def test_generate_varga_chart_runs_for_allowed_divisions():
             assert 1 <= house_num <= 12
             assert isinstance(house_data, dict)
             assert "sign" in house_data and isinstance(house_data["sign"], str)
-            assert "planets" in house_data and isinstance(house_data["planets"], list)
+            assert "planets" in house_data and isinstance(
+                house_data["planets"], list)
             assert "lagna" in house_data
 
             # Check each planet in the house
             for planet_data in house_data["planets"]:
                 assert isinstance(planet_data, dict)
-                assert "name" in planet_data and isinstance(planet_data["name"], str)
+                assert "name" in planet_data and isinstance(
+                    planet_data["name"], str)
                 assert "longitude" in planet_data and isinstance(
                     planet_data["longitude"], (int, float)
                 )
                 assert "is_retrograde" in planet_data and isinstance(
                     planet_data["is_retrograde"], bool
                 )
-                assert "sign" in planet_data and isinstance(planet_data["sign"], dict)
+                assert "sign" in planet_data and isinstance(
+                    planet_data["sign"], dict)
 
                 # Check sign structure
                 sign_data = planet_data["sign"]
-                assert "name" in sign_data and isinstance(sign_data["name"], str)
-                assert "lord" in sign_data and isinstance(sign_data["lord"], str)
+                assert "name" in sign_data and isinstance(
+                    sign_data["name"], str)
+                assert "lord" in sign_data and isinstance(
+                    sign_data["lord"], str)
                 assert "nakshatra" in sign_data and isinstance(
                     sign_data["nakshatra"], dict
                 )
@@ -195,7 +200,8 @@ def format_chart_markdown(division, chart_data):
 
         planets_display = ", ".join(planet_strs) if planet_strs else "-"
 
-        lines.append(f"| {house_num} | {sign_name} | {sign_lord} | {planets_display} |")
+        lines.append(
+            f"| {house_num} | {sign_name} | {sign_lord} | {planets_display} |")
 
     lines.append("\n")
     return "\n".join(lines)
@@ -279,7 +285,8 @@ def handle_cli():
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser(description="Ascendant Chart Generator & Tester")
+    parser = argparse.ArgumentParser(
+        description="Ascendant Chart Generator & Tester")
     parser.add_argument(
         "--d",
         action="append",

@@ -33,7 +33,8 @@ PLANETS_LAGNA = PLANETS | LAGNA
 
 HOUSES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-RASHI_LORDS = Literal["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+RASHI_LORDS = Literal["Sun", "Moon", "Mars",
+                      "Mercury", "Jupiter", "Venus", "Saturn"]
 
 NAKSHATRAS = Literal[
     "Ashwini",
@@ -67,7 +68,8 @@ NAKSHATRAS = Literal[
 
 PADA = Literal[1, 2, 3, 4]
 
-ALLOWED_DIVISIONS = Literal[1, 2, 3, 4, 7, 9, 10, 12, 16, 20, 24, 27, 30, 40, 45, 60]
+ALLOWED_DIVISIONS = Literal[1, 2, 3, 4, 7, 9,
+                            10, 12, 16, 20, 24, 27, 30, 40, 45, 60]
 
 PLANET_SIGN_RELATION = Literal[
     "Exalted",

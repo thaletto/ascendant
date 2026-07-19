@@ -117,7 +117,7 @@ def anapha(yoga: Yoga) -> YogaType:
         strength = WEIGHTS.get(name, DEFAULT_WEIGHT)
         strengths.append(strength)
         names.append(f"{name}({strength})")
-    
+
     if (present := len(planets) > 0):
         result["present"] = present
         result["strength"] = sum(strengths) / len(strengths)
@@ -144,7 +144,10 @@ def dhurdhua(yoga: Yoga) -> YogaType:
     anapha_result = anapha(yoga)
 
     result["present"] = sunapha_result["present"] and anapha_result["present"]
-    result["strength"] = (sunapha_result["strength"] + anapha_result["strength"]) / 2
+    result["strength"] = (
+        sunapha_result["strength"]
+        + anapha_result["strength"]
+    ) / 2
     result["details"] = (
         f"Anapha Yoga Details: {anapha_result['details']} \n Sunapha Yoga Details: {sunapha_result['details']}"
     )
@@ -169,7 +172,10 @@ def kema_durga(yoga: Yoga) -> YogaType:
     anapha_result = anapha(yoga)
 
     result["present"] = not sunapha_result["present"] and not anapha_result["present"]
-    result["strength"] = (sunapha_result["strength"] + anapha_result["strength"]) / 2
+    result["strength"] = (
+        sunapha_result["strength"]
+        + anapha_result["strength"]
+    ) / 2
     result["details"] = (
         f"Anapha Yoga Details: {anapha_result['details']} \n Sunapha Yoga Details: {sunapha_result['details']}"
     )
@@ -223,14 +229,16 @@ def chandra_adhi(yoga: Yoga) -> YogaType:
     planets_names = [p["name"] for p in planets]
 
     # Check presence
-    result["present"] = all(benefic in planets_names for benefic in BENEFIC_PLANETS)
+    result["present"] = all(
+        benefic in planets_names for benefic in BENEFIC_PLANETS)
 
     # Calculate strength
     strength_sum = 0.0
     for p in planets:
         if p["name"] in BENEFIC_PLANETS:
             if (relative_pos := yoga.relative_house("Moon", p["name"])) is None:
-                raise ValueError(f"Relative house of {p['name']} from Moon not found")
+                raise ValueError(
+                    f"Relative house of {p['name']} from Moon not found")
             strength_sum += HOUSE_STRENGTH[relative_pos]
 
     # Normalize
@@ -268,14 +276,16 @@ def lagna_adhi(yoga: Yoga) -> YogaType:
     planets_names = [p["name"] for p in planets]
 
     # Check presence
-    result["present"] = all(benefic in planets_names for benefic in BENEFIC_PLANETS)
+    result["present"] = all(
+        benefic in planets_names for benefic in BENEFIC_PLANETS)
 
     # Calculate strength
     strength_sum = 0.0
     for p in planets:
         if p["name"] in BENEFIC_PLANETS:
             if (relative_pos := yoga.relative_house("Lagna", p["name"])) is None:
-                raise ValueError(f"Relative house of {p['name']} from Lagna not found")
+                raise ValueError(
+                    f"Relative house of {p['name']} from Lagna not found")
             strength_sum += HOUSE_STRENGTH[relative_pos]
 
     # Normalize
@@ -325,12 +335,19 @@ def chatussagara(yoga: Yoga) -> YogaType:
     if len(house_7) > 0:
         details.append(f"7th house: {', '.join([p['name'] for p in house_7])}")
     if len(house_10) > 0:
-        details.append(f"10th house: {', '.join([p['name'] for p in house_10])}")
+        details.append(
+            f"10th house: {', '.join([p['name'] for p in house_10])}")
 
     if result["present"]:
-        result["details"] = "Planets found in all kendras. " + "; ".join(details)
+        result["details"] = (
+            "Planets found in all kendras. "
+            + "; ".join(details)
+        )
     else:
-        result["details"] = "Not all kendras are occupied. " + "; ".join(details)
+        result["details"] = (
+            "Not all kendras are occupied. "
+            + "; ".join(details)
+        )
 
     # Strength logic
     if result["present"]:
@@ -340,7 +357,8 @@ def chatussagara(yoga: Yoga) -> YogaType:
         kendra_strength = occupied_kendras / 4
         density_strength = min(total_planets / 12, 1)
 
-        result["strength"] = round(0.7 * kendra_strength + 0.3 * density_strength, 2)
+        result["strength"] = round(
+            0.7 * kendra_strength + 0.3 * density_strength, 2)
     else:
         result["strength"] = 0.0
 
@@ -442,7 +460,8 @@ def rajalakshana(yoga: Yoga) -> YogaType:
 
     planets_in_kendras = []
     for house in kendras:
-        planets_in_kendras.extend(yoga.planets_in_relative_house("Lagna", house))
+        planets_in_kendras.extend(
+            yoga.planets_in_relative_house("Lagna", house))
 
     kendra_names = [p["name"] for p in planets_in_kendras]
 
@@ -528,7 +547,8 @@ def amala(yoga: Yoga) -> YogaType:
 
     details_list = []
     strength = 0
-    planet_strength = {"Jupiter": 1.0, "Venus": 0.9, "Mercury": 0.8, "Moon": 0.7}
+    planet_strength = {"Jupiter": 1.0,
+                       "Venus": 0.9, "Mercury": 0.8, "Moon": 0.7}
 
     if benefics_moon:
         details_list.append(
@@ -547,7 +567,11 @@ def amala(yoga: Yoga) -> YogaType:
     if result["present"]:
         result["details"] = " ".join(details_list)
         total_benefics = len(benefics_moon) + len(benefics_lagna)
-        result["strength"] = strength / total_benefics if total_benefics > 0 else 0.0
+        result["strength"] = (
+            strength / total_benefics
+            if total_benefics > 0
+            else 0.0
+        )
     else:
         result["details"] = (
             "No benefic planets occupy the 10th house from Moon or Ascendant."
@@ -577,8 +601,10 @@ def parvata(yoga: Yoga) -> YogaType:
     house_6_names = [p["name"] for p in house_6_planets]
     house_8_names = [p["name"] for p in house_8_planets]
 
-    house_6_ok = not house_6_planets or all(p in BENEFIC_PLANETS for p in house_6_names)
-    house_8_ok = not house_8_planets or all(p in BENEFIC_PLANETS for p in house_8_names)
+    house_6_ok = not house_6_planets or all(
+        p in BENEFIC_PLANETS for p in house_6_names)
+    house_8_ok = not house_8_planets or all(
+        p in BENEFIC_PLANETS for p in house_8_names)
 
     result["present"] = house_6_ok and house_8_ok
 
@@ -624,7 +650,8 @@ def kahala(yoga: Yoga) -> YogaType:
     ) is None:
         raise ValueError("Could not find house for lord of 4th or 9th.")
 
-    result["present"] = yoga.planet_in_kendra_from(house_of_lord_of_4, lord_of_9)
+    result["present"] = yoga.planet_in_kendra_from(
+        house_of_lord_of_4, lord_of_9)
     result["details"] = (
         f"Lord of 4th house ({lord_of_4}) in house {house_of_lord_of_4} & Lord of 9th house ({lord_of_9}) in house {house_of_lord_of_9}."
     )
@@ -728,7 +755,10 @@ def obhayachari(yoga: Yoga) -> YogaType:
     )
 
     if result["present"]:
-        result["strength"] = (vesi_result["strength"] + vasi_result["strength"]) / 2
+        result["strength"] = (
+            vesi_result["strength"]
+            + vasi_result["strength"]
+        ) / 2
 
     return result
 
@@ -1053,10 +1083,12 @@ def pushkala(yoga: Yoga) -> YogaType:
     # Condition 2: Moon-lord in Kendra OR friend sign
     in_kendra = yoga.planet_in_kendra_from(lagna_house, moon_lord)
     moon_lord_planet = next(
-        (p for p in yoga.chart[moon_lord_house]["planets"] if p["name"] == moon_lord),
+        (p for p in yoga.chart[moon_lord_house]
+         ["planets"] if p["name"] == moon_lord),
         None,
     )
-    in_friend_sign = bool(moon_lord_planet and "Friend" in moon_lord_planet["inSign"])
+    in_friend_sign = bool(
+        moon_lord_planet and "Friend" in moon_lord_planet["inSign"])
 
     if not (in_kendra or in_friend_sign):
         result["details"] = (
@@ -1614,7 +1646,8 @@ def sankha(yoga: Yoga) -> YogaType:
     ) is None or lagna_lord_planet["name"] == "Lagna":
         raise ValueError(f"Could not find planet {lagna_lord}.")
 
-    is_powerful, lagna_lord_strength = yoga.is_planet_powerful(lagna_lord_planet)
+    is_powerful, lagna_lord_strength = yoga.is_planet_powerful(
+        lagna_lord_planet)
 
     if not is_powerful:
         result["details"] = f"Lord of lagna ({lagna_lord}) is not powerful."
@@ -1662,8 +1695,10 @@ def bheri(yoga: Yoga) -> YogaType:
         raise ValueError("Could not find houses for Venus or Jupiter.")
 
     # Check if they are in mutual kendras
-    venus_in_kendra_from_jupiter = yoga.planet_in_kendra_from(house_of_jupiter, "Venus")
-    jupiter_in_kendra_from_venus = yoga.planet_in_kendra_from(house_of_venus, "Jupiter")
+    venus_in_kendra_from_jupiter = yoga.planet_in_kendra_from(
+        house_of_jupiter, "Venus")
+    jupiter_in_kendra_from_venus = yoga.planet_in_kendra_from(
+        house_of_venus, "Jupiter")
 
     mutual_kendras = venus_in_kendra_from_jupiter and jupiter_in_kendra_from_venus
 
@@ -1690,12 +1725,16 @@ def bheri(yoga: Yoga) -> YogaType:
         return result
 
     # Calculate strength based on mutual kendra positions
-    relative_pos_venus_from_jupiter = (house_of_venus - house_of_jupiter + 12) % 12 + 1
-    relative_pos_jupiter_from_venus = (house_of_jupiter - house_of_venus + 12) % 12 + 1
+    relative_pos_venus_from_jupiter = (
+        house_of_venus - house_of_jupiter + 12) % 12 + 1
+    relative_pos_jupiter_from_venus = (
+        house_of_jupiter - house_of_venus + 12) % 12 + 1
 
     kendra_strength_map = {1: 1.0, 4: 0.75, 7: 0.9, 10: 0.75}
-    strength_venus = kendra_strength_map.get(relative_pos_venus_from_jupiter, 0.5)
-    strength_jupiter = kendra_strength_map.get(relative_pos_jupiter_from_venus, 0.5)
+    strength_venus = kendra_strength_map.get(
+        relative_pos_venus_from_jupiter, 0.5)
+    strength_jupiter = kendra_strength_map.get(
+        relative_pos_jupiter_from_venus, 0.5)
     mutual_kendra_strength = (strength_venus + strength_jupiter) / 2
 
     # Final strength is average of mutual kendra strength and lord of 9th strength
@@ -1733,7 +1772,8 @@ def gaja(yoga: Yoga) -> YogaType:
 
     # Check if lord of 7th is in house 11
     if (house_of_lord_7 := yoga.get_house_of_planet(lord_of_7)) is None:
-        raise ValueError(f"Could not find house for lord of 7th ({lord_of_7}).")
+        raise ValueError(
+            f"Could not find house for lord of 7th ({lord_of_7}).")
 
     if house_of_lord_7 != 11:
         result["details"] = (
@@ -1946,7 +1986,8 @@ def amsavatara(yoga: Yoga) -> YogaType:
         raise ValueError("Could not find Lagna.")
 
     if (lagna_sign := yoga.get_rashi_of_house(lagna_house)) is None:
-        raise ValueError(f"Could not determine sign of Lagna house {lagna_house}.")
+        raise ValueError(
+            f"Could not determine sign of Lagna house {lagna_house}.")
 
     # Check if Lagna is in a movable sign (Aries, Cancer, Libra, Capricorn)
     movable_signs = ["Aries", "Cancer", "Libra", "Capricorn"]
@@ -2102,7 +2143,10 @@ def hari_hara_brahma(yoga: Yoga) -> YogaType:
     if strengths:
         result["present"] = True
         result["strength"] = max(strengths)
-        result["details"] = "HariHaraBrahma Yoga is formed. " + " | ".join(details)
+        result["details"] = (
+            "HariHaraBrahma Yoga is formed. "
+            + " | ".join(details)
+        )
     else:
         result["details"] = (
             "HariHaraBrahma Yoga is not formed. None of the three conditions are met."
@@ -2188,7 +2232,6 @@ def parijatha(yoga: Yoga) -> YogaType:
     if LL_house not in [1, 4, 7, 10, 5, 9]:
         result["details"] = f"Lagna lord is placed in {LL_house} not in Kendra/Trikona"
         return result
-
 
     if (D9 := yoga.__chart__.get_varga_chakra_chart(9)) is None:
         raise ValueError("D9 not found.")
