@@ -1290,7 +1290,6 @@ def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
             "type": "Negative",
         },
     }
-
     planets_in_1 = [p["name"]
                     for p in yoga.planets_in_relative_house("Lagna", 1)]
     planets_in_7 = [p["name"]
@@ -1325,18 +1324,18 @@ def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
             "Vajra Yoga formed: Benefics in houses 1 and/or 7, and Malefics in houses 4 and/or 10."
         )
     else:
-        details: list[str] = []
+        vajra_details: list[str] = []
         if not vajra_cond1:
-            details.append(
+            vajra_details.append(
                 f"Benefics are not exclusively in houses 1 and 7. House 1 planets: {planets_in_1}, House 7 planets: {planets_in_7}"
             )
         if not vajra_cond2:
-            details.append(
+            vajra_details.append(
                 f"Malefics are not exclusively in houses 4 and 10. House 4 planets: {planets_in_4}, House 10 planets: {planets_in_10}"
             )
         results["Vajra"]["details"] = (
             "Vajra Yoga not formed. "
-            + " ".join(details)
+            + " ".join(vajra_details)
         )
 
     # Conditions for Yava Yoga
@@ -1364,18 +1363,18 @@ def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
             "Yava Yoga formed: Malefics in houses 1 and/or 7, and Benefics in houses 4 and/or 10."
         )
     else:
-        details: list[str] = []
+        yava_details: list[str] = []
         if not yava_cond1:
-            details.append(
+            yava_details.append(
                 f"Malefics are not exclusively in houses 1 and 7. House 1 planets: {planets_in_1}, House 7 planets: {planets_in_7}"
             )
         if not yava_cond2:
-            details.append(
+            yava_details.append(
                 f"Benefics are not exclusively in houses 4 and 10. House 4 planets: {planets_in_4}, House 10 planets: {planets_in_10}"
             )
         results["Yava"]["details"] = (
             "Yava Yoga not formed. "
-            + " ".join(details)
+            + " ".join(yava_details)
         )
 
     return results
