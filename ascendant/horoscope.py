@@ -72,17 +72,17 @@ class HoroscopeData:
         ayanamsa: str = "Lahiri",
         house_system: str | bytes = "Equal",
     ):
-        self.year = year
-        self.month = month
-        self.day = day
-        self.hour = hour
-        self.minute = minute
-        self.second = second
-        self.utc = utc
-        self.latitude = latitude
-        self.longitude = longitude
-        self.ayanamsa = ayanamsa
-        self.house_system = house_system
+        self.year: int = year
+        self.month: int = month
+        self.day: int = day
+        self.hour: int = hour
+        self.minute: int = minute
+        self.second: int = second
+        self.utc: str = utc
+        self.latitude: float = latitude
+        self.longitude: float = longitude
+        self.ayanamsa: str = ayanamsa
+        self.house_system: str | bytes = house_system
 
     def chart_input(self) -> ChartInput:
         """Return the immutable data consumed by the Swiss Ephemeris adapter."""

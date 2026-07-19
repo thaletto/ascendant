@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, cast
+from typing import Literal, cast
 
 from ascendant.const import BENEFIC_PLANETS, RASHI_LORD_MAP
 from ascendant.types import (
@@ -61,7 +61,7 @@ def Sunapha(yoga: Yoga) -> YogaType:
         result["details"] = "No planets in 2nd house from Moon"
         return result
 
-    WEIGHTS: Dict[PLANETS, float] = {
+    WEIGHTS: dict[PLANETS, float] = {
         "Jupiter": 1.0,
         "Venus": 0.9,
         "Mercury": 0.8,
@@ -102,7 +102,7 @@ def Anapha(yoga: Yoga) -> YogaType:
     if (planets := yoga.planets_in_relative_house("Moon", 12)) is None:
         raise ValueError("Planets in 12th house from Moon not found")
 
-    WEIGHTS: Dict[PLANETS, float] = {
+    WEIGHTS: dict[PLANETS, float] = {
         "Jupiter": 1.0,
         "Venus": 0.9,
         "Mercury": 0.8,
@@ -212,7 +212,7 @@ def ChandraAdhi(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    HOUSE_STRENGTH: Dict[HOUSES, float] = {6: 0.75, 7: 1.0, 8: 0.75}
+    HOUSE_STRENGTH: dict[HOUSES, float] = {6: 0.75, 7: 1.0, 8: 0.75}
 
     # Collect planets in 6, 7, 8
     planets_6 = yoga.planets_in_relative_house("Moon", 6)
@@ -438,7 +438,7 @@ def Rajalakshana(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    kendras: List[HOUSES] = [1, 4, 7, 10]
+    kendras: list[HOUSES] = [1, 4, 7, 10]
 
     planets_in_kendras = []
     for house in kendras:
@@ -752,7 +752,7 @@ def Hamsa(yoga: Yoga) -> YogaType:
 
     ju_rashi = yoga.get_rashi_of_house(ju_house)
 
-    own_signs: List[RASHIS] = ["Sagittarius", "Pisces"]
+    own_signs: list[RASHIS] = ["Sagittarius", "Pisces"]
     exaltation_sign: RASHIS = "Cancer"
 
     in_own_or_exalted_sign = ju_rashi in own_signs or ju_rashi == exaltation_sign
@@ -798,7 +798,7 @@ def Malavya(yoga: Yoga) -> YogaType:
 
     ve_rashi = yoga.get_rashi_of_house(ve_house)
 
-    own_signs: List[RASHIS] = ["Taurus", "Libra"]
+    own_signs: list[RASHIS] = ["Taurus", "Libra"]
     exaltation_sign: RASHIS = "Pisces"
 
     in_own_or_exalted_sign = ve_rashi in own_signs or ve_rashi == exaltation_sign
@@ -843,7 +843,7 @@ def Sasa(yoga: Yoga) -> YogaType:
     if (sa_rashi := yoga.get_rashi_of_house(sa_house)) is None:
         raise ValueError("Saturn's rashi not found.")
 
-    own_signs: List[RASHIS] = ["Capricorn", "Aquarius"]
+    own_signs: list[RASHIS] = ["Capricorn", "Aquarius"]
     exaltation_sign: RASHIS = "Libra"
 
     in_own_or_exalted_sign = sa_rashi in own_signs or sa_rashi == exaltation_sign
@@ -889,7 +889,7 @@ def Ruchaka(yoga: Yoga) -> YogaType:
 
     ma_rashi = yoga.get_rashi_of_house(ma_house)
 
-    own_signs: List[RASHIS] = ["Aries", "Scorpio"]
+    own_signs: list[RASHIS] = ["Aries", "Scorpio"]
     exaltation_sign: RASHIS = "Capricorn"
 
     in_own_or_exalted_sign = ma_rashi in own_signs or ma_rashi == exaltation_sign
@@ -935,7 +935,7 @@ def Bhadra(yoga: Yoga) -> YogaType:
 
     me_rashi = yoga.get_rashi_of_house(me_house)
 
-    own_signs: List[RASHIS] = ["Gemini", "Virgo"]
+    own_signs: list[RASHIS] = ["Gemini", "Virgo"]
     exaltation_sign: RASHIS = "Virgo"
 
     in_own_or_exalted_sign = me_house in own_signs or me_rashi == exaltation_sign
@@ -1271,7 +1271,7 @@ def Bharathi(yoga: Yoga) -> YogaType:
     if (L11 := yoga.get_lord_of_house(11)) is None:
         raise ValueError("Lord of 11th house not found")
 
-    key_lords: List[RASHI_LORDS] = [L2, L5, L11]
+    key_lords: list[RASHI_LORDS] = [L2, L5, L11]
 
     if (D9 := yoga.__chart__.get_varga_chakra_chart(9)) is None:
         raise ValueError("D9 chart not found")
@@ -1477,7 +1477,7 @@ def Sreenatha(yoga: Yoga) -> YogaType:
     "Labha Malika",
     "Vraya Malika",
 )
-def Malika(yoga: Yoga) -> Dict[str, YogaType]:
+def Malika(yoga: Yoga) -> dict[str, YogaType]:
     """All seven classical planets occupy seven houses continuously reckoned from a starting house."""
 
     MALIKA_YOGAS: dict[int, tuple[str, Literal["Positive", "Neutral", "Negative"]]] = {
@@ -1495,7 +1495,7 @@ def Malika(yoga: Yoga) -> Dict[str, YogaType]:
         12: ("Vraya Malika", "Positive"),
     }
 
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         name: YogaType(
             id="",
             name=name,

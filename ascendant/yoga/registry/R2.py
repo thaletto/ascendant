@@ -1,4 +1,4 @@
-from typing import Dict, List, Sequence, cast
+from typing import Sequence, cast
 
 from ascendant.const import (
     BENEFIC_PLANETS,
@@ -1024,7 +1024,7 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Yupa", "Ishu", "Sakti", "Danda", "Nav", "Kuta", "Chhatra", "Chapa")
-def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
+def AkritiYogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Yupa: Planets occupy four consecutive houses starting from the Lagna.
     Ishu: Planets occupy four consecutive houses starting from the Nadir (fourth house).
@@ -1048,7 +1048,7 @@ def AkritiYogas(yoga: Yoga) -> Dict[str, YogaType]:
         "Chapa": {"house_count": 7, "start_house": 10, "type": "Positive"},
     }
 
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         name: {
             "id": "",
             "name": name,
@@ -1225,13 +1225,13 @@ def Chandra(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Gada Kendra Stithi", "Sakata Kendra Stithi", "Vihaga Kendra Stithi")
-def KendraStithiYogas(yoga: Yoga) -> Dict[str, YogaType]:
+def KendraStithiYogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Gada Kendra Stithi: All planets occupy adjacent kendra houses.
     Sakata Kendra Stithi: All planets occupy 1st and 7th kendra houses.
     Vihaga Kendra Stithi: All planets occupy 4th and 10th kendra houses.
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Gada Kendra Stithi": {
             "id": "",
             "name": "Gada Kendra Stithi",
@@ -1313,12 +1313,12 @@ def KendraStithiYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
 
 @register_yogas("Vajra", "Yava")
-def VajraYavaYoga(yoga: Yoga) -> Dict[str, YogaType]:
+def VajraYavaYoga(yoga: Yoga) -> dict[str, YogaType]:
     """
     Vajra: Benefics occupy the Lagna and 7th house, while malefics occupy the 4th and 10th house.
     Yava: Malefics occupy the Lagna and 7th house, while benefics occupy the 4th and 10th house.
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Vajra": {
             "id": "",
             "name": "Vajra",
@@ -1677,7 +1677,7 @@ def Samudra(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Vallaki", "Damni", "Pasa", "Kedara", "Sula", "Yuga", "Gola")
-def SankhyaYogas(yoga: Yoga) -> Dict[str, YogaType]:
+def SankhyaYogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Sankhya Yogas are based on the number of houses occupied by the seven classical planets.
 
@@ -1699,7 +1699,7 @@ def SankhyaYogas(yoga: Yoga) -> Dict[str, YogaType]:
         "Gola": {"house_count": 1, "type": "Positive"},
     }
 
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         name: {
             "id": "",
             "name": name,
@@ -1759,7 +1759,7 @@ def SankhyaYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
 
 @register_yogas("Rajju", "Musala", "Nala")
-def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
+def RasiGunaYogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Yogas based on all planets occupying signs of a certain modality.
     - Rajju: All planets in movable (cardinal) signs.
@@ -1776,7 +1776,7 @@ def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
         "Nala": {"signs": DUAL_SIGNS, "type": "Negative", "modality": "dual"},
     }
 
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         name: {
             "id": "",
             "name": name,
@@ -1828,12 +1828,12 @@ def RasiGunaYogas(yoga: Yoga) -> Dict[str, YogaType]:
 
 
 @register_yogas("Srik", "Sarpa")
-def SrikSarpa(yoga: Yoga) -> Dict[str, YogaType]:
+def SrikSarpa(yoga: Yoga) -> dict[str, YogaType]:
     """
     Srik: All the benefics occupy kendras
     Sarpa: All the malefics occupy kendras
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Srik": {
             "id": "",
             "name": "Srik",
@@ -1904,12 +1904,12 @@ def SrikSarpa(yoga: Yoga) -> Dict[str, YogaType]:
 
 
 @register_yogas("Duryoga", "Daridra")
-def DuryogaDaridra(yoga: Yoga) -> Dict[str, YogaType]:
+def DuryogaDaridra(yoga: Yoga) -> dict[str, YogaType]:
     """
     Duryoga: The lord of the 10th is situated in the 6th, 8th or 12th
     Daridra: The lord of the 11th is situated in the 6th, 8th or 12th
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Duryoga": {
             "id": "",
             "name": "Duryoga",
@@ -1961,13 +1961,13 @@ def DuryogaDaridra(yoga: Yoga) -> Dict[str, YogaType]:
 
 
 @register_yogas("Harsha", "Sarala", "Vimala")
-def HarshaSaralaVimala(yoga: Yoga) -> Dict[str, YogaType]:
+def HarshaSaralaVimala(yoga: Yoga) -> dict[str, YogaType]:
     """
     The lords of the 6th occupy the 6th
     The lords of the 8th occupy the 8th
     The lords of the 12th occupy the 12th
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Harsha": {
             "id": "",
             "name": "Harsha",
@@ -2082,12 +2082,12 @@ def SareeraSoukhya(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Dehapushti", "Dehakashta")
-def DehapushtiDehakashta(yoga: Yoga) -> Dict[str, YogaType]:
+def DehapushtiDehakashta(yoga: Yoga) -> dict[str, YogaType]:
     """
     Dehapushti: Lord of Lagna in a movable sign and aspected by a benefic
     Dehakashta: Lord of Langa must join a malefic or occupy the 8th house
     """
-    results: Dict[str, YogaType] = {
+    results: dict[str, YogaType] = {
         "Dehapushti": {
             "id": "",
             "name": "Dehapushti",
@@ -3223,7 +3223,7 @@ def AmarananthaDhana(yoga: Yoga) -> YogaType:
         )
         return result
 
-    wealth_karakas: List[PLANETS] = [
+    wealth_karakas: list[PLANETS] = [
         cast(PLANETS, p)
         for p in [
             "Jupiter",
@@ -4396,7 +4396,7 @@ def BhojanaSoukhya(yoga: Yoga) -> YogaType:
     # 2. Check if Jupiter or Venus aspects L2
     if (h_l2 := yoga.get_house_of_planet(l2_planet)) is None:
         raise ValueError(f"Invalid planet {l2_planet}")
-    aspecting_planets: List[PLANETS] = []
+    aspecting_planets: list[PLANETS] = []
 
     for p_name in ["Jupiter", "Venus"]:
         p: PLANETS = cast(PLANETS, p_name)

@@ -1,4 +1,4 @@
-from typing import Dict, Final, List
+from typing import Final
 
 from ascendant.types import NAKSHATRAS as NAKSHATRAS_TYPE
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
@@ -66,7 +66,7 @@ VIMSHOTTARI_PLANETS: Final[list[PLANETS]] = [
 VIMSHOTTARI_YEARS: Final[list[int]] = [7, 20, 6, 10, 7, 18, 16, 19, 17]
 
 
-SELECTED_PLANETS: List[str] = [
+SELECTED_PLANETS: list[str] = [
     "Sun",
     "Moon",
     "Mars",
@@ -88,7 +88,7 @@ CLASSICAL_PLANETS: Final[tuple[PLANETS, ...]] = (
     "Saturn",
 )
 
-PLANETS_LIST: List[PLANETS] = [
+PLANETS_LIST: list[PLANETS] = [
     "Sun",
     "Moon",
     "Mars",
@@ -106,7 +106,7 @@ BENEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mercury", "Jupiter", "Venus")
 
 MALEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mars", "Saturn", "Rahu", "Ketu")
 
-ALLOWED_DIVISIONS: List[int] = [
+ALLOWED_DIVISIONS: list[int] = [
     1,
     2,
     3,
@@ -129,7 +129,7 @@ MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
 FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
 DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
 
-RASHI_LORD_MAP: Dict[RASHIS_TYPE, RASHI_LORDS] = {
+RASHI_LORD_MAP: dict[RASHIS_TYPE, RASHI_LORDS] = {
     "Aries": "Mars",
     "Taurus": "Venus",
     "Gemini": "Mercury",

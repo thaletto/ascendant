@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ascendant.chart import Chart
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
@@ -27,7 +25,7 @@ class Ascendant:
         ayanamsa: str = "Lahiri",
         house_system: str = "Whole Sign",
     ):
-        self.horoscope_data = HoroscopeData(
+        self.horoscope_data: HoroscopeData = HoroscopeData(
             year=year,
             month=month,
             day=day,
@@ -41,9 +39,9 @@ class Ascendant:
             house_system=getHouseSystem(house_system),
         )
 
-        self.chart_module = Chart(self.horoscope_data)
-        self.yoga_module = Yoga(self.horoscope_data)
-        self.dasha_module = Dasha(self.horoscope_data)
+        self.chart_module: Chart = Chart(self.horoscope_data)
+        self.yoga_module: Yoga = Yoga(self.horoscope_data)
+        self.dasha_module: Dasha = Dasha(self.horoscope_data)
 
     def get_chart(self, division: ALLOWED_DIVISIONS):
         """Get the divisional chart."""
@@ -57,7 +55,7 @@ class Ascendant:
         """Get Dasha timeline."""
         return self.dasha_module.get_dasha_timeline()
 
-    def get_current_dasha(self, date: Optional[str] = None):
+    def get_current_dasha(self, date: str | None = None):
         """Get current Mahadasha and Antardasha."""
         # This is a helper accessing the internal dasha logic if needed
         # Since logic is in get_antardasha_by_index(0), we can expose similar functionality

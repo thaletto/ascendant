@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Tuple, cast
+from typing import Callable, cast
 
 from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
 from ascendant.horoscope import HoroscopeData
@@ -8,6 +8,7 @@ from ascendant.types import (
     PLANETS_LAGNA,
     RASHI_LORDS,
     RASHIS,
+    ChartType,
     LagnaType,
     PlanetsType,
     PlanetType,
@@ -17,7 +18,7 @@ from ascendant.utils import yogaNameToId
 
 YogaFunction = Callable[["Yoga"], YogaType]
 
-YOGA_REGISTRY: Dict[str, YogaFunction] = {}
+YOGA_REGISTRY: dict[str, YogaFunction] = {}
 
 
 def register_yoga(name: str):
@@ -35,8 +36,8 @@ def register_yoga(name: str):
 
 def register_yogas(*names: str):
     def decorator(
-        func: Callable[["Yoga"], Dict[str, YogaType]],
-    ) -> Callable[["Yoga"], Dict[str, YogaType]]:
+        func: Callable[["Yoga"], dict[str, YogaType]],
+    ) -> Callable[["Yoga"], dict[str, YogaType]]:
         # Register each yoga name
         for name in names:
             # Create a closure to capture the name properly
@@ -69,8 +70,8 @@ class Yoga:
     def __init__(self, horoscope: HoroscopeData):
         from ascendant.chart import Chart
 
-        self.__chart__ = Chart(horoscope)
-        self.chart = self.__chart__.get_rasi_chart()
+        self.__chart__: Chart = Chart(horoscope)
+        self.chart: ChartType = self.__chart__.get_rasi_chart()
 
     def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES | None:
         """Return house number where planet is located in the chart"""
@@ -168,14 +169,14 @@ class Yoga:
                         return _planet
         return None
 
-    def isPlanetPowerful(self, planet: PlanetType) -> Tuple[bool, float]:
+    def isPlanetPowerful(self, planet: PlanetType) -> tuple[bool, float]:
         """Checks if a planet in the chart is powerful"""
         relations = planet.get("inSign")
         name = planet.get("name")
         if not relations or not name:
             return False, 0.0
 
-        strength_map: Dict[PLANET_SIGN_RELATION, float] = {
+        strength_map: dict[PLANET_SIGN_RELATION, float] = {
             "Exalted": 1.0,
             "Moola Trikona": 0.85,
             "Own": 0.7,
@@ -261,7 +262,7 @@ class Yoga:
 
         return False
 
-    def compute_all(self) -> List[Dict]:
+    def compute_all(self) -> list[dict[str, object]]:
         """Compute all registered yogas"""
         results = []
         for name, func in YOGA_REGISTRY.items():

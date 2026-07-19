@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import re
-from typing import List, Union, cast
+from typing import cast
 
 from ascendant.horoscope import normalize_house_system
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
@@ -21,7 +21,7 @@ def getHouseSystem(house_system: str):
     return normalize_house_system(house_system)
 
 
-def parseDate(s: Union[str, datetime]) -> datetime | None:
+def parseDate(s: str | datetime) -> datetime | None:
     if not s:
         return None
     if isinstance(s, datetime):
@@ -34,7 +34,7 @@ def parseDate(s: Union[str, datetime]) -> datetime | None:
 
 def planetSignRelation(
     planet: PLANETS, sign: RASHIS, lon: float
-) -> List[PLANET_SIGN_RELATION]:
+) -> list[PLANET_SIGN_RELATION]:
     # -------------------------
     # Moola Trikona degree map
     # -------------------------
@@ -48,7 +48,7 @@ def planetSignRelation(
         "Saturn": ("Aquarius", (0, 20)),
     }
 
-    results: List[PLANET_SIGN_RELATION] = []
+    results: list[PLANET_SIGN_RELATION] = []
 
     # -------------------------
     # Helper: check MT

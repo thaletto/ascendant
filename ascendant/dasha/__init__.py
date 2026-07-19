@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
-from typing import List, Union
 
 from dateutil.relativedelta import relativedelta
 from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
+from ascendant.ephemeris import EphemerisChart
 from ascendant.horoscope import HoroscopeData
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType
 from ascendant.utils import parseDate
@@ -18,10 +18,10 @@ class Dasha:
         Args:
             horoscope: An instance of HoroscopeData containing the birth chart information.
         """
-        self.__horoscope__ = horoscope
-        self.__chart__ = horoscope.generate_chart()
+        self.__horoscope__: HoroscopeData = horoscope
+        self.__chart__: EphemerisChart = horoscope.generate_chart()
 
-        self.dasha = self.get_dasha_timeline()
+        self.dasha: DashasType = self.get_dasha_timeline()
 
     def get_dasha_timeline(self) -> DashasType:
         """
@@ -36,7 +36,7 @@ class Dasha:
         for maha_planet, details in vhd.items():
             bhuktis = details.get("bhuktis", {})
 
-            antardashas: List[AntarDashaType] = []
+            antardashas: list[AntarDashaType] = []
             maha_start = None
             maha_end = None
 
@@ -166,7 +166,7 @@ class Dasha:
         return None
 
     def get_antardasha_by_index(
-        self, n: int, date: Union[str, datetime] | None = None
+        self, n: int, date: str | datetime | None = None
     ) -> AntarDashaType | None:
         """
         Returns an Antardasha period relative to the current Antardasha for a given date.
@@ -204,7 +204,7 @@ class Dasha:
         return None
 
     def get_mahadasha_by_index(
-        self, n: int, date: Union[str, datetime] | None = None
+        self, n: int, date: str | datetime | None = None
     ) -> MahaDashaType | None:
         """
         Returns a Mahadasha period relative to the current Mahadasha for a given date.

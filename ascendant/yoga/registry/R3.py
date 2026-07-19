@@ -1,5 +1,3 @@
-from typing import Optional
-
 from ascendant.const import (
     BENEFIC_PLANETS,
     BENEFIC_SIGNS,
@@ -12,7 +10,7 @@ from ascendant.types import PLANETS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
-def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> Optional[str]:
+def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> str | None:
     """Helper to get the Lord of the Navamsa occupied by a planet"""
     d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
     if not d9_chart:
@@ -27,7 +25,7 @@ def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> Optional[str]:
     return None
 
 
-def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> Optional[RASHIS]:
+def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> RASHIS | None:
     """Helper to get the Navamsa Sign occupied by a planet"""
     d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
     if not d9_chart:

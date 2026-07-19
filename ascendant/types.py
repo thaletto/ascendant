@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, TypedDict, Union
+from typing import Literal, TypedDict
 
 PLANETS = Literal[
     "Sun",
@@ -29,7 +29,7 @@ RASHIS = Literal[
 
 LAGNA = Literal["Lagna"]
 
-PLANETS_LAGNA = Union[PLANETS, LAGNA]
+PLANETS_LAGNA = PLANETS | LAGNA
 
 HOUSES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
@@ -96,7 +96,7 @@ class PlanetType(TypedDict):
     name: PLANETS
     longitude: float
     is_retrograde: bool
-    inSign: List[PLANET_SIGN_RELATION]
+    inSign: list[PLANET_SIGN_RELATION]
     sign: PlanetOrLagnaSignType
 
 
@@ -107,16 +107,16 @@ class LagnaType(TypedDict):
     sign: PlanetOrLagnaSignType
 
 
-PlanetsType = List[PlanetType]
+PlanetsType = list[PlanetType]
 
 
 class HouseType(TypedDict):
     sign: RASHIS
     planets: PlanetsType
-    lagna: Optional[LagnaType]
+    lagna: LagnaType | None
 
 
-ChartType = Dict[HOUSES, HouseType]
+ChartType = dict[HOUSES, HouseType]
 
 
 class AntarDashaType(TypedDict):
@@ -130,16 +130,16 @@ class MahaDashaType(TypedDict):
     mahadasha: PLANETS
     start: str
     end: str
-    antardashas: List[AntarDashaType]
+    antardashas: list[AntarDashaType]
 
 
-DashasType = List[MahaDashaType]
+DashasType = list[MahaDashaType]
 
 
 class AspectType(TypedDict):
     planet: PLANETS
     from_house: HOUSES
-    aspect_houses: List[Dict[HOUSES, List[PLANETS]]]
+    aspect_houses: list[dict[HOUSES, list[PLANETS]]]
 
 
 class YogaType(TypedDict):
@@ -156,4 +156,4 @@ class DeepExaltationInfo(TypedDict):
     degree: int
 
 
-DeepExaltationPointsType = Dict[RASHI_LORDS, DeepExaltationInfo]
+DeepExaltationPointsType = dict[RASHI_LORDS, DeepExaltationInfo]

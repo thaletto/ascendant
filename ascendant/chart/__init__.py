@@ -1,9 +1,10 @@
-from typing import List, cast
+from typing import cast
 
 from ascendant.chart.utils import aspect_offsets_for_planet, get_divisional_target
 from ascendant.const import (
     ALLOWED_DIVISIONS as DIVISIONS,
 )
+from ascendant.ephemeris import EphemerisChart
 from ascendant.horoscope import HoroscopeData
 from ascendant.const import (
     NODE_MAP,
@@ -32,12 +33,12 @@ class Chart:
     """
 
     def __init__(self, horoscope: HoroscopeData):
-        self.__horoscope__ = horoscope
-        self.__chart__ = horoscope.generate_chart()
+        self.__horoscope__: HoroscopeData = horoscope
+        self.__chart__: EphemerisChart = horoscope.generate_chart()
 
-        self.planets = self.get_planets()
-        self.lagna = self.get_lagna()
-        self.chart = self.get_rasi_chart()
+        self.planets: PlanetsType | None = self.get_planets()
+        self.lagna: LagnaType | None = self.get_lagna()
+        self.chart: ChartType = self.get_rasi_chart()
 
     def get_planets(self, n: ALLOWED_DIVISIONS = 1) -> PlanetsType | None:
         """
@@ -197,7 +198,7 @@ class Chart:
 
     def graha_drishti(
         self, n: ALLOWED_DIVISIONS, planet: PLANETS | None = None
-    ) -> List[AspectType] | None:
+    ) -> list[AspectType] | None:
         """
         Calculates and returns the planetary aspects (graha drishti) for a given divisional chart.
 
@@ -240,7 +241,7 @@ class Chart:
             planets_to_process = planet_to_house
 
         # Build results using the pre-processed mappings
-        results: List[AspectType] = []
+        results: list[AspectType] = []
         for planet_name, from_house in planets_to_process.items():
             planet_name = cast(PLANETS, planet_name)
             aspected_houses = [
