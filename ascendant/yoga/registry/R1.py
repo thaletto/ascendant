@@ -5,6 +5,7 @@ from ascendant.types import (
     HOUSES,
     PLANETS,
     PLANETS_LAGNA,
+    PlanetType,
     RASHI_LORDS,
     RASHIS,
     YogaType,
@@ -69,8 +70,8 @@ def sunapha(yoga: Yoga) -> YogaType:
     }
     DEFAULT_WEIGHT = 0.5
 
-    strengths = []
-    names = []
+    strengths: list[float] = []
+    names: list[str] = []
     for p in planets:
         name = p["name"]
         strength = WEIGHTS.get(name, DEFAULT_WEIGHT)
@@ -99,8 +100,7 @@ def anapha(yoga: Yoga) -> YogaType:
         "details": "",
         "type": "Positive",
     }
-    if (planets := yoga.planets_in_relative_house("Moon", 12)) is None:
-        raise ValueError("Planets in 12th house from Moon not found")
+    planets = yoga.planets_in_relative_house("Moon", 12)
 
     WEIGHTS: dict[PLANETS, float] = {
         "Jupiter": 1.0,
@@ -110,8 +110,8 @@ def anapha(yoga: Yoga) -> YogaType:
     }
     DEFAULT_WEIGHT = 0.5
 
-    strengths = []
-    names = []
+    strengths: list[float] = []
+    names: list[str] = []
     for p in planets:
         name = p["name"]
         strength = WEIGHTS.get(name, DEFAULT_WEIGHT)
@@ -312,14 +312,10 @@ def chatussagara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (house_1 := yoga.planets_in_relative_house("Lagna", 1)) is None:
-        raise ValueError("Relative house of 1st from Lagna not found")
-    if (house_4 := yoga.planets_in_relative_house("Lagna", 4)) is None:
-        raise ValueError("Relative house of 4th from Lagna not found")
-    if (house_7 := yoga.planets_in_relative_house("Lagna", 7)) is None:
-        raise ValueError("Relative house of 7th from Lagna not found")
-    if (house_10 := yoga.planets_in_relative_house("Lagna", 10)) is None:
-        raise ValueError("Relative house of 10th from Lagna not found")
+    house_1 = yoga.planets_in_relative_house("Lagna", 1)
+    house_4 = yoga.planets_in_relative_house("Lagna", 4)
+    house_7 = yoga.planets_in_relative_house("Lagna", 7)
+    house_10 = yoga.planets_in_relative_house("Lagna", 10)
 
     houses = [house_1, house_4, house_7, house_10]
 
@@ -327,7 +323,7 @@ def chatussagara(yoga: Yoga) -> YogaType:
     result["present"] = all(occupied_flags)
 
     # Details text
-    details = []
+    details: list[str] = []
     if len(house_1) > 0:
         details.append(f"1st house: {', '.join([p['name'] for p in house_1])}")
     if len(house_4) > 0:
@@ -399,7 +395,7 @@ def vasumathi(yoga: Yoga) -> YogaType:
     ]
 
     # Collect benefics from Moon
-    benefics_moon = []
+    benefics_moon: list[PLANETS] = []
     moon_strength = 0.0
     for house, plist in moon_positions:
         for p in plist:
@@ -408,7 +404,7 @@ def vasumathi(yoga: Yoga) -> YogaType:
                 moon_strength += UPACHAYA_STRENGTH[house] * 1.0
 
     # Collect benefics from Lagna
-    benefics_lagna = []
+    benefics_lagna: list[PLANETS] = []
     lagna_strength = 0.0
     for house, plist in lagna_positions:
         for p in plist:
@@ -458,7 +454,7 @@ def rajalakshana(yoga: Yoga) -> YogaType:
     }
     kendras: list[HOUSES] = [1, 4, 7, 10]
 
-    planets_in_kendras = []
+    planets_in_kendras: list[PlanetType] = []
     for house in kendras:
         planets_in_kendras.extend(
             yoga.planets_in_relative_house("Lagna", house))
