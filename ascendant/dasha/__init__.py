@@ -1,11 +1,25 @@
 from datetime import datetime, timezone
+from typing import TypedDict
 
 from dateutil.relativedelta import relativedelta
 from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.ephemeris import EphemerisChart
 from ascendant.horoscope import HoroscopeData
-from ascendant.types import AntarDashaType, DashasType, MahaDashaType
+from ascendant.types import AntarDashaType, DashasType, MahaDashaType, PLANETS
 from ascendant.utils import parseDate
+
+
+class _DashaPeriod(TypedDict):
+    start: str
+    end: str
+
+
+class _VimshottariMahaDasha(_DashaPeriod):
+    bhuktis: dict[PLANETS, _DashaPeriod]
+
+
+_ChartDate = tuple[int, int, int, int, int]
+_VimshottariData = dict[PLANETS, _VimshottariMahaDasha]
 
 
 class Dasha:
@@ -30,7 +44,7 @@ class Dasha:
         Returns:
             A list of MahaDashaType objects, each containing its AntarDashaType sub-periods.
         """
-        vhd = self._compute_vimshottari_dasa()
+        vhd: _VimshottariData = self._compute_vimshottari_dasa()
         dashas: DashasType = []
 
         for maha_planet, details in vhd.items():
@@ -70,7 +84,7 @@ class Dasha:
                 )
         return dashas
 
-    def _compute_vimshottari_dasa(self):
+    def _compute_vimshottari_dasa(self) -> _VimshottariData:
         moon = self.__chart__.get("Moon")
         moon_data = self.__horoscope__.get_rl_nl_sl_data(moon.lon)
         if moon_data is None:
@@ -82,7 +96,7 @@ class Dasha:
         start_index = sequence.index(nakshatra_lord)
         sequence = sequence[start_index:] + sequence[:start_index]
         lengths = lengths[start_index:] + lengths[:start_index]
-        dasa_order = dict(zip(sequence, lengths))
+        dasa_order: dict[PLANETS, int] = dict(zip(sequence, lengths))
 
         nakshatra_start = NAKSHATRAS.index(moon_data["Nakshatra"]) * 800
         elapsed_moon_mins = round(moon.lon * 60, 2) - nakshatra_start
@@ -91,13 +105,14 @@ class Dasha:
         elapsed_duration = duration - (duration / 800) * remaining_arc_mins
 
         start = self._compute_new_date(self._chart_date(), elapsed_duration, "backward")
-        dashas = {}
+        dashas: _VimshottariData = {}
         for dasa, length in zip(sequence, lengths):
             end = self._compute_new_date(self._date_tuple(start), length, "forward")
+            bhuktis: dict[PLANETS, _DashaPeriod] = {}
             dashas[dasa] = {
                 "start": start.strftime("%d-%m-%Y"),
                 "end": end.strftime("%d-%m-%Y"),
-                "bhuktis": {},
+                "bhuktis": bhuktis,
             }
             bhukti_start = start
             index = sequence.index(dasa)
@@ -107,7 +122,7 @@ class Dasha:
                 bhukti_end = self._compute_new_date(
                     self._date_tuple(bhukti_start), length * bhukti_length / 120, "forward"
                 )
-                dashas[dasa]["bhuktis"][bhukti] = {
+                bhuktis[bhukti] = {
                     "start": bhukti_start.strftime("%d-%m-%Y"),
                     "end": bhukti_end.strftime("%d-%m-%Y"),
                 }
@@ -115,7 +130,7 @@ class Dasha:
             start = end
         return dashas
 
-    def _chart_date(self):
+    def _chart_date(self) -> _ChartDate:
         return (
             self.__horoscope__.year,
             self.__horoscope__.month,
@@ -125,11 +140,13 @@ class Dasha:
         )
 
     @staticmethod
-    def _date_tuple(value: datetime):
-        return tuple(value.timetuple())[:5]
+    def _date_tuple(value: datetime) -> _ChartDate:
+        return (value.year, value.month, value.day, value.hour, value.minute)
 
     @staticmethod
-    def _compute_new_date(start_date, diff_value: float, direction: str) -> datetime:
+    def _compute_new_date(
+        start_date: _ChartDate, diff_value: float, direction: str
+    ) -> datetime:
         year, month, day, hour, minute = start_date
         whole_years = int(diff_value)
         months = (diff_value - whole_years) * 12
