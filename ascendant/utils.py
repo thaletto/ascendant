@@ -13,15 +13,18 @@ def isSignOdd(n: HOUSES) -> bool:
 
 
 def getSignName(n: HOUSES) -> RASHIS:
+    """Return the rashi name for a zero-based sign index."""
     rashi = cast(RASHIS, RASHI_MAP[n])
     return rashi
 
 
 def getHouseSystem(house_system: str):
+    """Return the normalized Swiss Ephemeris house-system code."""
     return normalize_house_system(house_system)
 
 
 def parseDate(s: str | datetime) -> datetime | None:
+    """Parse a DD-MM-YYYY date or normalize a datetime to UTC."""
     if not s:
         return None
     if isinstance(s, datetime):
@@ -35,9 +38,7 @@ def parseDate(s: str | datetime) -> datetime | None:
 def planetSignRelation(
     planet: PLANETS, sign: RASHIS, lon: float
 ) -> list[PLANET_SIGN_RELATION]:
-    # -------------------------
-    # Moola Trikona degree map
-    # -------------------------
+    """Return dignity relationships for a planet in a sign."""
     moolatrikona_ranges = {
         "Sun": ("Leo", (0, 20)),
         "Moon": ("Taurus", (4, 30)),
@@ -50,17 +51,11 @@ def planetSignRelation(
 
     results: list[PLANET_SIGN_RELATION] = []
 
-    # -------------------------
-    # Helper: check MT
-    # -------------------------
     if planet in moolatrikona_ranges:
         mt_sign, (start, end) = moolatrikona_ranges[planet]
         if sign == mt_sign and start <= lon % 30 <= end:
             results.append("Moola Trikona")
 
-    # -------------------------
-    # Basic classification per sign
-    # -------------------------
     match sign:
         case "Aries":
             match planet:
@@ -218,9 +213,8 @@ def planetSignRelation(
 
 
 def yogaNameToId(name: str) -> str:
-    name = name.lower()  # Lowercase
-    name = re.sub(
-        r"[^a-z0-9]+", "_", name
-    )  # Replace any non-alphanumeric group with underscore
-    name = name.strip("_")  # Remove leading/trailing underscores
+    """Convert a yoga display name to a stable snake_case identifier."""
+    name = name.lower()
+    name = re.sub(r"[^a-z0-9]+", "_", name)
+    name = name.strip("_")
     return name
