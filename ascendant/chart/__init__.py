@@ -142,14 +142,12 @@ class Chart:
 
             planets_in_house = [p for p in self.planets if p["sign"]["name"] == sign]
 
-            chart[house_num] = cast(
-                HouseType,
-                {
-                    "sign": sign,
-                    "planets": planets_in_house,
-                    "lagna": self.lagna if house_num == 1 else None,
-                },
-            )
+            house: HouseType = {
+                "sign": sign,
+                "planets": planets_in_house,
+                "lagna": self.lagna if house_num == 1 else None,
+            }
+            chart[house_num] = house
 
         return chart
 
@@ -185,14 +183,12 @@ class Chart:
 
             planets_in_house = [p for p in planets if p["sign"]["name"] == sign]
 
-            chart[house_num] = cast(
-                HouseType,
-                {
-                    "sign": sign,
-                    "planets": planets_in_house,
-                    "lagna": self.lagna if house_num == 1 else None,
-                },
-            )
+            house: HouseType = {
+                "sign": sign,
+                "planets": planets_in_house,
+                "lagna": self.lagna if house_num == 1 else None,
+            }
+            chart[house_num] = house
 
         return chart
 
