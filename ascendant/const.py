@@ -1,14 +1,72 @@
-from typing import Dict, Final, List
+from typing import Final
 
-from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
-
+from ascendant.types import NAKSHATRAS as NAKSHATRAS_TYPE
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
 from ascendant.types import RASHIS as RASHIS_TYPE
 
 __all__ = ["RASHIS", "NAKSHATRAS"]
 
+RASHIS: Final[list[RASHIS_TYPE]] = [
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
+]
 
-SELECTED_PLANETS: List[str] = [
+NAKSHATRAS: Final[list[NAKSHATRAS_TYPE]] = [
+    "Ashwini",
+    "Bharani",
+    "Krittika",
+    "Rohini",
+    "Mrigashīrsha",
+    "Ardra",
+    "Punarvasu",
+    "Pushya",
+    "Āshleshā",
+    "Maghā",
+    "PūrvaPhalgunī",
+    "UttaraPhalgunī",
+    "Hasta",
+    "Chitra",
+    "Svati",
+    "Vishakha",
+    "Anuradha",
+    "Jyeshtha",
+    "Mula",
+    "PurvaAshadha",
+    "UttaraAshadha",
+    "Shravana",
+    "Dhanishta",
+    "Shatabhisha",
+    "PurvaBhādrapadā",
+    "UttaraBhādrapadā",
+    "Revati",
+]
+
+VIMSHOTTARI_PLANETS: Final[list[PLANETS]] = [
+    "Ketu",
+    "Venus",
+    "Sun",
+    "Moon",
+    "Mars",
+    "Rahu",
+    "Jupiter",
+    "Saturn",
+    "Mercury",
+]
+
+VIMSHOTTARI_YEARS: Final[list[int]] = [7, 20, 6, 10, 7, 18, 16, 19, 17]
+
+
+SELECTED_PLANETS: list[str] = [
     "Sun",
     "Moon",
     "Mars",
@@ -30,7 +88,7 @@ CLASSICAL_PLANETS: Final[tuple[PLANETS, ...]] = (
     "Saturn",
 )
 
-PLANETS_LIST: List[PLANETS] = [
+PLANETS_LIST: list[PLANETS] = [
     "Sun",
     "Moon",
     "Mars",
@@ -48,7 +106,7 @@ BENEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mercury", "Jupiter", "Venus")
 
 MALEFIC_PLANETS: Final[tuple[PLANETS, ...]] = ("Mars", "Saturn", "Rahu", "Ketu")
 
-ALLOWED_DIVISIONS: List[int] = [
+ALLOWED_DIVISIONS: list[int] = [
     1,
     2,
     3,
@@ -71,7 +129,7 @@ MOVABLE = [0, 3, 6, 9]  # Ar, Cn, Li, Cp
 FIXED = [1, 4, 7, 10]  # Ta, Le, Sc, Aq
 DUAL = [2, 5, 8, 11]  # Ge, Vi, Sg, Pi
 
-RASHI_LORD_MAP: Dict[RASHIS_TYPE, RASHI_LORDS] = {
+RASHI_LORD_MAP: dict[RASHIS_TYPE, RASHI_LORDS] = {
     "Aries": "Mars",
     "Taurus": "Venus",
     "Gemini": "Mercury",
@@ -85,6 +143,8 @@ RASHI_LORD_MAP: Dict[RASHIS_TYPE, RASHI_LORDS] = {
     "Aquarius": "Saturn",
     "Pisces": "Jupiter",
 }
+
+SIGN_LORDS: Final[list[RASHI_LORDS]] = list(RASHI_LORD_MAP.values())
 
 HOUSES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 

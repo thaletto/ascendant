@@ -10,11 +10,8 @@ Install via pip:
 pip install astro-ascendant
 ```
 
-> `PyPI` no longer supports specifying external packages (eg:git repo URLs) in `dependencies` in the `pyproject.toml` file. To install the required `flatlib` sidereal branch, run the following command after `pip install astro-ascendant`:
-
-```bash
-pip install git+https://github.com/thaletto/flatlib.git@sidereal#egg=flatlib
-```
+Ascendant calculates sidereal positions directly with the bundled
+`pyswisseph` dependency; no `flatlib` installation is required.
 
 ## Documentation
 
@@ -34,11 +31,31 @@ Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the sou
 
 The docs app is independent: create or configure its Vercel project with `docs/` as the project root.
 
+## Codex and Agent Skills
+
+This repository is also the canonical source for the Ascendant agent skills. The plugin bundle lives
+under [`plugins/agent/`](plugins/agent/), and the same `plugins/{scope}/skills` layout is discoverable
+by the `skills` CLI.
+
+Install the skills with:
+
+```bash
+npx skills add thaletto/ascendant
+```
+
+Add the Codex marketplace from Git and install the plugin with:
+
+```bash
+codex plugin marketplace add https://github.com/thaletto/ascendant.git --ref main
+codex plugin add agent@ascendant
+```
+
 ## Core Functionalities:
 
 - **Chart Calculations**: Compute and analyze divisional astrological charts (Varga chakras).
 - **Dasha System**: Implementation of the Vimshottari Dasha system for planetary periods.
 - **Yoga Combinations**: Identification and interpretation of various Yoga (planetary combinations).
+- **Ashtakavarga**: Classical Bhinnashtakavarga, Sarvashtakavarga, Shodhana, and Shodhya Pinda calculations.
 
 ## Usage
 
@@ -61,13 +78,17 @@ yogas = astro.get_yogas()
 
 # Get Dasha Timeline
 dasha = astro.get_dasha_timeline()
+
+# Get Ashtakavarga / Sarvashtakavarga
+ashtakavarga = astro.get_sav()
+sarva = ashtakavarga["sarva"]
 ```
 
 # Advanced Usage
 ```
 astro = Ascendant(
     ...
-    ayanamsa = "krishnamurti"
+    ayanamsa = "Krishnamurti"
     house_system = "equal"
 )
 ```

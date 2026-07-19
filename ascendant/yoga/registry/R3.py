@@ -1,5 +1,4 @@
-from typing import Optional
-
+# pyright: strict
 from ascendant.const import (
     BENEFIC_PLANETS,
     BENEFIC_SIGNS,
@@ -8,11 +7,11 @@ from ascendant.const import (
     MOVABLE_SIGNS,
     RASHI_LORD_MAP,
 )
-from ascendant.types import PLANETS, RASHIS, YogaType
+from ascendant.types import HOUSES, PLANETS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
-def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> Optional[str]:
+def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> str | None:
     """Helper to get the Lord of the Navamsa occupied by a planet"""
     d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
     if not d9_chart:
@@ -27,7 +26,7 @@ def get_navamsa_lord(yoga: Yoga, planet_name: PLANETS) -> Optional[str]:
     return None
 
 
-def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> Optional[RASHIS]:
+def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> RASHIS | None:
     """Helper to get the Navamsa Sign occupied by a planet"""
     d9_chart = yoga.__chart__.get_varga_chakra_chart(9)
     if not d9_chart:
@@ -40,7 +39,7 @@ def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> Optional[RASHIS]:
 
 
 @register_yoga("Bhratruvriddhi")
-def Bhratruvriddhi(yoga: Yoga) -> YogaType:
+def bhratruvriddhi(yoga: Yoga) -> YogaType:
     """
     The third Lord, or Mars, or the third house are joined or aspected by benefics or strong.
     """
@@ -53,34 +52,34 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("Lord of house 3 not found")
-    l3_cond = False
+    third_lord = yoga.get_lord_of_house(3)
+    third_lord_condition = False
 
-    if (p_l3 := yoga.get_planet_by_name(l3)) is None or p_l3["name"] == "Lagna":
-        raise ValueError(f"Invalid planet name: {l3}")
+    third_lord_planet = yoga.get_planet_by_name(third_lord)
 
-    is_strong, _ = yoga.isPlanetPowerful(p_l3)
-    if (house_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError(f"Invalid house name: {house_l3}")
+    if third_lord_planet["name"] == "Lagna":
+        raise ValueError(f"Invalid planet name: {third_lord}")
+
+    is_strong, _ = yoga.is_planet_powerful(third_lord_planet)
+    third_lord_house = yoga.get_house_of_planet(third_lord)
 
     joined_benefics = [
         p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", house_l3)
-        if p["name"] in BENEFIC_PLANETS and p["name"] != l3
+        for p in yoga.planets_in_relative_house("Lagna", third_lord_house)
+        if p["name"] in BENEFIC_PLANETS and p["name"] != third_lord
     ]
-    benefic_aspect = yoga.is_house_benefic_aspected(house_l3)
+    benefic_aspect = yoga.is_house_benefic_aspected(third_lord_house)
 
     if is_strong or joined_benefics or benefic_aspect:
-        l3_cond = True
+        third_lord_condition = True
 
-    mars_cond = False
-    if (p_mars := yoga.get_planet_by_name("Mars")) is None or p_mars["name"] == "Lagna":
-        raise ValueError(f"Invalid planet name: {p_mars}")
+    mars_condition = False
+    mars_planet = yoga.get_planet_by_name("Mars")
+    if mars_planet["name"] == "Lagna":
+        raise ValueError(f"Invalid planet name: {mars_planet}")
 
-    is_strong, _ = yoga.isPlanetPowerful(p_mars)
-    if (house_mars := yoga.get_house_of_planet("Mars")) is None:
-        raise ValueError(f"Invalid house name: {house_mars}")
+    is_strong, _ = yoga.is_planet_powerful(mars_planet)
+    house_mars = yoga.get_house_of_planet("Mars")
     joined_benefics = [
         p["name"]
         for p in yoga.planets_in_relative_house("Lagna", house_mars)
@@ -89,17 +88,18 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
     benefic_aspect = yoga.is_house_benefic_aspected(house_mars)
 
     if is_strong or joined_benefics or benefic_aspect:
-        mars_cond = True
+        mars_condition = True
 
-    h3_cond = False
+    third_house_condition = False
     planets_in_3 = yoga.planets_in_relative_house("Lagna", 3)
-    benefics_in_3 = [p["name"] for p in planets_in_3 if p["name"] in BENEFIC_PLANETS]
+    benefics_in_3 = [p["name"]
+                     for p in planets_in_3 if p["name"] in BENEFIC_PLANETS]
     h3_aspected = yoga.is_house_benefic_aspected(3)
 
     if benefics_in_3 or h3_aspected:
-        h3_cond = True
+        third_house_condition = True
 
-    if l3_cond or mars_cond or h3_cond:
+    if third_lord_condition or mars_condition or third_house_condition:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = (
@@ -114,7 +114,7 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sodaranasa")
-def Sodaranasa(yoga: Yoga) -> YogaType:
+def sodaranasa(yoga: Yoga) -> YogaType:
     """
     Mars and the third Lord occupies the eighth (third, fifth or seventh) house and are aspected by malefic.
     """
@@ -127,34 +127,34 @@ def Sodaranasa(yoga: Yoga) -> YogaType:
         "type": "Neutral",
     }
 
-    l3 = yoga.get_lord_of_house(3)
-    if not l3:
+    third_lord = yoga.get_lord_of_house(3)
+    if not third_lord:
         result["details"] = "Lord of 3rd not found."
         return result
 
-    h_l3 = yoga.get_house_of_planet(l3)
-    h_mars = yoga.get_house_of_planet("Mars")
+    third_lord_house = yoga.get_house_of_planet(third_lord)
+    mars_house = yoga.get_house_of_planet("Mars")
 
     target_houses = [3, 5, 7, 8]
 
-    if h_l3 not in target_houses or h_mars not in target_houses:
-        result["details"] = f"Mars ({h_mars}) or 3rd Lord ({h_l3}) not in 3, 5, 7, 8."
+    if third_lord_house not in target_houses or mars_house not in target_houses:
+        result["details"] = f"Mars ({mars_house}) or 3rd Lord ({third_lord_house}) not in 3, 5, 7, 8."
         return result
 
-    def is_aspected_by_malefic(planet_name, house):
+    def is_aspected_by_malefic(house: HOUSES) -> bool:
         for malefic in MALEFIC_PLANETS:
             aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic)
             if aspects:
-                for asp in aspects:
-                    for h_dict in asp["aspect_houses"]:
-                        if house in h_dict:
+                for aspect in aspects:
+                    for aspect_house in aspect["aspect_houses"]:
+                        if house in aspect_house:
                             return True
         return False
 
-    mars_aspected = is_aspected_by_malefic("Mars", h_mars)
-    l3_aspected = is_aspected_by_malefic(l3, h_l3)
+    mars_aspected = is_aspected_by_malefic(mars_house)
+    third_lord_aspected = is_aspected_by_malefic(third_lord_house)
 
-    if mars_aspected and l3_aspected:
+    if mars_aspected and third_lord_aspected:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = "Mars and 3rd Lord in 3/5/7/8 aspected by malefics."
@@ -165,7 +165,7 @@ def Sodaranasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ekabhagini")
-def Ekabhagini(yoga: Yoga) -> YogaType:
+def ekabhagini(yoga: Yoga) -> YogaType:
     """
     Mercury, the Lord of the third house, and Mars join the third house, the Moon and Saturn respectively.
     """
@@ -178,29 +178,23 @@ def Ekabhagini(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (h_mercury := yoga.get_house_of_planet("Mercury")) is None:
-        raise ValueError(f"Invalid house name: {h_mercury}")
-    if h_mercury != 3:
+    mercury_house = yoga.get_house_of_planet("Mercury")
+    if mercury_house != 3:
         result["details"] = "Mercury not in 3rd house."
         return result
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError(f"Invalid house name: {l3}")
+    third_lord = yoga.get_lord_of_house(3)
 
-    if (h_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError(f"Invalid house name: {h_l3}")
-    if (h_moon := yoga.get_house_of_planet("Moon")) is None:
-        raise ValueError(f"Invalid house name: {h_moon}")
+    third_lord_house = yoga.get_house_of_planet(third_lord)
+    moon_house = yoga.get_house_of_planet("Moon")
 
-    if h_l3 != h_moon:
-        result["details"] = f"3rd Lord ({l3}) not with Moon."
+    if third_lord_house != moon_house:
+        result["details"] = f"3rd Lord ({third_lord}) not with Moon."
         return result
 
-    if (h_mars := yoga.get_house_of_planet("Mars")) is None:
-        raise ValueError(f"Invalid house name: {h_mars}")
-    if (h_saturn := yoga.get_house_of_planet("Saturn")) is None:
-        raise ValueError(f"Invalid house name: {h_saturn}")
-    if h_mars != h_saturn:
+    mars_house = yoga.get_house_of_planet("Mars")
+    saturn_house = yoga.get_house_of_planet("Saturn")
+    if mars_house != saturn_house:
         result["details"] = "Mars not with Saturn."
         return result
 
@@ -211,7 +205,7 @@ def Ekabhagini(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Dwadasa Sahodara")
-def Dwadasa_Sahodara(yoga: Yoga) -> YogaType:
+def dwadasa_sahodara(yoga: Yoga) -> YogaType:
     """
     The third Lord is in a kendra and exalted Mars joins Jupiter in a thrikona from the third Lord.
     """
@@ -224,31 +218,29 @@ def Dwadasa_Sahodara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("Lord of 3rd house not found.")
-    if (h_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError("House of 3rd Lord not found.")
+    third_lord = yoga.get_lord_of_house(3)
+    third_lord_house = yoga.get_house_of_planet(third_lord)
 
-    if not yoga.planet_in_kendra_from(1, l3):
+    if not yoga.planet_in_kendra_from(1, third_lord):
         result["details"] = "3rd Lord not in Kendra."
         return result
 
-    if (p_mars := yoga.get_planet_by_name("Mars")) is None or p_mars["name"] == "Lagna":
+    mars_planet = yoga.get_planet_by_name("Mars")
+
+    if mars_planet["name"] == "Lagna":
         raise ValueError("Mars not found.")
-    if "Exalted" not in p_mars["inSign"]:
+    if "Exalted" not in mars_planet["inSign"]:
         result["details"] = "Mars not exalted."
         return result
 
-    if (h_mars := yoga.get_house_of_planet("Mars")) is None:
-        raise ValueError("House of Mars not found.")
-    if (h_ju := yoga.get_house_of_planet("Jupiter")) is None:
-        raise ValueError("House of Jupiter not found.")
-    if h_mars != h_ju:
+    mars_house = yoga.get_house_of_planet("Mars")
+    jupiter_house = yoga.get_house_of_planet("Jupiter")
+    if mars_house != jupiter_house:
         result["details"] = "Mars not with Jupiter."
         return result
 
-    trikona_houses = [(h_l3 - 1 + i - 1) % 12 + 1 for i in [1, 5, 9]]
-    if h_mars not in trikona_houses:
+    trikona_houses = [(third_lord_house - 1 + i - 1) % 12 + 1 for i in [1, 5, 9]]
+    if mars_house not in trikona_houses:
         result["details"] = "Mars/Jupiter not in Trikona from 3rd Lord."
         return result
 
@@ -259,7 +251,7 @@ def Dwadasa_Sahodara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sapthasankhya Sahodara")
-def Sapthasankhya_Sahodara(yoga: Yoga) -> YogaType:
+def sapthasankhya_sahodara(yoga: Yoga) -> YogaType:
     """
     Lord of the twelfth house joins Mars, and the Moon is in the third with Jupiter, devoid of association with or aspect of Venus.
     """
@@ -272,33 +264,30 @@ def Sapthasankhya_Sahodara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l12 := yoga.get_lord_of_house(12)) is None:
-        raise ValueError("No 12th Lord found.")
-    if (h_l12 := yoga.get_house_of_planet(l12)) is None:
-        raise ValueError("No house found for 12th Lord.")
-    if (h_mars := yoga.get_house_of_planet("Mars")) is None:
-        raise ValueError("No house found for Mars.")
+    twelfth_lord = yoga.get_lord_of_house(12)
+    twelfth_lord_house = yoga.get_house_of_planet(twelfth_lord)
+    mars_house = yoga.get_house_of_planet("Mars")
 
-    if h_l12 != h_mars:
+    if twelfth_lord_house != mars_house:
         result["details"] = "12th Lord not with Mars."
         return result
 
-    h_moon = yoga.get_house_of_planet("Moon")
-    h_ju = yoga.get_house_of_planet("Jupiter")
+    moon_house = yoga.get_house_of_planet("Moon")
+    jupiter_house = yoga.get_house_of_planet("Jupiter")
 
-    if h_moon != 3 or h_ju != 3:
+    if moon_house != 3 or jupiter_house != 3:
         result["details"] = "Moon or Jupiter not in 3rd house."
         return result
 
-    h_venus = yoga.get_house_of_planet("Venus")
-    if h_venus == 3:
+    venus_house = yoga.get_house_of_planet("Venus")
+    if venus_house == 3:
         result["details"] = "Venus conjoined with Moon/Jupiter."
         return result
 
     venus_aspects = yoga.__chart__.graha_drishti(n=1, planet="Venus")
     if venus_aspects:
-        for asp in venus_aspects[0]["aspect_houses"]:
-            if 3 in asp:
+        for aspect in venus_aspects[0]["aspect_houses"]:
+            if 3 in aspect:
                 result["details"] = "Venus aspects 3rd house."
                 return result
 
@@ -309,7 +298,7 @@ def Sapthasankhya_Sahodara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Parakrama")
-def Parakrama(yoga: Yoga) -> YogaType:
+def parakrama(yoga: Yoga) -> YogaType:
     """
     The Lord of the third house joins a benefic navamsa being aspected by (or conjoined with) benefic planets, and Mars occupies benefic signs.
     """
@@ -322,30 +311,28 @@ def Parakrama(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("No 3rd Lord found.")
+    third_lord = yoga.get_lord_of_house(3)
 
-    nl3_sign = get_navamsa_sign(yoga, l3)
-    if not nl3_sign or nl3_sign not in BENEFIC_SIGNS:
+    third_lord_navamsa_sign = get_navamsa_sign(yoga, third_lord)
+    if not third_lord_navamsa_sign or third_lord_navamsa_sign not in BENEFIC_SIGNS:
         result["details"] = "3rd Lord Navamsa is not benefic."
         return result
 
-    if (h_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError("No house found for 3rd Lord.")
+    third_lord_house = yoga.get_house_of_planet(third_lord)
 
     joined_benefics = [
         p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", h_l3)
-        if p["name"] in BENEFIC_PLANETS and p["name"] != l3
+        for p in yoga.planets_in_relative_house("Lagna", third_lord_house)
+        if p["name"] in BENEFIC_PLANETS and p["name"] != third_lord
     ]
     aspected_by_benefic = False
-    for ben in BENEFIC_PLANETS:
-        if ben == l3:
+    for benefic_planet in BENEFIC_PLANETS:
+        if benefic_planet == third_lord:
             continue
-        aspects = yoga.__chart__.graha_drishti(n=1, planet=ben)
+        aspects = yoga.__chart__.graha_drishti(n=1, planet=benefic_planet)
         if aspects:
-            for asp in aspects[0]["aspect_houses"]:
-                if h_l3 in asp:
+            for aspect in aspects[0]["aspect_houses"]:
+                if third_lord_house in aspect:
                     aspected_by_benefic = True
                     break
 
@@ -353,10 +340,8 @@ def Parakrama(yoga: Yoga) -> YogaType:
         result["details"] = "3rd Lord not aspected/conjoined by benefics."
         return result
 
-    if (h_mars := yoga.get_house_of_planet("Mars")) is None:
-        raise ValueError("No house found for Mars.")
-    if (mars_sign := yoga.get_rashi_of_house(h_mars)) is None:
-        raise ValueError("No sign found for Mars.")
+    mars_house = yoga.get_house_of_planet("Mars")
+    mars_sign = yoga.get_rashi_of_house(mars_house)
     if mars_sign not in BENEFIC_SIGNS:
         result["details"] = "Mars not in benefic sign."
         return result
@@ -368,7 +353,7 @@ def Parakrama(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yuddha Praveena")
-def Yuddha_Praveena(yoga: Yoga) -> YogaType:
+def yuddha_praveena(yoga: Yoga) -> YogaType:
     """
     The Lord of the navamsa joined by the planet that owns the navamsa in which the third Lord is placed, joins its own vargas.
     """
@@ -381,45 +366,42 @@ def Yuddha_Praveena(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("No lord found for house 3.")
+    third_lord = yoga.get_lord_of_house(3)
 
-    if (n_l3 := get_navamsa_sign(yoga, l3)) is None:
-        raise ValueError(f"Could not find Navamsa of {l3}.")
+    if (third_lord_navamsa_sign := get_navamsa_sign(yoga, third_lord)) is None:
+        raise ValueError(f"Could not find Navamsa of {third_lord}.")
 
-    if (p1 := RASHI_LORD_MAP.get(n_l3)) is None:
-        raise ValueError(f"No lord found for Navamsa {n_l3}.")
+    if (first_dispositor := RASHI_LORD_MAP.get(third_lord_navamsa_sign)) is None:
+        raise ValueError(f"No lord found for Navamsa {third_lord_navamsa_sign}.")
 
-    if (n_p1 := get_navamsa_sign(yoga, p1)) is None:
-        raise ValueError(f"Could not find Navamsa of {p1}.")
+    if (first_dispositor_navamsa_sign := get_navamsa_sign(yoga, first_dispositor)) is None:
+        raise ValueError(f"Could not find Navamsa of {first_dispositor}.")
 
-    if (p2 := RASHI_LORD_MAP.get(n_p1)) is None:
-        raise ValueError(f"No lord found for Navamsa {n_p1}.")
+    if (second_dispositor := RASHI_LORD_MAP.get(first_dispositor_navamsa_sign)) is None:
+        raise ValueError(f"No lord found for Navamsa {first_dispositor_navamsa_sign}.")
 
-    if (h_p2 := yoga.get_house_of_planet(p2)) is None:
-        raise ValueError(f"Could not find house of {p2}.")
+    second_dispositor_house = yoga.get_house_of_planet(second_dispositor)
 
-    if (p2_rasi_sign := yoga.get_rashi_of_house(h_p2)) is None:
-        raise ValueError(f"Could not find rasi sign of house {h_p2}.")
+    second_dispositor_rashi_sign = yoga.get_rashi_of_house(second_dispositor_house)
 
-    if (p2_navamsa_sign := get_navamsa_sign(yoga, p2)) is None:
-        raise ValueError(f"Could not find Navamsa of {p2}.")
+    if (second_dispositor_navamsa_sign := get_navamsa_sign(yoga, second_dispositor)) is None:
+        raise ValueError(f"Could not find Navamsa of {second_dispositor}.")
 
-    own_rasi = RASHI_LORD_MAP.get(p2_rasi_sign) == p2
-    own_navamsa = RASHI_LORD_MAP.get(p2_navamsa_sign) == p2
+    own_rashi = RASHI_LORD_MAP.get(second_dispositor_rashi_sign) == second_dispositor
+    own_navamsa = RASHI_LORD_MAP.get(second_dispositor_navamsa_sign) == second_dispositor
 
-    if own_rasi or own_navamsa:
+    if own_rashi or own_navamsa:
         result["present"] = True
         result["strength"] = 1.0
-        result["details"] = f"Target Planet {p2} is in own Rasi or Navamsa."
+        result["details"] = f"Target Planet {second_dispositor} is in own Rasi or Navamsa."
     else:
-        result["details"] = f"Target Planet {p2} not in own vargas."
+        result["details"] = f"Target Planet {second_dispositor} not in own vargas."
 
     return result
 
 
 @register_yoga("Yuddhatpoorvadridhachitta")
-def Yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
+def yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
     """
     The exalted Lord of the third house joins malefics in movable Rasis or Navamsas.
     """
@@ -432,30 +414,30 @@ def Yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
         "type": "Neutral",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("Lord of house 3 not found")
+    third_lord = yoga.get_lord_of_house(3)
 
-    if (p_l3 := yoga.get_planet_by_name(l3)) is None or p_l3["name"] == "Lagna":
+    third_lord_planet = yoga.get_planet_by_name(third_lord)
+
+    if third_lord_planet["name"] == "Lagna":
         raise ValueError("Planet of Lord of house 3 not found")
 
-    if "Exalted" not in p_l3["inSign"]:
+    if "Exalted" not in third_lord_planet["inSign"]:
         result["details"] = "L3 not exalted."
         return result
 
-    if (h_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError("House of Lord of house 3 not found")
+    third_lord_house = yoga.get_house_of_planet(third_lord)
 
     malefics_with_l3 = [
         p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", h_l3)
-        if p["name"] in MALEFIC_PLANETS and p["name"] != l3
+        for p in yoga.planets_in_relative_house("Lagna", third_lord_house)
+        if p["name"] in MALEFIC_PLANETS and p["name"] != third_lord
     ]
     if not malefics_with_l3:
         result["details"] = "L3 not with Malefics."
         return result
 
-    rasi_sign = yoga.get_rashi_of_house(h_l3)
-    navamsa_sign = get_navamsa_sign(yoga, l3)
+    rasi_sign = yoga.get_rashi_of_house(third_lord_house)
+    navamsa_sign = get_navamsa_sign(yoga, third_lord)
 
     if rasi_sign in MOVABLE_SIGNS or navamsa_sign in MOVABLE_SIGNS:
         result["present"] = True
@@ -468,7 +450,7 @@ def Yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yuddhatpaschaddrudha")
-def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
+def yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
     """
     The Lord of the third house occupies a fixed Rasi, a fixed Navamsa and a cruel Shahtiamsa, and the Lord of the Rasi so occupied is in debility.
     """
@@ -481,20 +463,17 @@ def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
         "type": "Neutral",
     }
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("Lord of house 3 not found")
+    third_lord = yoga.get_lord_of_house(3)
 
-    if (h_l3 := yoga.get_house_of_planet(l3)) is None:
-        raise ValueError("House of Lord of house 3 not found")
+    third_lord_house = yoga.get_house_of_planet(third_lord)
 
-    if (rasi_sign := yoga.get_rashi_of_house(h_l3)) is None:
-        raise ValueError("Rasi of Lord of house 3 not found")
+    rasi_sign = yoga.get_rashi_of_house(third_lord_house)
 
     if rasi_sign not in FIXED_SIGNS:
         result["details"] = "L3 not in Fixed Rasi."
         return result
 
-    navamsa_sign = get_navamsa_sign(yoga, l3)
+    navamsa_sign = get_navamsa_sign(yoga, third_lord)
     if navamsa_sign not in FIXED_SIGNS:
         result["details"] = "L3 not in Fixed Navamsa."
         return result
@@ -507,25 +486,24 @@ def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
     l3_found_in_d60 = False
     for house_data in d60_chart.values():
         for planet in house_data["planets"]:
-            if planet["name"] == l3:
+            if planet["name"] == third_lord:
                 l3_found_in_d60 = True
                 break
         if l3_found_in_d60:
             break
 
     if not l3_found_in_d60:
-        result["details"] = f"L3 ({l3}) not found in D60 chart."
+        result["details"] = f"L3 ({third_lord}) not found in D60 chart."
         return result
 
     if (lord_of_occupied_rasi := RASHI_LORD_MAP.get(rasi_sign)) is None:
         raise ValueError("Lord of occupied rasi not found")
 
-    if (p_lord := yoga.get_planet_by_name(lord_of_occupied_rasi)) is None or p_lord[
-        "name"
-    ] == "Lagna":
+    dispositor_planet = yoga.get_planet_by_name(lord_of_occupied_rasi)
+    if dispositor_planet["name"] == "Lagna":
         raise ValueError("Lord of occupied rasi not found")
 
-    if "Debilitated" not in p_lord["inSign"]:
+    if "Debilitated" not in dispositor_planet["inSign"]:
         result["details"] = f"Dispositor ({lord_of_occupied_rasi}) is not debilitated."
         return result
 
@@ -536,7 +514,7 @@ def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Satkathadisravana")
-def Satkathadisravana(yoga: Yoga) -> YogaType:
+def satkathadisravana(yoga: Yoga) -> YogaType:
     """
     The third house is a benefic sign aspected by benefic planets and the third Lord joins a benefic amsa.
     """
@@ -549,8 +527,8 @@ def Satkathadisravana(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    h3_sign = yoga.get_rashi_of_house(3)
-    if h3_sign not in BENEFIC_SIGNS:
+    third_house_sign = yoga.get_rashi_of_house(3)
+    if third_house_sign not in BENEFIC_SIGNS:
         result["details"] = "3rd House not a benefic sign."
         return result
 
@@ -558,11 +536,10 @@ def Satkathadisravana(yoga: Yoga) -> YogaType:
         result["details"] = "3rd House not aspected by benefics."
         return result
 
-    if (l3 := yoga.get_lord_of_house(3)) is None:
-        raise ValueError("Lord of 3rd house not found.")
+    third_lord = yoga.get_lord_of_house(3)
 
-    n_l3 = get_navamsa_sign(yoga, l3)
-    if n_l3 not in BENEFIC_SIGNS:
+    third_lord_navamsa_sign = get_navamsa_sign(yoga, third_lord)
+    if third_lord_navamsa_sign not in BENEFIC_SIGNS:
         result["details"] = "3rd Lord not in Benefic Amsa."
         return result
 
@@ -573,7 +550,7 @@ def Satkathadisravana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Uttama Griha")
-def Uttama_Griha(yoga: Yoga) -> YogaType:
+def uttama_griha(yoga: Yoga) -> YogaType:
     """
     The Lord of the fourth house joins benefics in a kendra or thrikona.
     """
@@ -586,20 +563,18 @@ def Uttama_Griha(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of 4th house not found.")
-    if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-        raise ValueError("House of 4th lord not found.")
+    fourth_lord = yoga.get_lord_of_house(4)
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
     target_houses = [1, 4, 5, 7, 9, 10]
-    if h_l4 not in target_houses:
+    if fourth_lord_house not in target_houses:
         result["details"] = "L4 not in Kendra/Thrikona."
         return result
 
     joined_benefics = [
         p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", h_l4)
-        if p["name"] in BENEFIC_PLANETS and p["name"] != l4
+        for p in yoga.planets_in_relative_house("Lagna", fourth_lord_house)
+        if p["name"] in BENEFIC_PLANETS and p["name"] != fourth_lord
     ]
     if not joined_benefics:
         result["details"] = "L4 not joined by benefics."
@@ -612,7 +587,7 @@ def Uttama_Griha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vichitra Saudha Prakara")
-def Vichitra_Saudha_Prakara(yoga: Yoga) -> YogaType:
+def vichitra_saudha_prakara(yoga: Yoga) -> YogaType:
     """
     The Lords of the fourth and tenth are conjoined together with Saturn and Mars.
     """
@@ -625,17 +600,15 @@ def Vichitra_Saudha_Prakara(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of 4th house not found.")
-    if (l10 := yoga.get_lord_of_house(10)) is None:
-        raise ValueError("Lord of 10th house not found.")
+    fourth_lord = yoga.get_lord_of_house(4)
+    tenth_lord = yoga.get_lord_of_house(10)
 
-    h_l4 = yoga.get_house_of_planet(l4)
-    h_l10 = yoga.get_house_of_planet(l10)
-    h_sat = yoga.get_house_of_planet("Saturn")
-    h_mar = yoga.get_house_of_planet("Mars")
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
+    tenth_lord_house = yoga.get_house_of_planet(tenth_lord)
+    saturn_house = yoga.get_house_of_planet("Saturn")
+    mars_house = yoga.get_house_of_planet("Mars")
 
-    if not (h_l4 == h_l10 == h_sat == h_mar):
+    if not (fourth_lord_house == tenth_lord_house == saturn_house == mars_house):
         result["details"] = "L4, L10, Saturn, and Mars are not conjoined."
         return result
 
@@ -646,7 +619,7 @@ def Vichitra_Saudha_Prakara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ayatna Griha Prapta Yoga")
-def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
+def ayatna_griha_prapta_yoga(yoga: Yoga) -> YogaType:
     """
     Lords of Lagna and the seventh house occupies Lagna or the fourth house, aspected by benefics.
     or
@@ -664,20 +637,20 @@ def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
     # Condition 1 Failure Reason
     c1_fail = "L1 or L7 missing"
 
-    l1 = yoga.get_lord_of_house(1)
-    l7 = yoga.get_lord_of_house(7)
+    lagna_lord = yoga.get_lord_of_house(1)
+    seventh_lord = yoga.get_lord_of_house(7)
     cond1_met = False
 
-    if l1 and l7:
-        h_l1 = yoga.get_house_of_planet(l1)
-        h_l7 = yoga.get_house_of_planet(l7)
+    if lagna_lord and seventh_lord:
+        lagna_lord_house = yoga.get_house_of_planet(lagna_lord)
+        seventh_lord_house = yoga.get_house_of_planet(seventh_lord)
         allowed = [1, 4]
 
-        if h_l1 not in allowed or h_l7 not in allowed:
+        if lagna_lord_house not in allowed or seventh_lord_house not in allowed:
             c1_fail = "L1/L7 not in 1/4"
         elif not (
-            yoga.is_house_benefic_aspected(h_l1)
-            and yoga.is_house_benefic_aspected(h_l7)
+            yoga.is_house_benefic_aspected(lagna_lord_house)
+            and yoga.is_house_benefic_aspected(seventh_lord_house)
         ):
             c1_fail = "L1/L7 houses not aspected by benefics"
         else:
@@ -690,23 +663,24 @@ def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
         return result
 
     # Condition 2 Failure Reason
-    c2_fail = "L9 or L4 missing"
+    condition_two_failure = "L9 or L4 missing"
 
-    l9 = yoga.get_lord_of_house(9)
-    l4 = yoga.get_lord_of_house(4)
+    ninth_lord = yoga.get_lord_of_house(9)
+    fourth_lord = yoga.get_lord_of_house(4)
     cond2_met = False
 
-    if l9 and l4:
-        if not yoga.planet_in_kendra_from(1, l9):
-            c2_fail = "L9 not in Kendra"
+    if ninth_lord and fourth_lord:
+        if not yoga.planet_in_kendra_from(1, ninth_lord):
+            condition_two_failure = "L9 not in Kendra"
         else:
-            if (p_l4 := yoga.get_planet_by_name(l4)) is None or p_l4["name"] == "Lagna":
+            fourth_lord_planet = yoga.get_planet_by_name(fourth_lord)
+            if fourth_lord_planet["name"] == "Lagna":
                 raise ValueError("Lord of 4th house not found.")
             valid_status = ["Exalted", "Moola Trikona", "Own"]
-            if any(s in p_l4["inSign"] for s in valid_status):
+            if any(s in fourth_lord_planet["inSign"] for s in valid_status):
                 cond2_met = True
             else:
-                c2_fail = "L4 not Exalted/MT/Own"
+                condition_two_failure = "L4 not Exalted/MT/Own"
 
     if cond2_met:
         result["present"] = True
@@ -714,12 +688,12 @@ def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
         result["details"] = "L9 in Kendra and L4 Strong."
         return result
 
-    result["details"] = f"{c1_fail}; {c2_fail}."
+    result["details"] = f"{c1_fail}; {condition_two_failure}."
     return result
 
 
 @register_yoga("Grihanasa")
-def Grihanasa(yoga: Yoga) -> YogaType:
+def grihanasa(yoga: Yoga) -> YogaType:
     """
     The Lord of the fourth is in the twelfth house aspected by a malefic.
     or
@@ -734,35 +708,33 @@ def Grihanasa(yoga: Yoga) -> YogaType:
         "type": "Negative",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of house 4 not found")
-    if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-        raise ValueError("House of Lord of house 4 not found")
+    fourth_lord = yoga.get_lord_of_house(4)
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
     # Condition 1
-    cond1 = False
-    if h_l4 == 12:
+    condition_one = False
+    if fourth_lord_house == 12:
         aspected = False
         for malefic in MALEFIC_PLANETS:
             aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic)
             if aspects:
-                for asp in aspects[0]["aspect_houses"]:
-                    if h_l4 in asp:
+                for aspect in aspects[0]["aspect_houses"]:
+                    if fourth_lord_house in aspect:
                         aspected = True
                         break
         if aspected:
-            cond1 = True
+            condition_one = True
 
     # Condition 2
-    cond2 = False
-    n_l4 = get_navamsa_sign(yoga, l4)
-    if n_l4:
-        lord_n_l4 = RASHI_LORD_MAP.get(n_l4)
-        if lord_n_l4:
-            if yoga.get_house_of_planet(lord_n_l4) == 11:
-                cond2 = True
+    condition_two = False
+    fourth_lord_navamsa_sign = get_navamsa_sign(yoga, fourth_lord)
+    if fourth_lord_navamsa_sign:
+        fourth_lord_navamsa_lord = RASHI_LORD_MAP.get(fourth_lord_navamsa_sign)
+        if fourth_lord_navamsa_lord:
+            if yoga.get_house_of_planet(fourth_lord_navamsa_lord) == 11:
+                condition_two = True
 
-    if cond1 or cond2:
+    if condition_one or condition_two:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = (
@@ -777,7 +749,7 @@ def Grihanasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bandhu Pujya")
-def Bandhu_Pujya(yoga: Yoga) -> YogaType:
+def bandhu_pujya(yoga: Yoga) -> YogaType:
     """
     The benefic Lord of the fourth is aspected by another benefic and Mercury is situated in Lagna.
     or
@@ -792,46 +764,44 @@ def Bandhu_Pujya(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of house 4 not found")
+    fourth_lord = yoga.get_lord_of_house(4)
 
     # Condition 1
-    cond1 = False
-    if l4 in BENEFIC_PLANETS:
-        h_mercury = yoga.get_house_of_planet("Mercury")
-        if h_mercury == 1:
+    condition_one = False
+    if fourth_lord in BENEFIC_PLANETS:
+        mercury_house = yoga.get_house_of_planet("Mercury")
+        if mercury_house == 1:
             # Check aspect by another benefic on L4
-            h_l4 = yoga.get_house_of_planet(l4)
+            fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
             aspected = False
-            for ben in BENEFIC_PLANETS:
-                if ben == l4:
+            for benefic_planet in BENEFIC_PLANETS:
+                if benefic_planet == fourth_lord:
                     continue
-                if (aspects := yoga.__chart__.graha_drishti(n=1, planet=ben)) is None:
-                    raise ValueError(f"Aspect of {ben} not found")
-                for asp in aspects:
-                    if any(h == h_l4 for group in asp["aspect_houses"] for h in group):
+                aspects = yoga.__chart__.graha_drishti(n=1, planet=benefic_planet)
+                for aspect in aspects:
+                    if any(h == fourth_lord_house for group in aspect["aspect_houses"] for h in group):
                         aspected = True
             if aspected:
-                cond1 = True
+                condition_one = True
 
     # Condition 2: Jupiter Assoc/Aspect 4th House or 4th Lord
-    cond2 = False
-    h_ju = yoga.get_house_of_planet("Jupiter")
-    h_l4 = yoga.get_house_of_planet(l4)
+    condition_two = False
+    jupiter_house = yoga.get_house_of_planet("Jupiter")
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
     # Assoc
-    if h_ju == 4 or h_ju == h_l4:
-        cond2 = True
+    if jupiter_house == 4 or jupiter_house == fourth_lord_house:
+        condition_two = True
     else:
         # Aspect
         aspects = yoga.__chart__.graha_drishti(n=1, planet="Jupiter")
         if aspects:
-            for asp in aspects[0]["aspect_houses"]:
-                if 4 in asp or h_l4 in asp:
-                    cond2 = True
+            for aspect in aspects[0]["aspect_houses"]:
+                if 4 in aspect or fourth_lord_house in aspect:
+                    condition_two = True
                     break
 
-    if cond1 or cond2:
+    if condition_one or condition_two:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = (
@@ -844,7 +814,7 @@ def Bandhu_Pujya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bandhubhisthyaktha")
-def Bandhubhisthyaktha(yoga: Yoga) -> YogaType:
+def bandhubhisthyaktha(yoga: Yoga) -> YogaType:
     """
     The fourth Lord is associated with malefics or occupies evil shashtiamsas or joins inimical or debilitation signs.
     """
@@ -857,25 +827,25 @@ def Bandhubhisthyaktha(yoga: Yoga) -> YogaType:
         "type": "Negative",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of house 4 not found")
+    fourth_lord = yoga.get_lord_of_house(4)
 
-    if (p_l4 := yoga.get_planet_by_name(l4)) is None or p_l4["name"] == "Lagna":
+    fourth_lord_planet = yoga.get_planet_by_name(fourth_lord)
+
+    if fourth_lord_planet["name"] == "Lagna":
         raise ValueError("Planet of Lord of house 4 not found")
 
-    if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-        raise ValueError("House of Lord of house 4 not found")
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
     # 1. Associated with malefics
     malefics_with_l4 = [
         p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", h_l4)
-        if p["name"] in MALEFIC_PLANETS and p["name"] != l4
+        for p in yoga.planets_in_relative_house("Lagna", fourth_lord_house)
+        if p["name"] in MALEFIC_PLANETS and p["name"] != fourth_lord
     ]
 
     # 2. Inimical or Debilitation
     # simplified check using inSign
-    bad_sign = any(s in p_l4["inSign"] for s in ["Debilitated", "Enemy"])
+    bad_sign = any(s in fourth_lord_planet["inSign"] for s in ["Debilitated", "Enemy"])
 
     # 3. Evil Shashtiamsa (Skipped precise deity check, assuming covered if above not met but rare)
     # Ideally checking D60 chart positions if we knew which were evil.
@@ -891,7 +861,7 @@ def Bandhubhisthyaktha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrudeerghayur")
-def Matrudeerghayur(yoga: Yoga) -> YogaType:
+def matrudeerghayur(yoga: Yoga) -> YogaType:
     """
     A benefic occupies the fourth, the fourth Lord is exalted, and the Moon is strong.
     or
@@ -906,55 +876,57 @@ def Matrudeerghayur(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of house 4 not found")
+    fourth_lord = yoga.get_lord_of_house(4)
 
     # Cond 1
-    cond1 = False
+    condition_one = False
     planets_in_4 = yoga.planets_in_relative_house("Lagna", 4)
     benefic_in_4 = any(p["name"] in BENEFIC_PLANETS for p in planets_in_4)
 
-    if (p_l4 := yoga.get_planet_by_name(l4)) is None or p_l4["name"] == "Lagna":
+    fourth_lord_planet = yoga.get_planet_by_name(fourth_lord)
+
+    if fourth_lord_planet["name"] == "Lagna":
         raise ValueError("Planet of Lord of house 4 not found")
 
-    l4_exalted = "Exalted" in p_l4["inSign"]
+    fourth_lord_exalted = "Exalted" in fourth_lord_planet["inSign"]
 
-    if (p_moon := yoga.get_planet_by_name("Moon")) is None or p_moon["name"] == "Lagna":
+    moon_planet = yoga.get_planet_by_name("Moon")
+
+    if moon_planet["name"] == "Lagna":
         raise ValueError("Moon not found")
-    moon_strong, _ = yoga.isPlanetPowerful(p_moon)
+    moon_strong, _ = yoga.is_planet_powerful(moon_planet)
 
-    if benefic_in_4 and l4_exalted and moon_strong:
-        cond1 = True
+    if benefic_in_4 and fourth_lord_exalted and moon_strong:
+        condition_one = True
 
     # Cond 2
-    cond2 = False
-    n_l4 = get_navamsa_sign(yoga, l4)
+    condition_two = False
+    fourth_lord_navamsa_sign = get_navamsa_sign(yoga, fourth_lord)
     target_lord = None
-    if n_l4:
-        target_lord = RASHI_LORD_MAP.get(n_l4)
+    if fourth_lord_navamsa_sign:
+        target_lord = RASHI_LORD_MAP.get(fourth_lord_navamsa_sign)
 
     if target_lord:
-        if (p_target := yoga.get_planet_by_name(target_lord)) is None or p_target[
-            "name"
-        ] == "Lagna":
+        target_lord_planet = yoga.get_planet_by_name(target_lord)
+        if target_lord_planet["name"] == "Lagna":
             raise ValueError("Planet of Lord of house 4 not found")
-        t_strong, _ = yoga.isPlanetPowerful(p_target)
+        target_lord_strong, _ = yoga.is_planet_powerful(target_lord_planet)
 
         in_kendra_lagna = yoga.planet_in_kendra_from(1, target_lord)
 
-        # Kendra from Chandra Lagna
-        h_moon = yoga.get_house_of_planet("Moon")
+        # Kendra from chandra Lagna
+        moon_house = yoga.get_house_of_planet("Moon")
         in_kendra_moon = False
-        t_house = yoga.get_house_of_planet(target_lord)
-        if h_moon and t_house:
-            rel = (t_house - h_moon) % 12 + 1
-            if rel in [1, 4, 7, 10]:
+        target_lord_house = yoga.get_house_of_planet(target_lord)
+        if moon_house and target_lord_house:
+            relative_position = (target_lord_house - moon_house) % 12 + 1
+            if relative_position in [1, 4, 7, 10]:
                 in_kendra_moon = True
 
-        if t_strong and in_kendra_lagna and in_kendra_moon:
-            cond2 = True
+        if target_lord_strong and in_kendra_lagna and in_kendra_moon:
+            condition_two = True
 
-    if cond1 or cond2:
+    if condition_one or condition_two:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = (
@@ -967,7 +939,7 @@ def Matrudeerghayur(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrunasa")
-def Matrunasa(yoga: Yoga) -> YogaType:
+def matrunasa(yoga: Yoga) -> YogaType:
     """
     The Moon is hemmed in between, associated with or aspected by evil planets.
     or
@@ -983,41 +955,41 @@ def Matrunasa(yoga: Yoga) -> YogaType:
     }
 
     # Cond 1: Moon afflicted
-    cond1 = False
-    h_moon = yoga.get_house_of_planet("Moon")
-    if h_moon:
+    condition_one = False
+    moon_house = yoga.get_house_of_planet("Moon")
+    if moon_house:
         # Associated
         assoc_malefics = [
             p["name"]
-            for p in yoga.planets_in_relative_house("Lagna", h_moon)
+            for p in yoga.planets_in_relative_house("Lagna", moon_house)
             if p["name"] in MALEFIC_PLANETS
         ]
         # Aspected
         aspected_malefic = False
-        for mal in MALEFIC_PLANETS:
-            aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+        for malefic_planet in MALEFIC_PLANETS:
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
             if aspects:
-                for asp in aspects[0]["aspect_houses"]:
-                    if h_moon in asp:
+                for aspect in aspects[0]["aspect_houses"]:
+                    if moon_house in aspect:
                         aspected_malefic = True
         # Hemmed (Papakartari) - check 2nd and 12th from Moon
         hemmed = False
-        prev_h = (h_moon - 2) % 12 + 1
-        next_h = (h_moon) % 12 + 1
+        previous_house = (moon_house - 2) % 12 + 1
+        next_house = (moon_house) % 12 + 1
         # Simple check: Malefics in prev and next
         mal_prev = any(
             p["name"] in MALEFIC_PLANETS
-            for p in yoga.planets_in_relative_house("Lagna", prev_h)
+            for p in yoga.planets_in_relative_house("Lagna", previous_house)
         )
         mal_next = any(
             p["name"] in MALEFIC_PLANETS
-            for p in yoga.planets_in_relative_house("Lagna", next_h)
+            for p in yoga.planets_in_relative_house("Lagna", next_house)
         )
         if mal_prev and mal_next:
             hemmed = True
 
         if assoc_malefics or aspected_malefic or hemmed:
-            cond1 = True
+            condition_one = True
 
     # Cond 2: Deep Navamsa Lord Check
     # "The planet owning the navamsa (P2), in which the Lord of the navamsa occupied by the fourth Lord (P1) is situated is disposed in the 6, 8, or 12 house."
@@ -1025,22 +997,22 @@ def Matrunasa(yoga: Yoga) -> YogaType:
     # P1 -> D9_Sign2 -> Lord(D9_Sign2) = P2
     # P2 in 6, 8, 12 (D1)
 
-    cond2 = False
-    l4 = yoga.get_lord_of_house(4)
-    if l4:
-        n1 = get_navamsa_sign(yoga, l4)
-        if n1:
-            p1 = RASHI_LORD_MAP.get(n1)
-            if p1:
-                n2 = get_navamsa_sign(yoga, p1)
-                if n2:
-                    p2 = RASHI_LORD_MAP.get(n2)
-                    if p2:
-                        h_p2 = yoga.get_house_of_planet(p2)
-                        if h_p2 in [6, 8, 12]:
-                            cond2 = True
+    condition_two = False
+    fourth_lord = yoga.get_lord_of_house(4)
+    if fourth_lord:
+        first_navamsa_sign = get_navamsa_sign(yoga, fourth_lord)
+        if first_navamsa_sign:
+            first_dispositor = RASHI_LORD_MAP.get(first_navamsa_sign)
+            if first_dispositor:
+                second_navamsa_sign = get_navamsa_sign(yoga, first_dispositor)
+                if second_navamsa_sign:
+                    second_dispositor = RASHI_LORD_MAP.get(second_navamsa_sign)
+                    if second_dispositor:
+                        second_dispositor_house = yoga.get_house_of_planet(second_dispositor)
+                        if second_dispositor_house in [6, 8, 12]:
+                            condition_two = True
 
-    if cond1 or cond2:
+    if condition_one or condition_two:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = (
@@ -1053,7 +1025,7 @@ def Matrunasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrugami")
-def Matrugami(yoga: Yoga) -> YogaType:
+def matrugami(yoga: Yoga) -> YogaType:
     """
     The Moon or Venus joins a kendra in conjunction with or aspected by a malefic, and an evil planet occupies the fourth house.
     """
@@ -1073,7 +1045,7 @@ def Matrugami(yoga: Yoga) -> YogaType:
         result["details"] = "No malefic in 4th house."
         return result
 
-    candidates = []
+    candidates: list[PLANETS] = []
     if yoga.planet_in_kendra_from(1, "Moon"):
         candidates.append("Moon")
     if yoga.planet_in_kendra_from(1, "Venus"):
@@ -1081,24 +1053,23 @@ def Matrugami(yoga: Yoga) -> YogaType:
 
     match_found = False
     for planet in candidates:
-        if (h_p := yoga.get_house_of_planet(planet)) is None:
-            raise ValueError("House of planet not found")
+        planet_house = yoga.get_house_of_planet(planet)
         # Check malefic association/aspect
         assoc = any(
             p["name"] in MALEFIC_PLANETS and p["name"] != planet
-            for p in yoga.planets_in_relative_house("Lagna", h_p)
+            for p in yoga.planets_in_relative_house("Lagna", planet_house)
         )
         if assoc:
             match_found = True
             break
         # Aspect
-        for mal in MALEFIC_PLANETS:
-            if mal == planet:
+        for malefic_planet in MALEFIC_PLANETS:
+            if malefic_planet == planet:
                 continue
-            aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
             if aspects:
-                for asp in aspects[0]["aspect_houses"]:
-                    if h_p in asp:
+                for aspect in aspects[0]["aspect_houses"]:
+                    if planet_house in aspect:
                         match_found = True
                         break
         if match_found:
@@ -1115,7 +1086,7 @@ def Matrugami(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sahodareesangama")
-def Sahodareesangama(yoga: Yoga) -> YogaType:
+def sahodareesangama(yoga: Yoga) -> YogaType:
     """
     The Lord of the seventh house and Venus are in conjunction in the fourth house and are aspected by or associated with malefics or are in cruel shashtiamsas.
     """
@@ -1128,13 +1099,12 @@ def Sahodareesangama(yoga: Yoga) -> YogaType:
         "type": "Negative",
     }
 
-    if (l7 := yoga.get_lord_of_house(7)) is None:
-        raise ValueError("Lord of 7th house not found")
+    seventh_lord = yoga.get_lord_of_house(7)
 
-    h_l7 = yoga.get_house_of_planet(l7)
-    h_ven = yoga.get_house_of_planet("Venus")
+    seventh_lord_house = yoga.get_house_of_planet(seventh_lord)
+    venus_house = yoga.get_house_of_planet("Venus")
 
-    if h_l7 != 4 or h_ven != 4:
+    if seventh_lord_house != 4 or venus_house != 4:
         result["details"] = "L7 and Venus not in 4th."
         return result
 
@@ -1145,11 +1115,11 @@ def Sahodareesangama(yoga: Yoga) -> YogaType:
 
     if not afflicted:
         # Aspected
-        for mal in MALEFIC_PLANETS:
-            aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+        for malefic_planet in MALEFIC_PLANETS:
+            aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
             if aspects:
-                for asp in aspects[0]["aspect_houses"]:
-                    if 4 in asp:
+                for aspect in aspects[0]["aspect_houses"]:
+                    if 4 in aspect:
                         afflicted = True
                         break
 
@@ -1164,7 +1134,7 @@ def Sahodareesangama(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kapata")
-def Kapata(yoga: Yoga) -> YogaType:
+def kapata(yoga: Yoga) -> YogaType:
     """
     The fourth house is joined by a malefic and the fourth Lord is associated with or aspected by malefics or is hemmed in between malefic.
     or
@@ -1181,127 +1151,126 @@ def Kapata(yoga: Yoga) -> YogaType:
         "type": "Neutral",
     }
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("Lord of 4th house not found")
-    if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-        raise ValueError("House of Lord of 4th house not found")
+    fourth_lord = yoga.get_lord_of_house(4)
+    fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
     # Cond 1
-    c1 = False
-    c1_details = ""
-    mal_in_4 = [
+    condition_one = False
+    condition_one_details = ""
+    malefics_in_fourth = [
         p["name"]
         for p in yoga.planets_in_relative_house("Lagna", 4)
         if p["name"] in MALEFIC_PLANETS
     ]
-    if mal_in_4:
+    if malefics_in_fourth:
         # Check L4 affliction
-        l4_afflicted = False
+        fourth_lord_afflicted = False
         affliction_type = ""
         # Assoc
         assoc_malefics = [
             p["name"]
-            for p in yoga.planets_in_relative_house("Lagna", h_l4)
-            if p["name"] in MALEFIC_PLANETS and p["name"] != l4
+            for p in yoga.planets_in_relative_house("Lagna", fourth_lord_house)
+            if p["name"] in MALEFIC_PLANETS and p["name"] != fourth_lord
         ]
         if assoc_malefics:
-            l4_afflicted = True
+            fourth_lord_afflicted = True
             affliction_type = f"associated with malefics ({', '.join(assoc_malefics)})"
 
         # Aspected
-        if not l4_afflicted:
-            for mal in MALEFIC_PLANETS:
-                if mal == l4:
+        if not fourth_lord_afflicted:
+            for malefic_planet in MALEFIC_PLANETS:
+                if malefic_planet == fourth_lord:
                     continue
-                aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+                aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
                 if aspects:
-                    for asp in aspects[0]["aspect_houses"]:
-                        if h_l4 in asp:
-                            l4_afflicted = True
-                            affliction_type = f"aspected by {mal}"
+                    for aspect in aspects[0]["aspect_houses"]:
+                        if fourth_lord_house in aspect:
+                            fourth_lord_afflicted = True
+                            affliction_type = f"aspected by {malefic_planet}"
                             break
         # Hemmed
-        if not l4_afflicted:
-            prev_h = (h_l4 - 2) % 12 + 1
-            next_h = h_l4 % 12 + 1
+        if not fourth_lord_afflicted:
+            previous_house = (fourth_lord_house - 2) % 12 + 1
+            next_house = fourth_lord_house % 12 + 1
             m_prev = [
                 p["name"]
-                for p in yoga.planets_in_relative_house("Lagna", prev_h)
+                for p in yoga.planets_in_relative_house("Lagna", previous_house)
                 if p["name"] in MALEFIC_PLANETS
             ]
             m_next = [
                 p["name"]
-                for p in yoga.planets_in_relative_house("Lagna", next_h)
+                for p in yoga.planets_in_relative_house("Lagna", next_house)
                 if p["name"] in MALEFIC_PLANETS
             ]
             if m_prev and m_next:
-                l4_afflicted = True
+                fourth_lord_afflicted = True
                 affliction_type = f"hemmed between malefics ({', '.join(m_prev)} and {', '.join(m_next)})"
 
-        if l4_afflicted:
-            c1 = True
-            c1_details = f"4th House contains malefics ({', '.join(mal_in_4)}) AND 4th Lord is {affliction_type}."
+        if fourth_lord_afflicted:
+            condition_one = True
+            condition_one_details = f"4th House contains malefics ({', '.join(malefics_in_fourth)}) AND 4th Lord is {affliction_type}."
 
     # Cond 2
-    c2 = False
-    c2_details = ""
+    condition_two = False
+    condition_two_details = ""
     planets_4 = [p["name"] for p in yoga.planets_in_relative_house("Lagna", 4)]
-    l10 = yoga.get_lord_of_house(10)
-    if "Saturn" in planets_4 and "Rahu" in planets_4 and l10 in planets_4:
-        if l10 in MALEFIC_PLANETS:
+    tenth_lord = yoga.get_lord_of_house(10)
+    if "Saturn" in planets_4 and "Rahu" in planets_4 and tenth_lord in planets_4:
+        if tenth_lord in MALEFIC_PLANETS:
             # Check if L10 aspected by malefics
-            h_l10 = 4
+            tenth_lord_house = 4
             l10_aspected = False
             aspector = ""
-            for mal in MALEFIC_PLANETS:
-                if mal == l10 or mal in planets_4:
+            for malefic_planet in MALEFIC_PLANETS:
+                if malefic_planet == tenth_lord or malefic_planet in planets_4:
                     continue
-                aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+                aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
                 if aspects:
-                    for asp in aspects[0]["aspect_houses"]:
-                        if h_l10 in asp:
+                    for aspect in aspects[0]["aspect_houses"]:
+                        if tenth_lord_house in aspect:
                             l10_aspected = True
-                            aspector = mal
+                            aspector = malefic_planet
                             break
             if l10_aspected:
-                c2 = True
-                c2_details = f"4th House has Saturn, Rahu, and Malefic 10th Lord ({l10}) who is aspected by {aspector}."
+                condition_two = True
+                condition_two_details = f"4th House has Saturn, Rahu, and Malefic 10th Lord ({tenth_lord}) who is aspected by {aspector}."
 
     # Cond 3
-    c3 = False
-    c3_details = ""
-    p_l4_neighbors = [p["name"] for p in yoga.planets_in_relative_house("Lagna", h_l4)]
-    if "Saturn" in p_l4_neighbors and "Rahu" in p_l4_neighbors and l4 in p_l4_neighbors:
+    condition_three = False
+    condition_three_details = ""
+    fourth_lord_neighbor_planets = [p["name"]
+                                    for p in yoga.planets_in_relative_house("Lagna", fourth_lord_house)]
+    if "Saturn" in fourth_lord_neighbor_planets and "Rahu" in fourth_lord_neighbor_planets and fourth_lord in fourth_lord_neighbor_planets:
         # Check aspect
         aspected = False
         aspector = ""
-        for mal in MALEFIC_PLANETS:
+        for malefic_planet in MALEFIC_PLANETS:
             # Need to be careful not to count Saturn/Rahu if they are the ones joining, but assuming outside aspect
-            if mal in p_l4_neighbors:
+            if malefic_planet in fourth_lord_neighbor_planets:
                 continue
-            actions = yoga.__chart__.graha_drishti(n=1, planet=mal)
+            actions = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
             if actions:
-                for asp in actions[0]["aspect_houses"]:
-                    if h_l4 in asp:
+                for aspect in actions[0]["aspect_houses"]:
+                    if fourth_lord_house in aspect:
                         aspected = True
-                        aspector = mal
+                        aspector = malefic_planet
                         break
         if aspected:
-            c3 = True
-            c3_details = (
+            condition_three = True
+            condition_three_details = (
                 f"4th Lord joins Saturn and Rahu, and is aspected by {aspector}."
             )
 
-    if c1 or c2 or c3:
+    if condition_one or condition_two or condition_three:
         result["present"] = True
         result["strength"] = 1.0
-        details_list = []
-        if c1:
-            details_list.append(c1_details)
-        if c2:
-            details_list.append(c2_details)
-        if c3:
-            details_list.append(c3_details)
+        details_list: list[str] = []
+        if condition_one:
+            details_list.append(condition_one_details)
+        if condition_two:
+            details_list.append(condition_two_details)
+        if condition_three:
+            details_list.append(condition_three_details)
         result["details"] = " OR ".join(details_list)
     else:
         result["details"] = (
@@ -1312,7 +1281,7 @@ def Kapata(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Nishkapata")
-def Nishkapata(yoga: Yoga) -> YogaType:
+def nishkapata(yoga: Yoga) -> YogaType:
     """
     The fourth house is occupied by a benefic, or a planet in exaltation, friendly or own house, or the fourth house is a benefic sign.
     or
@@ -1328,41 +1297,43 @@ def Nishkapata(yoga: Yoga) -> YogaType:
     }
 
     # Cond 1
-    c1 = False
-    c1_details = ""
+    condition_one = False
+    condition_one_details = ""
     # 4th house occupied by benefic
-    planets_4_objs = yoga.planets_in_relative_house("Lagna", 4)
-    benefics_in_4 = [p["name"] for p in planets_4_objs if p["name"] in BENEFIC_PLANETS]
+    fourth_house_planets = yoga.planets_in_relative_house("Lagna", 4)
+    benefics_in_4 = [p["name"]
+                     for p in fourth_house_planets if p["name"] in BENEFIC_PLANETS]
 
     if benefics_in_4:
-        c1 = True
-        c1_details = f"4th House occupied by benefics ({', '.join(benefics_in_4)})."
+        condition_one = True
+        condition_one_details = f"4th House occupied by benefics ({', '.join(benefics_in_4)})."
     else:
         # occupied by planet in exalt/friend/own
-        strong_planets = []
-        for p in planets_4_objs:
-            statuses = [s for s in ["Exalted", "Friend", "Own"] if s in p["inSign"]]
+        strong_planets: list[str] = []
+        for p in fourth_house_planets:
+            statuses = [s for s in ["Exalted",
+                                    "Friend", "Own"] if s in p["inSign"]]
             if statuses:
                 strong_planets.append(f"{p['name']} ({statuses[0]})")
 
         if strong_planets:
-            c1 = True
-            c1_details = (
+            condition_one = True
+            condition_one_details = (
                 f"4th House occupied by strong planets: {', '.join(strong_planets)}."
             )
 
-    if not c1:
+    if not condition_one:
         # 4th house is benefic sign
-        s4 = yoga.get_rashi_of_house(4)
-        if s4 in BENEFIC_SIGNS:
-            c1 = True
-            c1_details = f"4th House ({s4}) is a Benefic Sign."
+        fourth_house_sign = yoga.get_rashi_of_house(4)
+        if fourth_house_sign in BENEFIC_SIGNS:
+            condition_one = True
+            condition_one_details = f"4th House ({fourth_house_sign}) is a Benefic Sign."
 
     # Cond 2
-    c2 = False
-    c2_details = ""
-    l1 = yoga.get_lord_of_house(1)
-    if l1 and yoga.get_house_of_planet(l1) == 4:
+    condition_two = False
+    condition_two_details = ""
+    lagna_lord = yoga.get_lord_of_house(1)
+    if lagna_lord and yoga.get_house_of_planet(lagna_lord) == 4:
         # Conj aspected by benefic
         has_benefic_assoc = False
         assoc_type = ""
@@ -1379,17 +1350,17 @@ def Nishkapata(yoga: Yoga) -> YogaType:
                 assoc_type = "aspected by a benefic"
 
         if has_benefic_assoc:
-            c2 = True
-            c2_details = f"L1 is in 4th House {assoc_type}."
+            condition_two = True
+            condition_two_details = f"L1 is in 4th House {assoc_type}."
 
-    if c1 or c2:
+    if condition_one or condition_two:
         result["present"] = True
         result["strength"] = 1.0
-        details_list = []
-        if c1:
-            details_list.append(c1_details)
-        if c2:
-            details_list.append(c2_details)
+        details_list: list[str] = []
+        if condition_one:
+            details_list.append(condition_one_details)
+        if condition_two:
+            details_list.append(condition_two_details)
         result["details"] = " OR ".join(details_list)
     else:
         result["details"] = (
@@ -1400,7 +1371,7 @@ def Nishkapata(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matru Satrutwa")
-def Matru_Satrutwa(yoga: Yoga) -> YogaType:
+def matru_satrutwa(yoga: Yoga) -> YogaType:
     """
     Mercury, being the Lord of Lagna and the fourth house, must join with or be aspected by a malefic.
     """
@@ -1413,26 +1384,25 @@ def Matru_Satrutwa(yoga: Yoga) -> YogaType:
         "type": "Negative",
     }
 
-    l1 = yoga.get_lord_of_house(1)
-    l4 = yoga.get_lord_of_house(4)
+    lagna_lord = yoga.get_lord_of_house(1)
+    fourth_lord = yoga.get_lord_of_house(4)
 
-    if l1 == "Mercury" and l4 == "Mercury":
+    if lagna_lord == "Mercury" and fourth_lord == "Mercury":
         afflicted = False
-        if (h_mer := yoga.get_house_of_planet("Mercury")) is None:
-            raise ValueError("House of Mercury not found")
+        mercury_house = yoga.get_house_of_planet("Mercury")
         # Joined Malefic
         if any(
             p["name"] in MALEFIC_PLANETS
-            for p in yoga.planets_in_relative_house("Lagna", h_mer)
+            for p in yoga.planets_in_relative_house("Lagna", mercury_house)
         ):
             afflicted = True
         # Aspected Malefic
         if not afflicted:
-            for mal in MALEFIC_PLANETS:
-                aspects = yoga.__chart__.graha_drishti(n=1, planet=mal)
+            for malefic_planet in MALEFIC_PLANETS:
+                aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic_planet)
                 if aspects:
-                    for asp in aspects[0]["aspect_houses"]:
-                        if h_mer in asp:
+                    for aspect in aspects[0]["aspect_houses"]:
+                        if mercury_house in aspect:
                             afflicted = True
                             break
         if afflicted:
@@ -1448,7 +1418,7 @@ def Matru_Satrutwa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matru Sneha")
-def Matru_Sneha(yoga: Yoga) -> YogaType:
+def matru_sneha(yoga: Yoga) -> YogaType:
     """
     The first and fourth house have a common Lord, or the Lords of the first and fourth house must be temporal or natural friends or aspected by benefics.
     """
@@ -1461,35 +1431,33 @@ def Matru_Sneha(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    l1 = yoga.get_lord_of_house(1)
-    l4 = yoga.get_lord_of_house(4)
+    lagna_lord = yoga.get_lord_of_house(1)
+    fourth_lord = yoga.get_lord_of_house(4)
 
-    if not l1 or not l4:
+    if not lagna_lord or not fourth_lord:
         return result
 
-    cond = False
-    if l1 == l4:
-        cond = True
+    condition_met = False
+    if lagna_lord == fourth_lord:
+        condition_met = True
     else:
         # Check aspected by benefics
-        if (h_l1 := yoga.get_house_of_planet(l1)) is None:
-            raise ValueError(f"House of {l1} not found")
-        if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-            raise ValueError(f"House of {l4} not found")
+        lagna_lord_house = yoga.get_house_of_planet(lagna_lord)
+        fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
 
-        l1_ben = False
-        l4_ben = False
+        lagna_lord_benefic_aspected = False
+        fourth_lord_benefic_aspected = False
 
         # Check aspect
-        if yoga.is_house_benefic_aspected(h_l1):
-            l1_ben = True
-        if yoga.is_house_benefic_aspected(h_l4):
-            l4_ben = True
+        if yoga.is_house_benefic_aspected(lagna_lord_house):
+            lagna_lord_benefic_aspected = True
+        if yoga.is_house_benefic_aspected(fourth_lord_house):
+            fourth_lord_benefic_aspected = True
 
-        if l1_ben and l4_ben:
-            cond = True
+        if lagna_lord_benefic_aspected and fourth_lord_benefic_aspected:
+            condition_met = True
 
-    if cond:
+    if condition_met:
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = "L1/L4 same or both aspected by benefics."
@@ -1502,7 +1470,7 @@ def Matru_Sneha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vahana")
-def Vahana(yoga: Yoga) -> YogaType:
+def vahana(yoga: Yoga) -> YogaType:
     """
     The Lord of Lagna joins the fourth, eleventh or the ninth house.
     or
@@ -1517,31 +1485,30 @@ def Vahana(yoga: Yoga) -> YogaType:
         "type": "Positive",
     }
 
-    l1 = yoga.get_lord_of_house(1)
-    if l1:
-        h_l1 = yoga.get_house_of_planet(l1)
-        if h_l1 in [4, 9, 11]:
+    lagna_lord = yoga.get_lord_of_house(1)
+    if lagna_lord:
+        lagna_lord_house = yoga.get_house_of_planet(lagna_lord)
+        if lagna_lord_house in [4, 9, 11]:
             result["present"] = True
             result["strength"] = 1.0
-            result["details"] = f"L1 in {h_l1}."
+            result["details"] = f"L1 in {lagna_lord_house}."
             return result
 
-    if (l4 := yoga.get_lord_of_house(4)) is None:
-        raise ValueError("House of Fourth Lord not found")
-        
-    if (p_l4 := yoga.get_planet_by_name(l4)) is None or p_l4["name"] == "Lagna":
+    fourth_lord = yoga.get_lord_of_house(4)
+
+    fourth_lord_planet = yoga.get_planet_by_name(fourth_lord)
+
+    if fourth_lord_planet["name"] == "Lagna":
         raise ValueError("Planet of Fourth Lord not found")
-    if "Exalted" in p_l4["inSign"]:
+    if "Exalted" in fourth_lord_planet["inSign"]:
         # Lord of Exaltation Sign
-        if (h_l4 := yoga.get_house_of_planet(l4)) is None:
-            raise ValueError("House of Fourth Lord not found")
-        
-        if (exalt_sign := yoga.get_rashi_of_house(h_l4)) is None:
-            raise ValueError("Exaltation Sign not found")
-        disp = RASHI_LORD_MAP.get(exalt_sign)
-        if disp:
-            if yoga.planet_in_kendra_from(1, disp) or yoga.planet_in_trikona_from(
-                1, disp
+        fourth_lord_house = yoga.get_house_of_planet(fourth_lord)
+
+        exalt_sign = yoga.get_rashi_of_house(fourth_lord_house)
+        dispositor = RASHI_LORD_MAP.get(exalt_sign)
+        if dispositor:
+            if yoga.planet_in_kendra_from(1, dispositor) or yoga.planet_in_trikona_from(
+                1, dispositor
             ):
                 result["present"] = True
                 result["strength"] = 1.0

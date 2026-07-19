@@ -1,14 +1,14 @@
-from typing import List, Tuple, cast
+from typing import cast
 
 from ascendant.const import FIXED, MOVABLE
 from ascendant.types import ALLOWED_DIVISIONS, HOUSES, PLANETS
-from ascendant.utils import isSignOdd
+from ascendant.utils import is_sign_odd
 
 
-def aspect_offsets_for_planet(planet_name: PLANETS) -> List[int]:
+def aspect_offsets_for_planet(planet_name: PLANETS) -> list[int]:
     """Returns the house offsets for a planet's aspects (e.g., 7th house aspect is an offset of 6)."""
     # All planets aspect the 7th house from their position.
-    offsets: List[int] = [6]
+    offsets: list[int] = [6]
     if planet_name == "Mars":
         # Mars also aspects the 4th and 8th houses.
         offsets += [3, 7]
@@ -23,7 +23,7 @@ def aspect_offsets_for_planet(planet_name: PLANETS) -> List[int]:
 
 def get_divisional_target(
     longitude: float, division: ALLOWED_DIVISIONS
-) -> Tuple[HOUSES, float]:
+) -> tuple[HOUSES, float]:
     """Map an absolute longitude into a target sign/degree for a varga"""
 
     # Fast path for D1
@@ -42,7 +42,7 @@ def get_divisional_target(
     # Default target sign, same as D1
     target_sign = sign_index
 
-    # =====D2=====
+    # D2 hora.
     if division == 2:
         target_sign = cast(
             HOUSES,
@@ -53,26 +53,27 @@ def get_divisional_target(
             ),
         )
 
-    # =====D3=====
+    # D3 drekkana.
     elif division == 3:
         target_sign = cast(HOUSES, (sign_index + [0, 4, 8][part_index]) % 12)
 
-    # =====D4=====
+    # D4 chaturthamsha.
     elif division == 4:
-        target_sign = cast(HOUSES, (sign_index + [0, 3, 6, 9][part_index]) % 12)
+        target_sign = cast(
+            HOUSES, (sign_index + [0, 3, 6, 9][part_index]) % 12)
 
-    # =====D7=====
+    # D7 saptamsha.
     elif division == 7:
         target_sign = cast(
             HOUSES,
             (
                 (sign_index + part_index) % 12
-                if isSignOdd(sign_index)
+                if is_sign_odd(sign_index)
                 else (sign_index + 6 + part_index) % 12
             ),
         )
 
-    # =====D9=====
+    # D9 navamsa.
     elif division == 9:
         if sign_index in MOVABLE:
             start = sign_index
@@ -82,31 +83,32 @@ def get_divisional_target(
             start = (sign_index + 4) % 12
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D10=====
+    # D10 dashamsha.
     elif division == 10:
-        start = sign_index if isSignOdd(sign_index) else (sign_index + 8) % 12
+        start = sign_index if is_sign_odd(
+            sign_index) else (sign_index + 8) % 12
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D12=====
+    # D12 dvadashamsha.
     elif division == 12:
         target_sign = cast(HOUSES, (sign_index + part_index) % 12)
 
-    # =====D16=====
+    # D16 shodashamsha.
     elif division == 16:
         start = 0 if sign_index in MOVABLE else 4 if sign_index in FIXED else 8
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D20=====
+    # D20 vimshamsha.
     elif division == 20:
         start = 0 if sign_index in MOVABLE else 8 if sign_index in FIXED else 4
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D24=====
+    # D24 chaturvimshamsha.
     elif division == 24:
-        start = 4 if isSignOdd(sign_index) else 3
+        start = 4 if is_sign_odd(sign_index) else 3
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D27=====
+    # D27 bhamsha.
     elif division == 27:
         start = (
             0
@@ -119,9 +121,9 @@ def get_divisional_target(
         )
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D30=====
+    # D30 trimshamsha.
     elif division == 30:
-        if isSignOdd(sign_index):
+        if is_sign_odd(sign_index):
             targets, edges = [0, 10, 8, 2, 6], [5, 10, 18, 25]
         else:
             targets, edges = [1, 5, 11, 9, 7], [5, 12, 20, 25]
@@ -132,18 +134,18 @@ def get_divisional_target(
         else:
             target_sign = cast(HOUSES, targets[-1])
 
-    # =====D40=====
+    # D40 khavedamsha.
     elif division == 40:
         target_sign = cast(
-            HOUSES, ((0 if isSignOdd(sign_index) else 6) + part_index) % 12
+            HOUSES, ((0 if is_sign_odd(sign_index) else 6) + part_index) % 12
         )
 
-    # =====D45=====
+    # D45 akshavedamsha.
     elif division == 45:
         start = 0 if sign_index in MOVABLE else 4 if sign_index in FIXED else 8
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
-    # =====D60=====
+    # D60 shashtyamsha.
     elif division == 60:
         target_sign = cast(HOUSES, (sign_index + part_index) % 12)
 

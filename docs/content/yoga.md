@@ -3,7 +3,7 @@ title: Yoga Combinations
 description: Identify and inspect classical planetary combinations in a chart.
 ---
 
-Yogas are specific planetary combinations in a chart that produce unique results. Ascendant includes a comprehensive registry of hundreds of classical Yogas.
+Yogas are named planetary combinations evaluated against the calculated chart. Ascendant returns a structured record for every registered yoga so an application or agent can separate a detected combination from one that is absent.
 
 ## Types of Yogas
 
@@ -56,3 +56,5 @@ Each yoga result is a dictionary:
     "type": "Positive"
 }
 ```
+
+Agents should cite `details` and the relevant chart placements when discussing a detected yoga. Treat `strength` as calculation output, not as a standalone prediction or certainty.

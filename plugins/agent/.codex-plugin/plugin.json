@@ -1,0 +1,21 @@
+{
+  "name": "agent",
+  "version": "0.1.0",
+  "description": "Vedic astrology analysis skills for Codex.",
+  "author": {
+    "name": "thaletto"
+  },
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Ascendant",
+    "shortDescription": "Explore astrology with Ascendant.",
+    "longDescription": "Chart-based Vedic astrology analysis and guidance.",
+    "developerName": "thaletto",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Analyze my birth chart"
+    ]
+  }
+}

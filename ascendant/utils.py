@@ -1,35 +1,29 @@
 from datetime import datetime, timezone
 import re
-from typing import List, Union, cast
 
-from vedicastro.VedicAstro import HOUSE_SYSTEM_MAPPING
+from ascendant.horoscope import normalize_house_system
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 
 
-def isSignOdd(n: HOUSES) -> bool:
+def is_sign_odd(n: HOUSES) -> bool:
     """Return True if the rashi index is odd-numbered per this module's scheme."""
     return n % 2 == 0
 
 
-def getSignName(n: HOUSES) -> RASHIS:
-    rashi = cast(RASHIS, RASHI_MAP[n])
+def get_sign_name(n: HOUSES) -> RASHIS:
+    """Return the rashi name for a zero-based sign index."""
+    rashi = RASHI_MAP[n]
     return rashi
 
 
-def getHouseSystem(house_system: str):
-    # Normalize
-    key = house_system.replace("_", " ").strip().title()
-
-    # If exists in mapping, return it
-    if key in HOUSE_SYSTEM_MAPPING:
-        return HOUSE_SYSTEM_MAPPING[key]
-
-    # Default fallback
-    return HOUSE_SYSTEM_MAPPING["Whole Sign"]
+def get_house_system(house_system: str):
+    """Return the normalized Swiss Ephemeris house-system code."""
+    return normalize_house_system(house_system)
 
 
-def parseDate(s: Union[str, datetime]) -> datetime | None:
+def parse_date(s: str | datetime) -> datetime | None:
+    """Parse a DD-MM-YYYY date or normalize a datetime to UTC."""
     if not s:
         return None
     if isinstance(s, datetime):
@@ -40,12 +34,10 @@ def parseDate(s: Union[str, datetime]) -> datetime | None:
     return dt.replace(tzinfo=timezone.utc)
 
 
-def planetSignRelation(
+def planet_sign_relation(
     planet: PLANETS, sign: RASHIS, lon: float
-) -> List[PLANET_SIGN_RELATION]:
-    # -------------------------
-    # Moola Trikona degree map
-    # -------------------------
+) -> list[PLANET_SIGN_RELATION]:
+    """Return dignity relationships for a planet in a sign."""
     moolatrikona_ranges = {
         "Sun": ("Leo", (0, 20)),
         "Moon": ("Taurus", (4, 30)),
@@ -56,19 +48,13 @@ def planetSignRelation(
         "Saturn": ("Aquarius", (0, 20)),
     }
 
-    results: List[PLANET_SIGN_RELATION] = []
+    results: list[PLANET_SIGN_RELATION] = []
 
-    # -------------------------
-    # Helper: check MT
-    # -------------------------
     if planet in moolatrikona_ranges:
         mt_sign, (start, end) = moolatrikona_ranges[planet]
         if sign == mt_sign and start <= lon % 30 <= end:
             results.append("Moola Trikona")
 
-    # -------------------------
-    # Basic classification per sign
-    # -------------------------
     match sign:
         case "Aries":
             match planet:
@@ -219,16 +205,15 @@ def planetSignRelation(
                     results.append("Own")
                 case "Sun" | "Rahu" | "Ketu":
                     results.append("Friend")
-                case "Moon" | "Saturn":
+                case _:
                     results.append("Neutral")
 
     return results
 
 
-def yogaNameToId(name: str) -> str:
-    name = name.lower()  # Lowercase
-    name = re.sub(
-        r"[^a-z0-9]+", "_", name
-    )  # Replace any non-alphanumeric group with underscore
-    name = name.strip("_")  # Remove leading/trailing underscores
+def yoga_name_to_id(name: str) -> str:
+    """Convert a yoga display name to a stable snake_case identifier."""
+    name = name.lower()
+    name = re.sub(r"[^a-z0-9]+", "_", name)
+    name = name.strip("_")
     return name
