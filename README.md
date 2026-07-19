@@ -31,6 +31,25 @@ Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the sou
 
 The docs app is independent: create or configure its Vercel project with `docs/` as the project root.
 
+## Codex and Agent Skills
+
+This repository is also the canonical source for the Ascendant agent skills. The plugin bundle lives
+under [`plugins/agent/`](plugins/agent/), and the same `plugins/{scope}/skills` layout is discoverable
+by the `skills` CLI.
+
+Install the skills with:
+
+```bash
+npx skills add thaletto/ascendant
+```
+
+Add the Codex marketplace from Git and install the plugin with:
+
+```bash
+codex plugin marketplace add https://github.com/thaletto/ascendant.git --ref main
+codex plugin add agent@ascendant
+```
+
 ## Core Functionalities:
 
 - **Chart Calculations**: Compute and analyze divisional astrological charts (Varga chakras).
