@@ -1,5 +1,5 @@
-from collections.abc import Sequence
-from typing import cast
+# pyright: strict
+from typing import Literal, cast
 
 from ascendant.const import (
     BENEFIC_PLANETS,
@@ -8,8 +8,10 @@ from ascendant.const import (
     MALEFIC_PLANETS,
     RASHI_LORD_MAP,
 )
-from ascendant.types import HOUSES, PLANETS, YogaType
+from ascendant.types import AspectType, HOUSES, PLANETS, PlanetType, RASHI_LORDS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga, register_yogas
+
+YogaPolarity = Literal["Positive", "Neutral", "Negative"]
 
 
 @register_yoga("Kusuma")
@@ -149,7 +151,7 @@ def kurma(yoga: Yoga) -> YogaType:
         all_benefics_names_A = [p["name"] for p in all_benefics_A]
 
         dignified_benefics = 0
-        dignity_details = []
+        dignity_details: list[str] = []
 
         for benefic_name in all_benefics_names_A:
             for house_data in d9_chart.values():
@@ -208,7 +210,7 @@ def kurma(yoga: Yoga) -> YogaType:
         all_benefics_B = benefics_in_1 + benefics_in_3 + benefics_in_11
 
         dignified_count = 0
-        dignity_details_B = []
+        dignity_details_B: list[str] = []
         for p in all_benefics_B:
             is_dignified = "Exalted" in p["inSign"] or "Own" in p["inSign"]
             if is_dignified:
@@ -374,27 +376,28 @@ def chandika(yoga: Yoga) -> YogaType:
 
     D9 = yoga.__chart__.get_varga_chakra_chart(9)
 
-    NSL6, NSL9 = None, None
+    nsl6: RASHI_LORDS | None = None
+    nsl9: RASHI_LORDS | None = None
     for _house, data in D9.items():
         for planet in data["planets"]:
             if planet["name"] == L6:
-                NSL6 = RASHI_LORD_MAP.get(planet["sign"]["name"])
+                nsl6 = RASHI_LORD_MAP.get(planet["sign"]["name"])
             if planet["name"] == L9:
-                NSL9 = RASHI_LORD_MAP.get(planet["sign"]["name"])
+                nsl9 = RASHI_LORD_MAP.get(planet["sign"]["name"])
 
-    if not NSL6 or not NSL9:
+    if not nsl6 or not nsl9:
         result["details"] = f"Could not find Navamsa lords for {L6} or {L9}."
         return result
 
-    house_nsl6 = yoga.get_house_of_planet(NSL6)
+    house_nsl6 = yoga.get_house_of_planet(nsl6)
 
-    house_nsl9 = yoga.get_house_of_planet(NSL9)
+    house_nsl9 = yoga.get_house_of_planet(nsl9)
 
     house_sun = yoga.get_house_of_planet("Sun")
 
     if not (house_nsl6 == house_sun and house_nsl9 == house_sun):
         result["details"] = (
-            f"Navamsa lords of L6({NSL6} in {house_nsl6}) and L9({NSL9} in {house_nsl9}) are not co-joined with Sun (in {house_sun})."
+            f"Navamsa lords of L6({nsl6} in {house_nsl6}) and L9({nsl9} in {house_nsl9}) are not co-joined with Sun (in {house_sun})."
         )
         return result
 
@@ -725,14 +728,14 @@ def brahma(yoga: Yoga) -> YogaType:
     result["present"] = True
     result["strength"] = 1.0
 
-    details_parts = []
+    details_parts: list[str] = []
     details_parts.append(
         f"Jupiter (h{h_ju}) in Kendra from 9th lord ({l9} in h{h_l9})")
     details_parts.append(
         f"Venus (h{h_ve}) in Kendra from 11th lord ({l11} in h{h_l11})"
     )
 
-    mercury_kendra_details = []
+    mercury_kendra_details: list[str] = []
     if me_kendra_l1:
         mercury_kendra_details.append(f"Lagna lord ({l1} in h{h_l1})")
     if me_kendra_l10:
@@ -932,12 +935,12 @@ def kulavardhana(yoga: Yoga) -> YogaType:
     # Check if all planets are in the same house
     occupied_houses = set(planet_locations.values())
     if len(occupied_houses) > 1:
-        planets_by_house = {}
+        planets_by_house: dict[int, list[str]] = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
             planets_by_house[h].append(p)
-        details_list = []
+        details_list: list[str] = []
         for h in sorted(planets_by_house.keys()):
             details_list.append(f"House {h}: {', '.join(planets_by_house[h])}")
         result["details"] = (
@@ -1002,15 +1005,15 @@ def akriti_yogas(yoga: Yoga) -> dict[str, YogaType]:
 
     Shadow planets are not considered.
     """
-    yoga_definitions = {
-        "Yupa": {"house_count": 4, "start_house": 1, "type": "Positive"},
-        "Ishu": {"house_count": 4, "start_house": 4, "type": "Positive"},
-        "Sakti": {"house_count": 4, "start_house": 7, "type": "Negative"},
-        "Danda": {"house_count": 4, "start_house": 10, "type": "Negative"},
-        "Nav": {"house_count": 7, "start_house": 1, "type": "Neutral"},
-        "Kuta": {"house_count": 7, "start_house": 4, "type": "Negative"},
-        "Chhatra": {"house_count": 7, "start_house": 7, "type": "Positive"},
-        "Chapa": {"house_count": 7, "start_house": 10, "type": "Positive"},
+    yoga_definitions: dict[str, tuple[int, HOUSES, YogaPolarity]] = {
+        "Yupa": (4, 1, "Positive"),
+        "Ishu": (4, 4, "Positive"),
+        "Sakti": (4, 7, "Negative"),
+        "Danda": (4, 10, "Negative"),
+        "Nav": (7, 1, "Neutral"),
+        "Kuta": (7, 4, "Negative"),
+        "Chhatra": (7, 7, "Positive"),
+        "Chapa": (7, 10, "Positive"),
     }
 
     results: dict[str, YogaType] = {
@@ -1020,20 +1023,19 @@ def akriti_yogas(yoga: Yoga) -> dict[str, YogaType]:
             "present": False,
             "strength": 0.0,
             "details": f"Condition for {name} Yoga not met.",
-            "type": definition["type"],
+            "type": yoga_type,
         }
-        for name, definition in yoga_definitions.items()
+        for name, (_, _, yoga_type) in yoga_definitions.items()
     }
 
     planet_locations = {p: yoga.get_house_of_planet(
         p) for p in CLASSICAL_PLANETS}
 
-    for name, definition in yoga_definitions.items():
-        required_house_count = definition["house_count"]
-        start_house = definition["start_house"]
+    for name, (required_house_count, start_house, _) in yoga_definitions.items():
 
-        required_houses_set = {
-            ((start_house + i - 1) % 12) + 1 for i in range(required_house_count)
+        required_houses_set: set[int] = {
+            (start_house + i - 1) % 12 + 1
+            for i in range(required_house_count)
         }
 
         occupied_houses = set(planet_locations.values())
@@ -1048,13 +1050,13 @@ def akriti_yogas(yoga: Yoga) -> dict[str, YogaType]:
             results[name]["present"] = True
             results[name]["strength"] = 1.0
 
-            planets_by_house = {}
+            planets_by_house: dict[int, list[str]] = {}
             for p, h in planet_locations.items():
                 if h not in planets_by_house:
                     planets_by_house[h] = []
                 planets_by_house[h].append(p)
 
-            details_list = []
+            details_list: list[str] = []
             for h in sorted(list(required_houses_set)):
                 planets_str = ", ".join(planets_by_house.get(h, []))
                 details_list.append(
@@ -1065,7 +1067,7 @@ def akriti_yogas(yoga: Yoga) -> dict[str, YogaType]:
                 f"All {required_house_count} classical planets are in {required_house_count} consecutive houses starting from house {start_house}. Planets found: {'; '.join(details_list)}."
             )
         else:
-            outside_planets = []
+            outside_planets: list[str] = []
             for planet, house in planet_locations.items():
                 if house not in required_houses_set:
                     outside_planets.append(f"{planet} in house {house}")
@@ -1112,13 +1114,13 @@ def ardha_chandra(yoga: Yoga) -> YogaType:
             result["present"] = True
             result["strength"] = 1.0
 
-            planets_by_house = {}
+            planets_by_house: dict[int, list[str]] = {}
             for p, h in planet_locations.items():
                 if h not in planets_by_house:
                     planets_by_house[h] = []
                 planets_by_house[h].append(p)
 
-            details_list = []
+            details_list: list[str] = []
             for h in sorted(list(consecutive_houses)):
                 planets_str = ", ".join(planets_by_house.get(h, []))
                 details_list.append(
@@ -1157,13 +1159,13 @@ def chandra(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
 
-        planets_by_house = {}
+        planets_by_house: dict[int, list[str]] = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
             planets_by_house[h].append(p)
 
-        details_list = []
+        details_list: list[str] = []
         for h in sorted(list(required_houses)):
             planets_str = ", ".join(planets_by_house.get(h, []))
             details_list.append(
@@ -1323,7 +1325,7 @@ def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
             "Vajra Yoga formed: Benefics in houses 1 and/or 7, and Malefics in houses 4 and/or 10."
         )
     else:
-        details = []
+        details: list[str] = []
         if not vajra_cond1:
             details.append(
                 f"Benefics are not exclusively in houses 1 and 7. House 1 planets: {planets_in_1}, House 7 planets: {planets_in_7}"
@@ -1362,7 +1364,7 @@ def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
             "Yava Yoga formed: Malefics in houses 1 and/or 7, and Benefics in houses 4 and/or 10."
         )
     else:
-        details = []
+        details: list[str] = []
         if not yava_cond1:
             details.append(
                 f"Malefics are not exclusively in houses 1 and 7. House 1 planets: {planets_in_1}, House 7 planets: {planets_in_7}"
@@ -1403,13 +1405,13 @@ def sringhataka(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
 
-        planets_by_house = {}
+        planets_by_house: dict[int, list[str]] = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
             planets_by_house[h].append(p)
 
-        details_list = []
+        details_list: list[str] = []
         for h in sorted(list(required_houses)):
             planets_str = ", ".join(planets_by_house.get(h, []))
             details_list.append(
@@ -1419,7 +1421,7 @@ def sringhataka(yoga: Yoga) -> YogaType:
             f"Sringhataka Yoga is formed. All planets are in houses 1, 5, 9. Planet positions: {'; '.join(details_list)}"
         )
     else:
-        outside_planets = []
+        outside_planets: list[str] = []
         for planet, house in planet_locations.items():
             if house not in required_houses:
                 outside_planets.append(f"{planet} in house {house}")
@@ -1455,13 +1457,13 @@ def hala(yoga: Yoga) -> YogaType:
             result["present"] = True
             result["strength"] = 1.0
 
-            planets_by_house = {}
+            planets_by_house: dict[int, list[str]] = {}
             for p, h in planet_locations.items():
                 if h not in planets_by_house:
                     planets_by_house[h] = []
                 planets_by_house[h].append(p)
 
-            details_list = []
+            details_list: list[str] = []
             for h in sorted(list(pattern)):
                 planets_str = ", ".join(planets_by_house.get(h, []))
                 details_list.append(
@@ -1503,13 +1505,13 @@ def kamala(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
 
-        planets_by_house = {}
+        planets_by_house: dict[int, list[str]] = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
                 planets_by_house[h].append(p)
 
-        details_list = []
+        details_list: list[str] = []
         for h in sorted(list(required_houses)):
             planets_str = ", ".join(planets_by_house.get(h, []))
             details_list.append(
@@ -1519,7 +1521,7 @@ def kamala(yoga: Yoga) -> YogaType:
             f"Kamala Yoga is formed. All planets are in the four kendras. Planet positions: {'; '.join(details_list)}"
         )
     else:
-        outside_planets = []
+        outside_planets: list[str] = []
         for planet, house in planet_locations.items():
             if house not in required_houses:
                 outside_planets.append(f"{planet} in house {house}")
@@ -1559,7 +1561,7 @@ def vapee(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
 
-        details_list = []
+        details_list: list[str] = []
         if in_panarapas:
             details_list.append(
                 "All planets are in Panarapa houses (2, 5, 8, 11).")
@@ -1603,13 +1605,13 @@ def samudra(yoga: Yoga) -> YogaType:
         result["present"] = True
         result["strength"] = 1.0
 
-        planets_by_house = {}
+        planets_by_house: dict[int, list[str]] = {}
         for p, h in planet_locations.items():
             if h not in planets_by_house:
                 planets_by_house[h] = []
             planets_by_house[h].append(p)
 
-        details_list = []
+        details_list: list[str] = []
         for h in sorted(list(even_houses)):
             planets_str = ", ".join(planets_by_house.get(h, []))
             if planets_str:
@@ -1619,7 +1621,7 @@ def samudra(yoga: Yoga) -> YogaType:
             f"Samudra Yoga is formed. All planets are in even houses. Planet positions: {'; '.join(details_list)}"
         )
     else:
-        outside_planets = []
+        outside_planets: list[str] = []
         for planet, house in planet_locations.items():
             if house not in even_houses:
                 outside_planets.append(f"{planet} in house {house}")
@@ -1643,14 +1645,14 @@ def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
     - Yuga: Planets occupy 2 different houses.
     - Gola: Planets occupy 1 single house.
     """
-    yoga_definitions = {
-        "Vallaki": {"house_count": 7, "type": "Positive"},
-        "Damni": {"house_count": 6, "type": "Positive"},
-        "Pasa": {"house_count": 5, "type": "Positive"},
-        "Kedara": {"house_count": 4, "type": "Positive"},
-        "Sula": {"house_count": 3, "type": "Neutral"},
-        "Yuga": {"house_count": 2, "type": "Negative"},
-        "Gola": {"house_count": 1, "type": "Positive"},
+    yoga_definitions: dict[str, tuple[int, YogaPolarity]] = {
+        "Vallaki": (7, "Positive"),
+        "Damni": (6, "Positive"),
+        "Pasa": (5, "Positive"),
+        "Kedara": (4, "Positive"),
+        "Sula": (3, "Neutral"),
+        "Yuga": (2, "Negative"),
+        "Gola": (1, "Positive"),
     }
 
     results: dict[str, YogaType] = {
@@ -1660,9 +1662,9 @@ def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
             "present": False,
             "strength": 0.0,
             "details": f"Initial state for {name} Yoga.",
-            "type": definition["type"],
+            "type": yoga_type,
         }
-        for name, definition in yoga_definitions.items()
+        for name, (_, yoga_type) in yoga_definitions.items()
     }
 
     planet_locations = {p: yoga.get_house_of_planet(
@@ -1672,8 +1674,8 @@ def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
     num_occupied_houses = len(occupied_houses)
 
     active_yoga_name = None
-    for name, definition in yoga_definitions.items():
-        if num_occupied_houses == definition["house_count"]:
+    for name, (house_count, _) in yoga_definitions.items():
+        if num_occupied_houses == house_count:
             active_yoga_name = name
             break
 
@@ -1682,11 +1684,11 @@ def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
             results[name]["present"] = True
             results[name]["strength"] = 1.0
 
-            planets_by_house = {}
+            planets_by_house: dict[int, list[str]] = {}
             for p, h in planet_locations.items():
                 planets_by_house.setdefault(h, []).append(p)
 
-            details_list = []
+            details_list: list[str] = []
             for h in sorted(list(occupied_houses)):
                 planets_str = ", ".join(planets_by_house.get(h, []))
                 details_list.append(f"House {h}: {planets_str}")
@@ -1696,7 +1698,7 @@ def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
                 f"Positions: {'; '.join(details_list)}"
             )
         else:
-            required_count = yoga_definitions[name]["house_count"]
+            required_count = yoga_definitions[name][0]
             results[name]["details"] = (
                 f"Condition for {name} Yoga not met. "
                 f"It requires planets in {required_count} houses, but they occupy {num_occupied_houses}."
@@ -1717,10 +1719,10 @@ def rasi_guna_yogas(yoga: Yoga) -> dict[str, YogaType]:
     FIXED_SIGNS = {"Taurus", "Leo", "Scorpio", "Aquarius"}
     DUAL_SIGNS = {"Gemini", "Virgo", "Sagittarius", "Pisces"}
 
-    yoga_definitions = {
-        "Rajju": {"signs": MOVABLE_SIGNS, "type": "Neutral", "modality": "movable"},
-        "Musala": {"signs": FIXED_SIGNS, "type": "Positive", "modality": "fixed"},
-        "Nala": {"signs": DUAL_SIGNS, "type": "Negative", "modality": "dual"},
+    yoga_definitions: dict[str, tuple[set[str], YogaPolarity, str]] = {
+        "Rajju": (MOVABLE_SIGNS, "Neutral", "movable"),
+        "Musala": (FIXED_SIGNS, "Positive", "fixed"),
+        "Nala": (DUAL_SIGNS, "Negative", "dual"),
     }
 
     results: dict[str, YogaType] = {
@@ -1730,9 +1732,9 @@ def rasi_guna_yogas(yoga: Yoga) -> dict[str, YogaType]:
             "present": False,
             "strength": 0.0,
             "details": f"Condition for {name} Yoga not met.",
-            "type": definition["type"],
+            "type": yoga_type,
         }
-        for name, definition in yoga_definitions.items()
+        for name, (_, yoga_type, _) in yoga_definitions.items()
     }
 
     planet_locations = {p: yoga.get_house_of_planet(
@@ -1745,22 +1747,22 @@ def rasi_guna_yogas(yoga: Yoga) -> dict[str, YogaType]:
     }
 
     active_yoga = None
-    for name, definition in yoga_definitions.items():
-        if occupied_rashis.issubset(definition["signs"]):
+    for name, (signs, _, _) in yoga_definitions.items():
+        if occupied_rashis.issubset(signs):
             active_yoga = name
             break
 
-    for name, definition in yoga_definitions.items():
+    for name, (_, _, modality) in yoga_definitions.items():
         if name == active_yoga:
             results[name]["present"] = True
             results[name]["strength"] = 1.0
             results[name]["details"] = (
-                f"{name} Yoga formed: All planets are in {definition['modality']} signs. "
+                f"{name} Yoga formed: All planets are in {modality} signs. "
                 f"Occupied signs: {', '.join(sorted(list(occupied_rashis)))}."
             )
         else:
             results[name]["details"] = (
-                f"{name} Yoga not formed. All planets must be in {definition['modality']} signs. "
+                f"{name} Yoga not formed. All planets must be in {modality} signs. "
                 f"Occupied signs: {', '.join(sorted(list(occupied_rashis)))}."
             )
 
@@ -1797,54 +1799,48 @@ def srik_sarpa(yoga: Yoga) -> dict[str, YogaType]:
     # Srik Yoga
     benefic_locations = {p: yoga.get_house_of_planet(
         p) for p in BENEFIC_PLANETS}
-    if any(h is None for h in benefic_locations.values()):
-        results["Srik"]["details"] = "Could not locate all benefic planets."
+    benefics_in_kendra = all(
+        h in KENDRA_HOUSES for h in benefic_locations.values())
+    if benefics_in_kendra:
+        results["Srik"]["present"] = True
+        results["Srik"]["strength"] = 1.0
+        pos_str = ", ".join(
+            [f"{p} in h{h}" for p, h in benefic_locations.items()])
+        results["Srik"]["details"] = (
+            f"Srik Yoga formed. All benefics in Kendra houses: {pos_str}."
+        )
     else:
-        benefics_in_kendra = all(
-            h in KENDRA_HOUSES for h in benefic_locations.values())
-        if benefics_in_kendra:
-            results["Srik"]["present"] = True
-            results["Srik"]["strength"] = 1.0
-            pos_str = ", ".join(
-                [f"{p} in h{h}" for p, h in benefic_locations.items()])
-            results["Srik"]["details"] = (
-                f"Srik Yoga formed. All benefics in Kendra houses: {pos_str}."
-            )
-        else:
-            outside = [
-                f"{p} in h{h}"
-                for p, h in benefic_locations.items()
-                if h not in KENDRA_HOUSES
-            ]
-            results["Srik"]["details"] = (
-                f"Srik Yoga not formed. Benefics outside Kendras: {', '.join(outside)}."
-            )
+        outside = [
+            f"{p} in h{h}"
+            for p, h in benefic_locations.items()
+            if h not in KENDRA_HOUSES
+        ]
+        results["Srik"]["details"] = (
+            f"Srik Yoga not formed. Benefics outside Kendras: {', '.join(outside)}."
+        )
 
     # Sarpa Yoga
     malefic_locations = {p: yoga.get_house_of_planet(
         p) for p in MALEFIC_PLANETS}
-    if any(h is None for h in malefic_locations.values()):
-        results["Sarpa"]["details"] = "Could not locate all malefic planets."
+    malefics_in_kendra = all(
+        h in KENDRA_HOUSES for h in malefic_locations.values())
+    if malefics_in_kendra:
+        results["Sarpa"]["present"] = True
+        results["Sarpa"]["strength"] = 1.0
+        pos_str = ", ".join(
+            [f"{p} in h{h}" for p, h in malefic_locations.items()])
+        results["Sarpa"]["details"] = (
+            f"Sarpa Yoga formed. All malefics in Kendra houses: {pos_str}."
+        )
     else:
-        malefics_in_kendra = all(
-            h in KENDRA_HOUSES for h in malefic_locations.values())
-        if malefics_in_kendra:
-            results["Sarpa"]["present"] = True
-            results["Sarpa"]["strength"] = 1.0
-            pos_str = ", ".join(
-                [f"{p} in h{h}" for p, h in malefic_locations.items()])
-            results["Sarpa"]["details"] = (
-                f"Sarpa Yoga formed. All malefics in Kendra houses: {pos_str}."
-            )
-        else:
-            outside = [
-                f"{p} in h{h}"
-                for p, h in malefic_locations.items()
-                if h not in KENDRA_HOUSES
-            ]
-            results["Sarpa"]["details"] = (
-                f"Sarpa Yoga not formed. Malefics outside Kendras: {', '.join(outside)}."
-            )
+        outside = [
+            f"{p} in h{h}"
+            for p, h in malefic_locations.items()
+            if h not in KENDRA_HOUSES
+        ]
+        results["Sarpa"]["details"] = (
+            f"Sarpa Yoga not formed. Malefics outside Kendras: {', '.join(outside)}."
+        )
 
     return results
 
@@ -2044,7 +2040,7 @@ def dehapushti_dehakashta(yoga: Yoga) -> dict[str, YogaType]:
     LAsc = yoga.get_lord_of_house(1)
     LAscH = yoga.get_house_of_planet(LAsc)
     LAscPlanet = yoga.get_planet_by_name(LAsc)
-    if LAscPlanet is None or LAscPlanet["name"] == "Lagna":
+    if LAscPlanet["name"] == "Lagna":
         raise ValueError("Invalid Lagna planet")
     LAscAspected = yoga.is_house_benefic_aspected(LAscH)
     LAscCojoins = yoga.planets_in_relative_house(LAsc, 1)
@@ -2119,7 +2115,7 @@ def rogagrastha(yoga: Yoga) -> YogaType:
         planets_in_1 = [p["name"]
                         for p in yoga.planets_in_relative_house("Lagna", 1)]
 
-        conjoined = []
+        conjoined: list[str] = []
         if l6 and l6 in planets_in_1:
             conjoined.append(f"6th Lord ({l6})")
         if l8 and l8 in planets_in_1:
@@ -2136,20 +2132,18 @@ def rogagrastha(yoga: Yoga) -> YogaType:
     details2 = ""
 
     p_l1 = yoga.get_planet_by_name(l1)
-    if p_l1 is None or p_l1["name"] == "Lagna":
+    if p_l1["name"] == "Lagna":
         raise ValueError("Invalid Lagna planet")
-    if p_l1:
-        # Note: is_planet_powerful returns (bool, strength)
-        is_powerful, _ = yoga.is_planet_powerful(p_l1)
-        if not is_powerful:
-            # Weak lord of Lagna
-            # Check if in Trine (1, 5, 9) or Quadrant (1, 4, 7, 10).
-            # Combined: 1, 4, 5, 7, 9, 10
-            if h_l1 in [1, 4, 5, 7, 9, 10]:
-                condition2 = True
-                details2 = (
-                    f"Weak Lagna Lord ({l1}) is in house {h_l1} (Trine/Quadrant)."
-                )
+    # Note: is_planet_powerful returns (bool, strength)
+    is_powerful, _ = yoga.is_planet_powerful(p_l1)
+    if not is_powerful:
+        # Weak lord of Lagna.
+        # Check if in Trine (1, 5, 9) or Quadrant (1, 4, 7, 10).
+        if h_l1 in [1, 4, 5, 7, 9, 10]:
+            condition2 = True
+            details2 = (
+                f"Weak Lagna Lord ({l1}) is in house {h_l1} (Trine/Quadrant)."
+            )
 
     if condition1:
         result["present"] = True
@@ -2244,7 +2238,7 @@ def dehasthoulya(yoga: Yoga) -> YogaType:
     sign_l1 = yoga.get_rashi_of_house(h_l1)
 
     # Helper to check if a sign is watery
-    def is_watery(sign):
+    def is_watery(sign: str) -> bool:
         return sign in watery_signs
 
     # Condition 1: Lord of Lagna and [Navamsa Lord of L1] occupy watery signs.
@@ -2403,16 +2397,14 @@ def dhana(yoga: Yoga) -> YogaType:
     }
 
     # Helper function to check if a planet is in a specific house
-    def check_planet_house(planet, house):
+    def check_planet_house(planet: PLANETS, house: HOUSES) -> bool:
         return yoga.get_house_of_planet(planet) == house
 
     # Helper for aspect/conjunction
-    def joined_or_aspected(planet_name, *others):
+    def joined_or_aspected(planet_name: PLANETS, *others: PLANETS) -> bool:
         chart = yoga.__chart__
 
         phouse = yoga.get_house_of_planet(planet_name)
-        if phouse is None:
-            return False
 
         planets_in_same_house = [
             p["name"] for p in yoga.planets_in_relative_house("Lagna", phouse)
@@ -2702,7 +2694,7 @@ def anthya_vayasi_dhana(yoga: Yoga) -> YogaType:
 
     # 2. Strong
     p_disp = yoga.get_planet_by_name(dispositor)
-    if p_disp is None or p_disp["name"] == "Lagna":
+    if p_disp["name"] == "Lagna":
         raise ValueError(f"Invalid dispositor: {dispositor}")
     is_strong, _ = yoga.is_planet_powerful(p_disp)
 
@@ -2975,7 +2967,7 @@ def putramooladdhana(yoga: Yoga) -> YogaType:
     h5 = yoga.get_house_of_planet(l5)
     h_ju = yoga.get_house_of_planet("Jupiter")
 
-    joined = []
+    joined: list[str] = []
     if h2 == h5:
         joined.append(f"L5 ({l5})")
     if h2 == h_ju:
@@ -3035,7 +3027,7 @@ def satrumooladdhana(yoga: Yoga) -> YogaType:
     h6 = yoga.get_house_of_planet(l6)
     h_mars = yoga.get_house_of_planet("Mars")
 
-    joined = []
+    joined: list[str] = []
     if h2 == h6:
         joined.append(f"L6 ({l6})")
     if h2 == h_mars:
@@ -3142,7 +3134,7 @@ def amaranantha_dhana(yoga: Yoga) -> YogaType:
     ]
     wealth_karakas = [k for k in wealth_karakas if k]
 
-    strong_wealth = []
+    strong_wealth: list[PLANETS] = []
     for k in wealth_karakas:
         p = yoga.get_planet_by_name(k)
         if p["name"] == "Lagna":
@@ -3340,7 +3332,7 @@ def daridhra(yoga: Yoga) -> YogaType:
         for hp in valid_lords
     ]
 
-    malefics_affecting = []
+    malefics_affecting: list[str] = []
     for h in associated_houses:
         planets_in_h = yoga.planets_in_relative_house("Lagna", h)
         malefics_affecting += [
@@ -3434,22 +3426,22 @@ def yukthi_samanwithavagmi(yoga: Yoga) -> YogaType:
     }
 
     l2 = yoga.get_lord_of_house(2)  # Lord of 2nd (Lord of Speech)
-    if not l2:
-        return result
 
     h_l2 = yoga.get_house_of_planet(l2)
     p_l2 = yoga.get_planet_by_name(l2)
+    if p_l2["name"] == "Lagna":
+        raise ValueError("Could not find Lord of 2nd house planet.")
 
     # helper for benefic conjunction
-    def has_benefic_conjunction(house, planet_me):
+    def has_benefic_conjunction(house: HOUSES, planet_me: PLANETS) -> bool:
         planets = yoga.planets_in_relative_house("Lagna", house)
         for p in planets:
             if p["name"] in BENEFIC_PLANETS and p["name"] != planet_me:
                 return True
         return False
 
-    def is_exalted(planet_obj):
-        return "Exalted" in planet_obj.get("inSign", "")
+    def is_exalted(planet_obj: PlanetType) -> bool:
+        return "Exalted" in planet_obj["inSign"]
 
     # Condition 1:
     # A) L2 joins benefic in Kendra/Trikona
@@ -3477,7 +3469,7 @@ def yukthi_samanwithavagmi(yoga: Yoga) -> YogaType:
     # AND Jupiter or Venus in Simhasanamsa (Varga strength) - Proxy: Jupiter or Venus is Powerful
 
     if h_l2 in [1, 4, 7, 10]:
-        if is_exalted(p_l2) and p_l2["name"] != "Lagna":
+        if is_exalted(p_l2):
             is_strong_l2, _ = yoga.is_planet_powerful(p_l2)
             if is_strong_l2:
                 # Check Ju or Ve strong
@@ -3485,10 +3477,10 @@ def yukthi_samanwithavagmi(yoga: Yoga) -> YogaType:
                 if p_ju["name"] == "Lagna":
                     raise ValueError("Could not find Jupiter in D9.")
                 p_ve = yoga.get_planet_by_name("Venus")
-                if p_ve is None or p_ve["name"] == "Lagna":
+                if p_ve["name"] == "Lagna":
                     raise ValueError("Could not find Venus in D9.")
-                ju_strong = yoga.is_planet_powerful(p_ju)[0] if p_ju else False
-                ve_strong = yoga.is_planet_powerful(p_ve)[0] if p_ve else False
+                ju_strong = yoga.is_planet_powerful(p_ju)[0]
+                ve_strong = yoga.is_planet_powerful(p_ve)[0]
 
                 if ju_strong or ve_strong:
                     result["present"] = True
@@ -3523,7 +3515,7 @@ def parihasaka(yoga: Yoga) -> YogaType:
     found_sun = False
     sun_navamsa_sign = None
 
-    for h_num, data in d9_chart.items():
+    for _, data in d9_chart.items():
         for planet in data["planets"]:
             if planet["name"] == "Sun":
                 sun_navamsa_sign = planet["sign"]["name"]
@@ -3543,7 +3535,7 @@ def parihasaka(yoga: Yoga) -> YogaType:
 
     # 2. Check if NSL_Sun attains Vaiseshikamsa (Strong)
     p_nsl = yoga.get_planet_by_name(nsl_sun)
-    if p_nsl is None or p_nsl["name"] == "Lagna":
+    if p_nsl["name"] == "Lagna":
         raise ValueError("Could not find Navamsa Sun Lord in D9.")
     is_strong, _ = yoga.is_planet_powerful(p_nsl)
 
@@ -3693,11 +3685,8 @@ def bhaskara(yoga: Yoga) -> YogaType:
     h_moon = yoga.get_house_of_planet("Moon")
     h_jupiter = yoga.get_house_of_planet("Jupiter")
 
-    if None in [h_sun, h_mercury, h_moon, h_jupiter]:
-        return result
-
-    def relative_house(h_from, h_to):
-        return ((h_to - h_from) % 12) + 1
+    def relative_house(h_from: HOUSES, h_to: HOUSES) -> HOUSES:
+        return cast(HOUSES, ((h_to - h_from) % 12) + 1)
 
     rel_merc_sun = relative_house(h_sun, h_mercury)
     if rel_merc_sun != 2:
@@ -3743,11 +3732,8 @@ def marud(yoga: Yoga) -> YogaType:
     h_moon = yoga.get_house_of_planet("Moon")
     h_sun = yoga.get_house_of_planet("Sun")
 
-    if None in [h_venus, h_jupiter, h_moon, h_sun]:
-        return result
-
-    def relative_house(h_from, h_to):
-        return ((h_to - h_from) % 12) + 1
+    def relative_house(h_from: HOUSES, h_to: HOUSES) -> HOUSES:
+        return cast(HOUSES, ((h_to - h_from) % 12) + 1)
 
     # Jupiter in 5 or 9 from Venus
     rel_ju_ve = relative_house(h_venus, h_jupiter)
@@ -3864,8 +3850,8 @@ def budha(yoga: Yoga) -> YogaType:
     # 3. Rahu in 2nd from Moon
     h_rahu = yoga.get_house_of_planet("Rahu")
 
-    def relative_house(h_from, h_to):
-        return ((h_to - h_from) % 12) + 1
+    def relative_house(h_from: HOUSES, h_to: HOUSES) -> HOUSES:
+        return cast(HOUSES, ((h_to - h_from) % 12) + 1)
 
     rel_rahu_moon = relative_house(h_moon, h_rahu)
     if rel_rahu_moon != 2:
@@ -4088,10 +4074,8 @@ def sumukha(yoga: Yoga) -> YogaType:
 
     kendras = [1, 4, 7, 10]
 
-    def has_benefic_aspect(house: int) -> bool:
-        aspects: Sequence[dict] = cast(
-            Sequence[dict], yoga.__chart__.graha_drishti(n=1)
-        )
+    def has_benefic_aspect(house: HOUSES) -> bool:
+        aspects: list[AspectType] = yoga.__chart__.graha_drishti(n=1)
         for aspect in aspects:
             if aspect.get("planet") in BENEFIC_PLANETS:
                 for house_data in aspect.get("aspect_houses", []):
@@ -4219,7 +4203,7 @@ def durmukha(yoga: Yoga) -> YogaType:
         if not d9_chart:
             raise ValueError("Navamsa chart not found")
         l2_in_d9 = None
-        planets_with_l2_d9 = []
+        planets_with_l2_d9: list[str] = []
 
         for data in d9_chart.values():
             p_names = [p["name"] for p in data["planets"]]
@@ -4452,9 +4436,8 @@ def sraddhannabhuktha(yoga: Yoga) -> YogaType:
     sign_saturn = yoga.get_rashi_of_house(h_saturn)
     if sign_saturn == "Aries":
         try:
-            aspects: Sequence[dict] = cast(
-                Sequence[dict], yoga.__chart__.graha_drishti(
-                    n=1, planet=saturn)
+            aspects: list[AspectType] = yoga.__chart__.graha_drishti(
+                n=1, planet=saturn
             )
             for aspect in aspects:
                 for houses in aspect.get("aspect_houses", []):
@@ -4523,9 +4506,8 @@ def vakchalana(yoga: Yoga) -> YogaType:
 
     def is_house_aspected_by_benefic(house: HOUSES) -> bool:
         for p in BENEFIC_PLANETS:
-            aspects_list: Sequence[dict] = cast(
-                Sequence[dict], yoga.__chart__.graha_drishti(
-                    n=1, planet=p)
+            aspects_list: list[AspectType] = yoga.__chart__.graha_drishti(
+                n=1, planet=p
             )
             for aspect in aspects_list:
                 for houses in aspect.get("aspect_houses", []):
@@ -4566,9 +4548,8 @@ def vishapra_yoga(yoga: Yoga) -> YogaType:
     # Helper to check if a house is aspected by malefics
     def is_house_aspected_by_malefic(target_house: HOUSES) -> bool:
         for malefic in MALEFIC_PLANETS:
-            aspects_list: Sequence[dict] = cast(
-                Sequence[dict], yoga.__chart__.graha_drishti(
-                    n=1, planet=malefic)
+            aspects_list: list[AspectType] = yoga.__chart__.graha_drishti(
+                n=1, planet=malefic
             )
             for aspect in aspects_list:
                 for houses in aspect.get("aspect_houses", []):
