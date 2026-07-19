@@ -1,9 +1,8 @@
 from typing import Optional
 
-from vedicastro.VedicAstro import VedicHoroscopeData
-
 from ascendant.chart import Chart
 from ascendant.dasha import Dasha
+from ascendant.horoscope import HoroscopeData
 from ascendant.types import ALLOWED_DIVISIONS
 from ascendant.utils import getHouseSystem
 from ascendant.yoga.base import Yoga
@@ -28,7 +27,7 @@ class Ascendant:
         ayanamsa: str = "Lahiri",
         house_system: str = "Whole Sign",
     ):
-        self.horoscope_data = VedicHoroscopeData(
+        self.horoscope_data = HoroscopeData(
             year=year,
             month=month,
             day=day,

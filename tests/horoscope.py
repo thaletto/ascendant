@@ -1,8 +1,6 @@
 import os
 from datetime import datetime
-from vedicastro.VedicAstro import VedicHoroscopeData
-
-from ascendant.utils import getHouseSystem
+from ascendant.horoscope import HoroscopeData
 
 # Default test values
 DEFAULT_BIRTH_DATE = "1990-01-01"
@@ -24,10 +22,7 @@ utc = os.getenv("NATIVE_UTC", DEFAULT_UTC)
 ayanamsa = os.getenv("AYANAMSA", default="Lahiri")
 house_system = os.getenv("HOUSE_SYSTEM", default="whole_sign")
 
-house_system_mapped = getHouseSystem(house_system)
-
-
-my_horoscope = VedicHoroscopeData(
+my_horoscope = HoroscopeData(
     year=birth_date.year,
     month=birth_date.month,
     day=birth_date.day,
@@ -38,5 +33,5 @@ my_horoscope = VedicHoroscopeData(
     latitude=lat,
     longitude=lng,
     ayanamsa=ayanamsa,
-    house_system=house_system_mapped,
+    house_system=house_system,
 )

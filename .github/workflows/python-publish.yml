@@ -23,12 +23,18 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
         
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build
+        pip install build pytest
+        pip install "flatlib @ git+https://github.com/thaletto/flatlib.git@2618c348ce1ab2588548f935ff65f031630b4872"
+        pip install .
+    - name: Test package
+      run: >
+        pytest -q tests/test_vedicastro_compatibility.py tests/chart.py
+        tests/planets.py tests/dasha.py tests/yoga.py
         
     - name: Build package
       run: python -m build

@@ -1,11 +1,54 @@
 from typing import Dict, Final, List
 
-from vedicastro.VedicAstro import NAKSHATRAS, RASHIS
-
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
 from ascendant.types import RASHIS as RASHIS_TYPE
 
 __all__ = ["RASHIS", "NAKSHATRAS"]
+
+RASHIS: Final[list[RASHIS_TYPE]] = [
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Sagittarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces",
+]
+
+NAKSHATRAS: Final[list[str]] = [
+    "Ashwini",
+    "Bharani",
+    "Krittika",
+    "Rohini",
+    "Mrigashīrsha",
+    "Ardra",
+    "Punarvasu",
+    "Pushya",
+    "Āshleshā",
+    "Maghā",
+    "PūrvaPhalgunī",
+    "UttaraPhalgunī",
+    "Hasta",
+    "Chitra",
+    "Svati",
+    "Vishakha",
+    "Anuradha",
+    "Jyeshtha",
+    "Mula",
+    "PurvaAshadha",
+    "UttaraAshadha",
+    "Shravana",
+    "Dhanishta",
+    "Shatabhisha",
+    "PurvaBhādrapadā",
+    "UttaraBhādrapadā",
+    "Revati",
+]
 
 
 SELECTED_PLANETS: List[str] = [

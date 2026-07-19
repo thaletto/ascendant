@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astro-ascendant"
-version = "0.1.6"
+version = "0.1.7"
 description = "Vedic Astrology Calculation Library"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
 dependencies = [
-    "swisseph",
-    "vedicastro==0.2.1",
+    "pyswisseph",
+    "python-dateutil",
 ]
 
 [project.optional-dependencies]

@@ -1,8 +1,7 @@
 from typing import Callable, Dict, List, Tuple, cast
 
-from vedicastro.VedicAstro import VedicHoroscopeData
-
 from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
+from ascendant.horoscope import HoroscopeData
 from ascendant.types import (
     HOUSES,
     PLANET_SIGN_RELATION,
@@ -67,7 +66,7 @@ def register_yogas(*names: str):
 
 
 class Yoga:
-    def __init__(self, horoscope: VedicHoroscopeData):
+    def __init__(self, horoscope: HoroscopeData):
         from ascendant.chart import Chart
 
         self.__chart__ = Chart(horoscope)

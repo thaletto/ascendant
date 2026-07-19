@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 import re
 from typing import List, Union, cast
 
-from vedicastro.VedicAstro import HOUSE_SYSTEM_MAPPING
+from ascendant.horoscope import HOUSE_SYSTEM_MAPPING
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 

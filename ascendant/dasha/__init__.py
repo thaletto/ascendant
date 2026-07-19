@@ -1,8 +1,11 @@
 from datetime import datetime, timezone
 from typing import List, Union
 
-from vedicastro.VedicAstro import VedicHoroscopeData
+from dateutil.relativedelta import relativedelta
+from flatlib import const
 
+from ascendant.const import NAKSHATRAS
+from ascendant.horoscope import HoroscopeData, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType
 from ascendant.utils import parseDate
 
@@ -10,12 +13,12 @@ from ascendant.utils import parseDate
 class Dasha:
     """Utility class to compute and format Vimshottari Dasha timeline."""
 
-    def __init__(self, horoscope: VedicHoroscopeData):
+    def __init__(self, horoscope: HoroscopeData):
         """
-        Initializes the Dasha utility with a VedicHoroscopeData object.
+        Initializes the Dasha utility with a HoroscopeData object.
 
         Args:
-            horoscope: An instance of VedicHoroscopeData containing the birth chart information.
+            horoscope: An instance of HoroscopeData containing the birth chart information.
         """
         self.__horoscope__ = horoscope
         self.__chart__ = horoscope.generate_chart()
@@ -29,7 +32,7 @@ class Dasha:
         Returns:
             A list of MahaDashaType objects, each containing its AntarDashaType sub-periods.
         """
-        vhd = self.__horoscope__.compute_vimshottari_dasa(self.__chart__)
+        vhd = self._compute_vimshottari_dasa()
         dashas: DashasType = []
 
         for maha_planet, details in vhd.items():
@@ -68,6 +71,88 @@ class Dasha:
                     }
                 )
         return dashas
+
+    def _compute_vimshottari_dasa(self):
+        moon = self.__chart__.get(const.MOON)
+        moon_data = self.__horoscope__.get_rl_nl_sl_data(moon.lon)
+        if moon_data is None:
+            return {}
+
+        sequence = VIMSHOTTARI_PLANETS.copy()
+        lengths = VIMSHOTTARI_YEARS.copy()
+        start_index = sequence.index(str(moon_data["NakshatraLord"]))
+        sequence = sequence[start_index:] + sequence[:start_index]
+        lengths = lengths[start_index:] + lengths[:start_index]
+        dasa_order = dict(zip(sequence, lengths))
+
+        nakshatra_start = NAKSHATRAS.index(str(moon_data["Nakshatra"])) * 800
+        elapsed_moon_mins = round(moon.lon * 60, 2) - nakshatra_start
+        remaining_arc_mins = 800 - elapsed_moon_mins
+        duration = dasa_order[str(moon_data["NakshatraLord"])]
+        elapsed_duration = duration - (duration / 800) * remaining_arc_mins
+
+        start = self._compute_new_date(self._chart_date(), elapsed_duration, "backward")
+        dashas = {}
+        for dasa, length in zip(sequence, lengths):
+            end = self._compute_new_date(self._date_tuple(start), length, "forward")
+            dashas[dasa] = {
+                "start": start.strftime("%d-%m-%Y"),
+                "end": end.strftime("%d-%m-%Y"),
+                "bhuktis": {},
+            }
+            bhukti_start = start
+            index = sequence.index(dasa)
+            bhukti_sequence = sequence[index:] + sequence[:index]
+            bhukti_lengths = lengths[index:] + lengths[:index]
+            for bhukti, bhukti_length in zip(bhukti_sequence, bhukti_lengths):
+                bhukti_end = self._compute_new_date(
+                    self._date_tuple(bhukti_start), length * bhukti_length / 120, "forward"
+                )
+                dashas[dasa]["bhuktis"][bhukti] = {
+                    "start": bhukti_start.strftime("%d-%m-%Y"),
+                    "end": bhukti_end.strftime("%d-%m-%Y"),
+                }
+                bhukti_start = bhukti_end
+            start = end
+        return dashas
+
+    def _chart_date(self):
+        return (
+            self.__horoscope__.year,
+            self.__horoscope__.month,
+            self.__horoscope__.day,
+            self.__horoscope__.hour,
+            self.__horoscope__.minute,
+        )
+
+    @staticmethod
+    def _date_tuple(value: datetime):
+        return tuple(value.timetuple())[:5]
+
+    @staticmethod
+    def _compute_new_date(start_date, diff_value: float, direction: str) -> datetime:
+        year, month, day, hour, minute = start_date
+        whole_years = int(diff_value)
+        months = (diff_value - whole_years) * 12
+        whole_months = int(months)
+        days = (months - whole_months) * 30
+        whole_days = int(days)
+        hours = (days - whole_days) * 24
+        whole_hours = int(hours)
+        minutes = (hours - whole_hours) * 60
+        delta = relativedelta(
+            years=whole_years,
+            months=whole_months,
+            days=whole_days,
+            hours=whole_hours,
+            minutes=int(minutes),
+        )
+        initial = datetime(year, month, day, hour, minute)
+        if direction == "backward":
+            return initial - delta
+        if direction == "forward":
+            return initial + delta
+        raise ValueError("direction must be either 'backward' or 'forward'")
 
     @staticmethod
     def _find_current_index_by_date(

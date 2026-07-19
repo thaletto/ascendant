@@ -1,11 +1,10 @@
 from typing import List, cast
 
-from vedicastro.VedicAstro import VedicHoroscopeData
-
 from ascendant.chart.utils import aspect_offsets_for_planet, get_divisional_target
 from ascendant.const import (
     ALLOWED_DIVISIONS as DIVISIONS,
 )
+from ascendant.horoscope import HoroscopeData
 from ascendant.const import (
     NODE_MAP,
     RASHIS,
@@ -29,10 +28,10 @@ class Chart:
     """Represents the birth chart and divisional charts.
 
     Args:
-        horoscope: `VedicHoroscopeData`
+        horoscope: ``HoroscopeData``
     """
 
-    def __init__(self, horoscope: VedicHoroscopeData):
+    def __init__(self, horoscope: HoroscopeData):
         self.__horoscope__ = horoscope
         self.__chart__ = horoscope.generate_chart()
 
