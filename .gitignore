@@ -50,3 +50,7 @@ sample/
 .vscode/
 .zed/
 .cursor/
+
+# Personal Information
+persons/
+person/
