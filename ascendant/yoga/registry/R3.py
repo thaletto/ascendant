@@ -141,7 +141,7 @@ def sodaranasa(yoga: Yoga) -> YogaType:
         result["details"] = f"Mars ({mars_house}) or 3rd Lord ({third_lord_house}) not in 3, 5, 7, 8."
         return result
 
-    def is_aspected_by_malefic(planet_name: PLANETS, house: HOUSES) -> bool:
+    def is_aspected_by_malefic(house: HOUSES) -> bool:
         for malefic in MALEFIC_PLANETS:
             aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic)
             if aspects:
@@ -151,8 +151,8 @@ def sodaranasa(yoga: Yoga) -> YogaType:
                             return True
         return False
 
-    mars_aspected = is_aspected_by_malefic("Mars", mars_house)
-    third_lord_aspected = is_aspected_by_malefic(third_lord, third_lord_house)
+    mars_aspected = is_aspected_by_malefic(mars_house)
+    third_lord_aspected = is_aspected_by_malefic(third_lord_house)
 
     if mars_aspected and third_lord_aspected:
         result["present"] = True
