@@ -12,8 +12,6 @@ license = {file = "LICENSE"}
 dependencies = [
     "swisseph",
     "vedicastro==0.2.1",
-    "fastapi==0.139.2",
-    "fastmcp==3.4.4",
 ]
 
 [project.optional-dependencies]
