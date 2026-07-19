@@ -204,8 +204,7 @@ class Dasha:
         if (maha := self.get_mahadasha_by_index(0, date)) is None:
             return None
 
-        if (antardashas := maha.get("antardashas", [])) is None:
-            return None
+        antardashas = maha["antardashas"]
 
         if date:
             target_date = parseDate(date)
