@@ -205,7 +205,7 @@ def planet_sign_relation(
                     results.append("Own")
                 case "Sun" | "Rahu" | "Ketu":
                     results.append("Friend")
-                case "Moon" | "Saturn":
+                case _:
                     results.append("Neutral")
 
     return results
