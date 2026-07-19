@@ -14,7 +14,7 @@ from ascendant.types import (
     PlanetType,
     YogaType,
 )
-from ascendant.utils import yogaNameToId
+from ascendant.utils import yoga_name_to_id
 
 YogaFunction = Callable[["Yoga"], YogaType]
 
@@ -25,7 +25,7 @@ def register_yoga(name: str):
     def decorator(func: YogaFunction) -> YogaFunction:
         def wrapper(yoga: "Yoga") -> YogaType:
             result = func(yoga)
-            result["id"] = yogaNameToId(name)
+            result["id"] = yoga_name_to_id(name)
             return result
 
         YOGA_REGISTRY[name] = wrapper
@@ -47,7 +47,7 @@ def register_yogas(*names: str):
                     if yoga_name not in results:
                         # Return default if yoga name not found
                         return {
-                            "id": yogaNameToId(yoga_name),
+                            "id": yoga_name_to_id(yoga_name),
                             "name": yoga_name,
                             "present": False,
                             "strength": 0.0,
@@ -55,7 +55,7 @@ def register_yogas(*names: str):
                             "type": "Positive",
                         }
                     result = results[yoga_name]
-                    result["id"] = yogaNameToId(yoga_name)
+                    result["id"] = yoga_name_to_id(yoga_name)
                     return result
 
                 return wrapper
@@ -169,7 +169,7 @@ class Yoga:
                         return _planet
         return None
 
-    def isPlanetPowerful(self, planet: PlanetType) -> tuple[bool, float]:
+    def is_planet_powerful(self, planet: PlanetType) -> tuple[bool, float]:
         """Checks if a planet in the chart is powerful"""
         relations = planet.get("inSign")
         name = planet.get("name")

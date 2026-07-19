@@ -77,6 +77,6 @@ def test_chart_positions_remain_within_tenth_of_a_degree(reference: ReferenceCas
     for name, expected in reference["planets"].items():
         assert _angular_error(chart.get(name).lon, expected) <= 0.1
     for name, expected in reference["angles"].items():
-        assert _angular_error(chart.getAngle(name).lon, expected) <= 0.1
+        assert _angular_error(chart.get_angle(name).lon, expected) <= 0.1
     for house, expected in zip(chart.houses, reference["houses"], strict=True):
         assert _angular_error(house.lon, expected) <= 0.1

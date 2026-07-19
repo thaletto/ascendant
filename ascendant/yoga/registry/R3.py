@@ -38,7 +38,7 @@ def get_navamsa_sign(yoga: Yoga, planet_name: PLANETS) -> RASHIS | None:
 
 
 @register_yoga("Bhratruvriddhi")
-def Bhratruvriddhi(yoga: Yoga) -> YogaType:
+def bhratruvriddhi(yoga: Yoga) -> YogaType:
     """
     The third Lord, or Mars, or the third house are joined or aspected by benefics or strong.
     """
@@ -58,7 +58,7 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
     if (p_l3 := yoga.get_planet_by_name(l3)) is None or p_l3["name"] == "Lagna":
         raise ValueError(f"Invalid planet name: {l3}")
 
-    is_strong, _ = yoga.isPlanetPowerful(p_l3)
+    is_strong, _ = yoga.is_planet_powerful(p_l3)
     if (house_l3 := yoga.get_house_of_planet(l3)) is None:
         raise ValueError(f"Invalid house name: {house_l3}")
 
@@ -76,7 +76,7 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
     if (p_mars := yoga.get_planet_by_name("Mars")) is None or p_mars["name"] == "Lagna":
         raise ValueError(f"Invalid planet name: {p_mars}")
 
-    is_strong, _ = yoga.isPlanetPowerful(p_mars)
+    is_strong, _ = yoga.is_planet_powerful(p_mars)
     if (house_mars := yoga.get_house_of_planet("Mars")) is None:
         raise ValueError(f"Invalid house name: {house_mars}")
     joined_benefics = [
@@ -112,7 +112,7 @@ def Bhratruvriddhi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sodaranasa")
-def Sodaranasa(yoga: Yoga) -> YogaType:
+def sodaranasa(yoga: Yoga) -> YogaType:
     """
     Mars and the third Lord occupies the eighth (third, fifth or seventh) house and are aspected by malefic.
     """
@@ -163,7 +163,7 @@ def Sodaranasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ekabhagini")
-def Ekabhagini(yoga: Yoga) -> YogaType:
+def ekabhagini(yoga: Yoga) -> YogaType:
     """
     Mercury, the Lord of the third house, and Mars join the third house, the Moon and Saturn respectively.
     """
@@ -209,7 +209,7 @@ def Ekabhagini(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Dwadasa Sahodara")
-def Dwadasa_Sahodara(yoga: Yoga) -> YogaType:
+def dwadasa_sahodara(yoga: Yoga) -> YogaType:
     """
     The third Lord is in a kendra and exalted Mars joins Jupiter in a thrikona from the third Lord.
     """
@@ -257,7 +257,7 @@ def Dwadasa_Sahodara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sapthasankhya Sahodara")
-def Sapthasankhya_Sahodara(yoga: Yoga) -> YogaType:
+def sapthasankhya_sahodara(yoga: Yoga) -> YogaType:
     """
     Lord of the twelfth house joins Mars, and the Moon is in the third with Jupiter, devoid of association with or aspect of Venus.
     """
@@ -307,7 +307,7 @@ def Sapthasankhya_Sahodara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Parakrama")
-def Parakrama(yoga: Yoga) -> YogaType:
+def parakrama(yoga: Yoga) -> YogaType:
     """
     The Lord of the third house joins a benefic navamsa being aspected by (or conjoined with) benefic planets, and Mars occupies benefic signs.
     """
@@ -366,7 +366,7 @@ def Parakrama(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yuddha Praveena")
-def Yuddha_Praveena(yoga: Yoga) -> YogaType:
+def yuddha_praveena(yoga: Yoga) -> YogaType:
     """
     The Lord of the navamsa joined by the planet that owns the navamsa in which the third Lord is placed, joins its own vargas.
     """
@@ -417,7 +417,7 @@ def Yuddha_Praveena(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yuddhatpoorvadridhachitta")
-def Yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
+def yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
     """
     The exalted Lord of the third house joins malefics in movable Rasis or Navamsas.
     """
@@ -466,7 +466,7 @@ def Yuddhatpoorvadridhachitta(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yuddhatpaschaddrudha")
-def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
+def yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
     """
     The Lord of the third house occupies a fixed Rasi, a fixed Navamsa and a cruel Shahtiamsa, and the Lord of the Rasi so occupied is in debility.
     """
@@ -534,7 +534,7 @@ def Yuddhatpaschaddrudha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Satkathadisravana")
-def Satkathadisravana(yoga: Yoga) -> YogaType:
+def satkathadisravana(yoga: Yoga) -> YogaType:
     """
     The third house is a benefic sign aspected by benefic planets and the third Lord joins a benefic amsa.
     """
@@ -571,7 +571,7 @@ def Satkathadisravana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Uttama Griha")
-def Uttama_Griha(yoga: Yoga) -> YogaType:
+def uttama_griha(yoga: Yoga) -> YogaType:
     """
     The Lord of the fourth house joins benefics in a kendra or thrikona.
     """
@@ -610,7 +610,7 @@ def Uttama_Griha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vichitra Saudha Prakara")
-def Vichitra_Saudha_Prakara(yoga: Yoga) -> YogaType:
+def vichitra_saudha_prakara(yoga: Yoga) -> YogaType:
     """
     The Lords of the fourth and tenth are conjoined together with Saturn and Mars.
     """
@@ -644,7 +644,7 @@ def Vichitra_Saudha_Prakara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ayatna Griha Prapta Yoga")
-def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
+def ayatna_griha_prapta_yoga(yoga: Yoga) -> YogaType:
     """
     Lords of Lagna and the seventh house occupies Lagna or the fourth house, aspected by benefics.
     or
@@ -717,7 +717,7 @@ def Ayatna_Griha_Prapta_Yoga(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Grihanasa")
-def Grihanasa(yoga: Yoga) -> YogaType:
+def grihanasa(yoga: Yoga) -> YogaType:
     """
     The Lord of the fourth is in the twelfth house aspected by a malefic.
     or
@@ -775,7 +775,7 @@ def Grihanasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bandhu Pujya")
-def Bandhu_Pujya(yoga: Yoga) -> YogaType:
+def bandhu_pujya(yoga: Yoga) -> YogaType:
     """
     The benefic Lord of the fourth is aspected by another benefic and Mercury is situated in Lagna.
     or
@@ -842,7 +842,7 @@ def Bandhu_Pujya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bandhubhisthyaktha")
-def Bandhubhisthyaktha(yoga: Yoga) -> YogaType:
+def bandhubhisthyaktha(yoga: Yoga) -> YogaType:
     """
     The fourth Lord is associated with malefics or occupies evil shashtiamsas or joins inimical or debilitation signs.
     """
@@ -889,7 +889,7 @@ def Bandhubhisthyaktha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrudeerghayur")
-def Matrudeerghayur(yoga: Yoga) -> YogaType:
+def matrudeerghayur(yoga: Yoga) -> YogaType:
     """
     A benefic occupies the fourth, the fourth Lord is exalted, and the Moon is strong.
     or
@@ -919,7 +919,7 @@ def Matrudeerghayur(yoga: Yoga) -> YogaType:
 
     if (p_moon := yoga.get_planet_by_name("Moon")) is None or p_moon["name"] == "Lagna":
         raise ValueError("Moon not found")
-    moon_strong, _ = yoga.isPlanetPowerful(p_moon)
+    moon_strong, _ = yoga.is_planet_powerful(p_moon)
 
     if benefic_in_4 and l4_exalted and moon_strong:
         cond1 = True
@@ -936,11 +936,11 @@ def Matrudeerghayur(yoga: Yoga) -> YogaType:
             "name"
         ] == "Lagna":
             raise ValueError("Planet of Lord of house 4 not found")
-        t_strong, _ = yoga.isPlanetPowerful(p_target)
+        t_strong, _ = yoga.is_planet_powerful(p_target)
 
         in_kendra_lagna = yoga.planet_in_kendra_from(1, target_lord)
 
-        # Kendra from Chandra Lagna
+        # Kendra from chandra Lagna
         h_moon = yoga.get_house_of_planet("Moon")
         in_kendra_moon = False
         t_house = yoga.get_house_of_planet(target_lord)
@@ -965,7 +965,7 @@ def Matrudeerghayur(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrunasa")
-def Matrunasa(yoga: Yoga) -> YogaType:
+def matrunasa(yoga: Yoga) -> YogaType:
     """
     The Moon is hemmed in between, associated with or aspected by evil planets.
     or
@@ -1051,7 +1051,7 @@ def Matrunasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrugami")
-def Matrugami(yoga: Yoga) -> YogaType:
+def matrugami(yoga: Yoga) -> YogaType:
     """
     The Moon or Venus joins a kendra in conjunction with or aspected by a malefic, and an evil planet occupies the fourth house.
     """
@@ -1113,7 +1113,7 @@ def Matrugami(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sahodareesangama")
-def Sahodareesangama(yoga: Yoga) -> YogaType:
+def sahodareesangama(yoga: Yoga) -> YogaType:
     """
     The Lord of the seventh house and Venus are in conjunction in the fourth house and are aspected by or associated with malefics or are in cruel shashtiamsas.
     """
@@ -1162,7 +1162,7 @@ def Sahodareesangama(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kapata")
-def Kapata(yoga: Yoga) -> YogaType:
+def kapata(yoga: Yoga) -> YogaType:
     """
     The fourth house is joined by a malefic and the fourth Lord is associated with or aspected by malefics or is hemmed in between malefic.
     or
@@ -1310,7 +1310,7 @@ def Kapata(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Nishkapata")
-def Nishkapata(yoga: Yoga) -> YogaType:
+def nishkapata(yoga: Yoga) -> YogaType:
     """
     The fourth house is occupied by a benefic, or a planet in exaltation, friendly or own house, or the fourth house is a benefic sign.
     or
@@ -1398,7 +1398,7 @@ def Nishkapata(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matru Satrutwa")
-def Matru_Satrutwa(yoga: Yoga) -> YogaType:
+def matru_satrutwa(yoga: Yoga) -> YogaType:
     """
     Mercury, being the Lord of Lagna and the fourth house, must join with or be aspected by a malefic.
     """
@@ -1446,7 +1446,7 @@ def Matru_Satrutwa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matru Sneha")
-def Matru_Sneha(yoga: Yoga) -> YogaType:
+def matru_sneha(yoga: Yoga) -> YogaType:
     """
     The first and fourth house have a common Lord, or the Lords of the first and fourth house must be temporal or natural friends or aspected by benefics.
     """
@@ -1500,7 +1500,7 @@ def Matru_Sneha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vahana")
-def Vahana(yoga: Yoga) -> YogaType:
+def vahana(yoga: Yoga) -> YogaType:
     """
     The Lord of Lagna joins the fourth, eleventh or the ninth house.
     or

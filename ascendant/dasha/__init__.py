@@ -7,7 +7,7 @@ from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.ephemeris import EphemerisChart
 from ascendant.horoscope import HoroscopeData
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType, PLANETS
-from ascendant.utils import parseDate
+from ascendant.utils import parse_date
 
 
 class _DashaPeriod(TypedDict):
@@ -181,8 +181,8 @@ class Dasha:
     ) -> int | None:
         """Return index where date lies between start and end."""
         for idx, item in enumerate(items):
-            start = parseDate(item.get(start_key))
-            end = parseDate(item.get(end_key))
+            start = parse_date(item.get(start_key))
+            end = parse_date(item.get(end_key))
             if start and end and start <= date <= end:
                 return idx
         return None
@@ -207,7 +207,7 @@ class Dasha:
         antardashas = maha["antardashas"]
 
         if date:
-            target_date = parseDate(date)
+            target_date = parse_date(date)
         else:
             target_date = datetime.now(timezone.utc)
         if target_date is None:
@@ -242,7 +242,7 @@ class Dasha:
             return None
 
         if date:
-            target_date = parseDate(date)
+            target_date = parse_date(date)
         else:
             target_date = datetime.now(timezone.utc)
         if target_date is None:

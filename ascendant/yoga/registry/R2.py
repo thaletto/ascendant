@@ -12,7 +12,7 @@ from ascendant.yoga.base import Yoga, register_yoga, register_yogas
 
 
 @register_yoga("Kusuma")
-def Kusuma(yoga: Yoga) -> YogaType:
+def kusuma(yoga: Yoga) -> YogaType:
     """
     Ju in Asc, Mo in 7th and Su in 2nd house
     """
@@ -45,7 +45,7 @@ def Kusuma(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matsya")
-def Matsya(yoga: Yoga) -> YogaType:
+def matsya(yoga: Yoga) -> YogaType:
     """
     Lagna and the 9th are joined by malefics
     5th by both malefic and benefics
@@ -100,7 +100,7 @@ def Matsya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kurma")
-def Kurma(yoga: Yoga) -> YogaType:
+def kurma(yoga: Yoga) -> YogaType:
     """
     Benefics occupy the 5th, 6th and 7th and join their exaltation, own or friendly Navamsas
     or
@@ -222,7 +222,7 @@ def Kurma(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Devendra")
-def Devendra(yoga: Yoga) -> YogaType:
+def devendra(yoga: Yoga) -> YogaType:
     """
     Lagna is in fixed sign,
     the lords lagna and the 11th interchange their houses,
@@ -282,7 +282,7 @@ def Devendra(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Makuta")
-def Makuta(yoga: Yoga) -> YogaType:
+def makuta(yoga: Yoga) -> YogaType:
     """
     Ju is in the 9th house from the 9th Lord
     A benefic is in the 9th from Ju
@@ -330,7 +330,7 @@ def Makuta(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Chandika")
-def Chandika(yoga: Yoga) -> YogaType:
+def chandika(yoga: Yoga) -> YogaType:
     """
     Lagna in fixed sign,
     Lagna aspected by Lord of 6th
@@ -412,7 +412,7 @@ def Chandika(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Jaya")
-def Jaya(yoga: Yoga) -> YogaType:
+def jaya(yoga: Yoga) -> YogaType:
     """
     The lord of 6th is debliated and the lord of 10th is deep exaltation (+/- 5 degree from deep exaltation degree)
     """
@@ -471,7 +471,7 @@ def Jaya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vidyut")
-def Vidyut(yoga: Yoga) -> YogaType:
+def vidyut(yoga: Yoga) -> YogaType:
     """
     The 11th lord is in deep exaltation (+/- 5 degree from deep exaltation degree)
     and joins Venus in a Kendra from the lord of Lagna
@@ -550,7 +550,7 @@ def Vidyut(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Gandharva")
-def Gandharva(yoga: Yoga) -> YogaType:
+def gandharva(yoga: Yoga) -> YogaType:
     """
     The 10th Lord is in the Kama Trikona (3, 7, 11) and the Lord of Lagna and Jupiter are in association
     The Sun being exalted and the Moon occupies the 9th
@@ -607,7 +607,7 @@ def Gandharva(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vishnu")
-def Vishnu(yoga: Yoga) -> YogaType:
+def vishnu(yoga: Yoga) -> YogaType:
     """
     The lord of the Navamsa in which the 9th lord is placed
     and the 10th lord joins the 2nd house in conjunction with the 9th lord
@@ -676,7 +676,7 @@ def Vishnu(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Brahma")
-def Brahma(yoga: Yoga) -> YogaType:
+def brahma(yoga: Yoga) -> YogaType:
     """
     Jupiter and Venus are in Kendras respectively from the lords of the 9th and 11th
     and Mercury is in Kendras from the lord of either Lagna or the 10th
@@ -768,7 +768,7 @@ def Brahma(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Indra")
-def Indra(yoga: Yoga) -> YogaType:
+def indra(yoga: Yoga) -> YogaType:
     """
     The lord of the 5th and 11th interchange their houses and the Moon is in the 5th
     """
@@ -806,7 +806,7 @@ def Indra(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ravi")
-def Ravi(yoga: Yoga) -> YogaType:
+def ravi(yoga: Yoga) -> YogaType:
     """
     The Sun joins the 10th and the lord of 10th must be in 3rd in conjunction with Saturn
     """
@@ -846,7 +846,7 @@ def Ravi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Go")
-def Go(yoga: Yoga) -> YogaType:
+def go(yoga: Yoga) -> YogaType:
     """
     Jupiter in Moolatrikona with the lord of the 2nd house and the lord of Lagna is in exaltation
     """
@@ -892,7 +892,7 @@ def Go(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Thrilochana")
-def Thrilochana(yoga: Yoga) -> YogaType:
+def thrilochana(yoga: Yoga) -> YogaType:
     """
     The Sun, Moon and Mars are in trines with each other
     """
@@ -936,7 +936,7 @@ def Thrilochana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kulavardhana")
-def Kulavardhana(yoga: Yoga) -> YogaType:
+def kulavardhana(yoga: Yoga) -> YogaType:
     """
     All planets are in the 5th house from either Lagna, the Sun and the Moon
     Shadow planets are not considered
@@ -1024,7 +1024,7 @@ def Kulavardhana(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Yupa", "Ishu", "Sakti", "Danda", "Nav", "Kuta", "Chhatra", "Chapa")
-def AkritiYogas(yoga: Yoga) -> dict[str, YogaType]:
+def akriti_yogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Yupa: Planets occupy four consecutive houses starting from the Lagna.
     Ishu: Planets occupy four consecutive houses starting from the Nadir (fourth house).
@@ -1117,7 +1117,7 @@ def AkritiYogas(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yoga("Ardha Chandra")
-def ArdhaChandra(yoga: Yoga) -> YogaType:
+def ardha_chandra(yoga: Yoga) -> YogaType:
     """
     All planets occupy seven consecutive houses not starting from 1, 4, 7, 10
     """
@@ -1145,7 +1145,7 @@ def ArdhaChandra(yoga: Yoga) -> YogaType:
         return result
 
     for start_house in range(1, 13):
-        # Exclude starts for Nav, Kuta, Chhatra, Chapa
+        # Exclude starts for Nav, Kuta, Chhatra, chapa
         if start_house in [1, 4, 7, 10]:
             continue
 
@@ -1176,7 +1176,7 @@ def ArdhaChandra(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Chandra")
-def Chandra(yoga: Yoga) -> YogaType:
+def chandra(yoga: Yoga) -> YogaType:
     """
     All planets occupy the 1, 3, 5, 7, 9 and 11th houses.
     """
@@ -1225,7 +1225,7 @@ def Chandra(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Gada Kendra Stithi", "Sakata Kendra Stithi", "Vihaga Kendra Stithi")
-def KendraStithiYogas(yoga: Yoga) -> dict[str, YogaType]:
+def kendra_stithi_yogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Gada Kendra Stithi: All planets occupy adjacent kendra houses.
     Sakata Kendra Stithi: All planets occupy 1st and 7th kendra houses.
@@ -1268,7 +1268,7 @@ def KendraStithiYogas(yoga: Yoga) -> dict[str, YogaType]:
     occupied_houses = {h for h in planet_locations.values() if h is not None}
     occupied_houses_str = ", ".join(map(str, sorted(list(occupied_houses))))
 
-    # Sakata
+    # sakata
     if occupied_houses.issubset({1, 7}):
         results["Sakata Kendra Stithi"]["present"] = True
         results["Sakata Kendra Stithi"]["strength"] = 1.0
@@ -1313,7 +1313,7 @@ def KendraStithiYogas(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yogas("Vajra", "Yava")
-def VajraYavaYoga(yoga: Yoga) -> dict[str, YogaType]:
+def vajra_yava_yoga(yoga: Yoga) -> dict[str, YogaType]:
     """
     Vajra: Benefics occupy the Lagna and 7th house, while malefics occupy the 4th and 10th house.
     Yava: Malefics occupy the Lagna and 7th house, while benefics occupy the 4th and 10th house.
@@ -1418,7 +1418,7 @@ def VajraYavaYoga(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yoga("Sringhataka")
-def Sringhataka(yoga: Yoga) -> YogaType:
+def sringhataka(yoga: Yoga) -> YogaType:
     """
     All classical planets occupy the Lagna and its trines
     """
@@ -1471,7 +1471,7 @@ def Sringhataka(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Hala")
-def Hala(yoga: Yoga) -> YogaType:
+def hala(yoga: Yoga) -> YogaType:
     """
     All classical planets are located in trine-house pattern but not Lagna's Trine
     """
@@ -1523,7 +1523,7 @@ def Hala(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kamala")
-def Kamala(yoga: Yoga) -> YogaType:
+def kamala(yoga: Yoga) -> YogaType:
     """
     All classical planets are situated in four kendras
     """
@@ -1576,7 +1576,7 @@ def Kamala(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vapee")
-def Vapee(yoga: Yoga) -> YogaType:
+def vapee(yoga: Yoga) -> YogaType:
     """
     The planets are ranged in the four Panarapas (2, 5, 8, 11) or the four Apoklimas (3, 6, 9, 12).
     """
@@ -1623,7 +1623,7 @@ def Vapee(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Samudra")
-def Samudra(yoga: Yoga) -> YogaType:
+def samudra(yoga: Yoga) -> YogaType:
     """
     All planets occupy six even houses
     """
@@ -1677,7 +1677,7 @@ def Samudra(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Vallaki", "Damni", "Pasa", "Kedara", "Sula", "Yuga", "Gola")
-def SankhyaYogas(yoga: Yoga) -> dict[str, YogaType]:
+def sankhya_yogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Sankhya Yogas are based on the number of houses occupied by the seven classical planets.
 
@@ -1759,7 +1759,7 @@ def SankhyaYogas(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yogas("Rajju", "Musala", "Nala")
-def RasiGunaYogas(yoga: Yoga) -> dict[str, YogaType]:
+def rasi_guna_yogas(yoga: Yoga) -> dict[str, YogaType]:
     """
     Yogas based on all planets occupying signs of a certain modality.
     - Rajju: All planets in movable (cardinal) signs.
@@ -1828,7 +1828,7 @@ def RasiGunaYogas(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yogas("Srik", "Sarpa")
-def SrikSarpa(yoga: Yoga) -> dict[str, YogaType]:
+def srik_sarpa(yoga: Yoga) -> dict[str, YogaType]:
     """
     Srik: All the benefics occupy kendras
     Sarpa: All the malefics occupy kendras
@@ -1904,7 +1904,7 @@ def SrikSarpa(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yogas("Duryoga", "Daridra")
-def DuryogaDaridra(yoga: Yoga) -> dict[str, YogaType]:
+def duryoga_daridra(yoga: Yoga) -> dict[str, YogaType]:
     """
     Duryoga: The lord of the 10th is situated in the 6th, 8th or 12th
     Daridra: The lord of the 11th is situated in the 6th, 8th or 12th
@@ -1961,7 +1961,7 @@ def DuryogaDaridra(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yogas("Harsha", "Sarala", "Vimala")
-def HarshaSaralaVimala(yoga: Yoga) -> dict[str, YogaType]:
+def harsha_sarala_vimala(yoga: Yoga) -> dict[str, YogaType]:
     """
     The lords of the 6th occupy the 6th
     The lords of the 8th occupy the 8th
@@ -2041,7 +2041,7 @@ def HarshaSaralaVimala(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yoga("SareeraSoukhya")
-def SareeraSoukhya(yoga: Yoga) -> YogaType:
+def sareera_soukhya(yoga: Yoga) -> YogaType:
     """
     The lord of Lagna, Jupiter or Venus should occupy a quadrant
     """
@@ -2082,7 +2082,7 @@ def SareeraSoukhya(yoga: Yoga) -> YogaType:
 
 
 @register_yogas("Dehapushti", "Dehakashta")
-def DehapushtiDehakashta(yoga: Yoga) -> dict[str, YogaType]:
+def dehapushti_dehakashta(yoga: Yoga) -> dict[str, YogaType]:
     """
     Dehapushti: Lord of Lagna in a movable sign and aspected by a benefic
     Dehakashta: Lord of Langa must join a malefic or occupy the 8th house
@@ -2151,7 +2151,7 @@ def DehapushtiDehakashta(yoga: Yoga) -> dict[str, YogaType]:
 
 
 @register_yoga("Rogagrastha")
-def Rogagrastha(yoga: Yoga) -> YogaType:
+def rogagrastha(yoga: Yoga) -> YogaType:
     """
     Lord of Lagna occupies Lagna in conjunction with the lord of 6th or 8th or 12th house.
     Or weak lord of Lagna joins a trine or a quadrant.
@@ -2205,8 +2205,8 @@ def Rogagrastha(yoga: Yoga) -> YogaType:
     if p_l1 is None or p_l1["name"] == "Lagna":
         raise ValueError("Invalid Lagna planet")
     if p_l1:
-        # Note: isPlanetPowerful returns (bool, strength)
-        is_powerful, _ = yoga.isPlanetPowerful(p_l1)
+        # Note: is_planet_powerful returns (bool, strength)
+        is_powerful, _ = yoga.is_planet_powerful(p_l1)
         if not is_powerful:
             # Weak lord of Lagna
             # Check if in Trine (1, 5, 9) or Quadrant (1, 4, 7, 10).
@@ -2236,7 +2236,7 @@ def Rogagrastha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Krisanga")
-def Krisanga(yoga: Yoga) -> YogaType:
+def krisanga(yoga: Yoga) -> YogaType:
     """
     The Lagna Sign occupies a dry sign (Aries, Leo, Sagittarius, Taurus, Virgo, Capricorn)
     or the Lagna lord is dry planet (Sun, Mars, Saturn and Mercury).
@@ -2279,7 +2279,7 @@ def Krisanga(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Dehasthoulya")
-def Dehasthoulya(yoga: Yoga) -> YogaType:
+def dehasthoulya(yoga: Yoga) -> YogaType:
     """
     Lord of Lagna and the planet, in whose Navamasa the lord of Lagna is placed, should occupy watery signs.
     or
@@ -2405,7 +2405,7 @@ def Dehasthoulya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sada Sanchara")
-def SadaSanchara(yoga: Yoga) -> YogaType:
+def sada_sanchara(yoga: Yoga) -> YogaType:
     """
     The lord of either the Lagna or the sign occupied by Lagna lord must be movable sign.
 
@@ -2462,7 +2462,7 @@ def SadaSanchara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Dhana")
-def Dhana(yoga: Yoga) -> YogaType:
+def dhana(yoga: Yoga) -> YogaType:
     """
     Multiple conditions involved 5th, 11th, and specific planet positions.
     Check details for specific condition met.
@@ -2664,7 +2664,7 @@ def Dhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bahudravyarjana")
-def Bahudravyarjana(yoga: Yoga) -> YogaType:
+def bahudravyarjana(yoga: Yoga) -> YogaType:
     """
     Lord of the Lagna in the 2nd, lord of the 2nd in the 11th and the lord of 11th in the Lagna.
 
@@ -2719,7 +2719,7 @@ def Bahudravyarjana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Anthya Vayasi Dhana")
-def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
+def anthya_vayasi_dhana(yoga: Yoga) -> YogaType:
     """
     The planets owning the sign in which the lords of the 2nd and 1st together with a natural benefic are placed,
     should be strongly disposed in Lagna.
@@ -2785,7 +2785,7 @@ def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
     p_disp = yoga.get_planet_by_name(dispositor)
     if p_disp is None or p_disp["name"] == "Lagna":
         raise ValueError(f"Invalid dispositor: {dispositor}")
-    is_strong, _ = yoga.isPlanetPowerful(p_disp)
+    is_strong, _ = yoga.is_planet_powerful(p_disp)
 
     if not is_strong:
         result["details"] = f"Dispositor ({dispositor}) is in Lagna but not strong."
@@ -2801,7 +2801,7 @@ def AnthyaVayasiDhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Balya Dhana")
-def BalyaDhana(yoga: Yoga) -> YogaType:
+def balya_dhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Balya Dhana",
@@ -2892,7 +2892,7 @@ def BalyaDhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bhratrumooladdhanaprapti")
-def Bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
+def bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Bhratrumooladdhanaprapti",
@@ -2944,7 +2944,7 @@ def Bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
         p_l1 = yoga.get_planet_by_name(l1)
         if not p_l1 or p_l1["name"] == "Lagna":
             raise ValueError("L1 not found or is Lagna")
-        l1_powerful, _ = yoga.isPlanetPowerful(p_l1)
+        l1_powerful, _ = yoga.is_planet_powerful(p_l1)
 
         if l1_powerful:
             joined = yoga.get_house_of_planet(l1) == 2
@@ -2974,7 +2974,7 @@ def Bhratrumooladdhanaprapti(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Matrumooladdhana")
-def Matrumooladdhana(yoga: Yoga) -> YogaType:
+def matrumooladdhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Matrumooladdhana",
@@ -3025,7 +3025,7 @@ def Matrumooladdhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Putramooladdhana")
-def Putramooladdhana(yoga: Yoga) -> YogaType:
+def putramooladdhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Putramooladdhana",
@@ -3049,8 +3049,8 @@ def Putramooladdhana(yoga: Yoga) -> YogaType:
     if not p_l1 or p_l1["name"] == "Lagna" or not p_l2 or p_l2["name"] == "Lagna":
         raise ValueError("Invalid planet data")
 
-    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
-    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    l1_strong, _ = yoga.is_planet_powerful(p_l1)
+    l2_strong, _ = yoga.is_planet_powerful(p_l2)
 
     if not l1_strong:
         result["details"] = f"L1 ({l1}) is not strong / Vaiseshikamsa."
@@ -3084,7 +3084,7 @@ def Putramooladdhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Satrumooladdhana")
-def Satrumooladdhana(yoga: Yoga) -> YogaType:
+def satrumooladdhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Satrumooladdhana",
@@ -3109,8 +3109,8 @@ def Satrumooladdhana(yoga: Yoga) -> YogaType:
         result["details"] = "Planet data missing."
         return result
 
-    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
-    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    l1_strong, _ = yoga.is_planet_powerful(p_l1)
+    l2_strong, _ = yoga.is_planet_powerful(p_l2)
 
     if not l1_strong:
         result["details"] = f"L1 ({l1}) is not strong / Vaiseshikamsa."
@@ -3144,7 +3144,7 @@ def Satrumooladdhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Kalatramooladdhana")
-def Kalatramooladdhana(yoga: Yoga) -> YogaType:
+def kalatramooladdhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Kalatramooladdhana",
@@ -3169,8 +3169,8 @@ def Kalatramooladdhana(yoga: Yoga) -> YogaType:
         result["details"] = "Planet data missing."
         return result
 
-    l1_strong, _ = yoga.isPlanetPowerful(p_l1)
-    l2_strong, _ = yoga.isPlanetPowerful(p_l2)
+    l1_strong, _ = yoga.is_planet_powerful(p_l1)
+    l2_strong, _ = yoga.is_planet_powerful(p_l2)
 
     if not l1_strong:
         result["details"] = f"L1 ({l1}) is not powerful."
@@ -3206,7 +3206,7 @@ def Kalatramooladdhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Amaranantha Dhana")
-def AmarananthaDhana(yoga: Yoga) -> YogaType:
+def amaranantha_dhana(yoga: Yoga) -> YogaType:
     result: YogaType = {
         "id": "",
         "name": "Amaranantha Dhana",
@@ -3239,7 +3239,7 @@ def AmarananthaDhana(yoga: Yoga) -> YogaType:
         p = yoga.get_planet_by_name(k)
         if not p or p["name"] == "Lagna":
             continue
-        is_strong, _ = yoga.isPlanetPowerful(p)
+        is_strong, _ = yoga.is_planet_powerful(p)
         in_sign = p.get("inSign") or []
         own_or_exalt = any(s in ["Exalted", "Own"] for s in in_sign)
         if is_strong or own_or_exalt:
@@ -3258,7 +3258,7 @@ def AmarananthaDhana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Ayatnadhanalabha")
-def Ayatnadhanalabha(yoga: Yoga) -> YogaType:
+def ayatnadhanalabha(yoga: Yoga) -> YogaType:
     """
     The lord of the Lagna and the 2nd must exchange places.
 
@@ -3297,7 +3297,7 @@ def Ayatnadhanalabha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Daridhra")
-def Daridhra(yoga: Yoga) -> YogaType:
+def daridhra(yoga: Yoga) -> YogaType:
     """
     Negative yoga conditions for Daridhra.
     """
@@ -3521,7 +3521,7 @@ def Daridhra(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Yukthi Samanwithavagmi")
-def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
+def yukthi_samanwithavagmi(yoga: Yoga) -> YogaType:
     """
     1. The second Lord joins a benefic in a kendra or thrikona, or is exalted and combined with Jupiter.
     2. The Lord of speech occupies a kendra, attains paramochha and gains Parvatamsa, while Jupiter or Venus is in Simhasanamsa.
@@ -3577,12 +3577,12 @@ def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
     # Condition 2:
     # L2 in Kendra
     # AND Attains Paramochha (Deep Exaltation) - Proxy: Exalted
-    # AND Gains Parvatamsa (Varga strength) - Proxy: isPlanetPowerful
+    # AND Gains Parvatamsa (Varga strength) - Proxy: is_planet_powerful
     # AND Jupiter or Venus in Simhasanamsa (Varga strength) - Proxy: Jupiter or Venus is Powerful
 
     if h_l2 in [1, 4, 7, 10]:
         if is_exalted(p_l2) and p_l2 is not None and p_l2["name"] != "Lagna":
-            is_strong_l2, _ = yoga.isPlanetPowerful(p_l2)
+            is_strong_l2, _ = yoga.is_planet_powerful(p_l2)
             if is_strong_l2:
                 # Check Ju or Ve strong
                 p_ju = yoga.get_planet_by_name("Jupiter")
@@ -3591,8 +3591,8 @@ def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
                 p_ve = yoga.get_planet_by_name("Venus")
                 if p_ve is None or p_ve["name"] == "Lagna":
                     raise ValueError("Could not find Venus in D9.")
-                ju_strong = yoga.isPlanetPowerful(p_ju)[0] if p_ju else False
-                ve_strong = yoga.isPlanetPowerful(p_ve)[0] if p_ve else False
+                ju_strong = yoga.is_planet_powerful(p_ju)[0] if p_ju else False
+                ve_strong = yoga.is_planet_powerful(p_ve)[0] if p_ve else False
 
                 if ju_strong or ve_strong:
                     result["present"] = True
@@ -3605,7 +3605,7 @@ def YukthiSamanwithavagmi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Parihasaka")
-def Parihasaka(yoga: Yoga) -> YogaType:
+def parihasaka(yoga: Yoga) -> YogaType:
     """
     The Lord of Navamsa occupied by the Sun attains Vaiseshikamsa and joins the second house.
 
@@ -3651,7 +3651,7 @@ def Parihasaka(yoga: Yoga) -> YogaType:
     p_nsl = yoga.get_planet_by_name(nsl_sun)
     if p_nsl is None or p_nsl["name"] == "Lagna":
         raise ValueError("Could not find Navamsa Sun Lord in D9.")
-    is_strong, _ = yoga.isPlanetPowerful(p_nsl)
+    is_strong, _ = yoga.is_planet_powerful(p_nsl)
 
     if not is_strong:
         result["details"] = (
@@ -3681,7 +3681,7 @@ def Parihasaka(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Asatyavadi")
-def Asatyavadi(yoga: Yoga) -> YogaType:
+def asatyavadi(yoga: Yoga) -> YogaType:
     """
     The Lord of the second house occupies the house of Saturn or Mars and malefics join kendras and thrikonas.
 
@@ -3715,7 +3715,7 @@ def Asatyavadi(yoga: Yoga) -> YogaType:
 
     # CRITICAL: Invalid if L2 is itself Saturn or Mars (Own Sign)
     # The requirement "occupies the house of Saturn or Mars" implies "Staying in someone else's house" (usually malefics).
-    # If L2 is Mars and in Aries -> Own house. This is usually good (Swakshetra). Not Asatyavadi (Liar).
+    # If L2 is Mars and in Aries -> Own house. This is usually good (Swakshetra). Not asatyavadi (Liar).
     # User clarification: "the first condition is will be invalid if L2 is itself Saturn or Mars"
     # Wait, simple logic: IF L2 == Saturn OR L2 == Mars, checking if they are in their own house means they are Strong.
     # The user logic was: "invalid if L2 is itself Saturn or Mars".
@@ -3779,7 +3779,7 @@ def Asatyavadi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bhaskara")
-def Bhaskara(yoga: Yoga) -> YogaType:
+def bhaskara(yoga: Yoga) -> YogaType:
     """
     Mercury in the second house from the Sun, the Moon in the eleventh house from Mercury and Jupiter in the fifth or ninth house from the Moon.
 
@@ -3829,7 +3829,7 @@ def Bhaskara(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Marud")
-def Marud(yoga: Yoga) -> YogaType:
+def marud(yoga: Yoga) -> YogaType:
     """
     Jupiter in fifth or ninth house from Venus, the Moon in the fifth house from Jupiter and the Sun in a kendra from the Moon.
 
@@ -3882,7 +3882,7 @@ def Marud(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Saraswathi")
-def Saraswathi(yoga: Yoga) -> YogaType:
+def saraswathi(yoga: Yoga) -> YogaType:
     """
     Jupiter, Venus and Mercury occupy Lagna, second, fourth, fifth, seventh, ninth or tenth house either jointly or severally, Jupiter being in his own, exaltation or friendly sign.
 
@@ -3915,19 +3915,19 @@ def Saraswathi(yoga: Yoga) -> YogaType:
         return result
 
     # Check Jupiter strength (Own, Exaltation, Friend)
-    # isPlanetPowerful checks Exalted(1.0), MoolaTrikona(0.8), Own(0.7), Friend(0.6).
+    # is_planet_powerful checks Exalted(1.0), MoolaTrikona(0.8), Own(0.7), Friend(0.6).
     # Usually covers the requirement.
     p_jupiter = yoga.get_planet_by_name("Jupiter")
     if not p_jupiter or p_jupiter["name"] == "Lagna":
         raise ValueError("Jupiter not found or is Lagna")
-    is_strong, _ = yoga.isPlanetPowerful(p_jupiter)
+    is_strong, _ = yoga.is_planet_powerful(p_jupiter)
 
     if not is_strong:
-        # Check specific Relation if isPlanetPowerful is too strict?
-        # isPlanetPowerful returns True for Friend, Own, Exalted.
+        # Check specific Relation if is_planet_powerful is too strict?
+        # is_planet_powerful returns True for Friend, Own, Exalted.
         # But maybe we should check the sign relation directly to be sure.
         relation = p_jupiter.get("inSign")  # e.g. "Friend's Sign", "Own Sign"
-        # Since isPlanetPowerful covers Friend, it is likely sufficient.
+        # Since is_planet_powerful covers Friend, it is likely sufficient.
         result["details"] = (
             f"Benefics in allowed houses, but Jupiter is not strong ({relation})."
         )
@@ -3940,7 +3940,7 @@ def Saraswathi(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Budha")
-def Budha(yoga: Yoga) -> YogaType:
+def budha(yoga: Yoga) -> YogaType:
     """
     Jupiter in Lagna, the Moon in a kendra, Rahu in the second house from the Moon and the Sun and Mars in the third house from Rahu.
 
@@ -3996,7 +3996,7 @@ def Budha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Mooka")
-def Mooka(yoga: Yoga) -> YogaType:
+def mooka(yoga: Yoga) -> YogaType:
     """
     The second Lord joins the eighth with Jupiter.
     Clarification: L2, L8 and Jupiter in the same house.
@@ -4035,7 +4035,7 @@ def Mooka(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Netranasa")
-def Netranasa(yoga: Yoga) -> YogaType:
+def netranasa(yoga: Yoga) -> YogaType:
     """
     The Lords of the tenth and sixth house occupy Lagna with the second Lord, or they are in Neechamsa.
 
@@ -4124,7 +4124,7 @@ def Netranasa(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Andha")
-def Andha(yoga: Yoga) -> YogaType:
+def andha(yoga: Yoga) -> YogaType:
     """
     Mercury and the Moon is in the second or the Lords of Lagna and the second join the second house with the Sun.
 
@@ -4171,7 +4171,7 @@ def Andha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sumukha")
-def Sumukha(yoga: Yoga) -> YogaType:
+def sumukha(yoga: Yoga) -> YogaType:
     """
     The Lord of the second house is in a kendra aspected by benefics, or benefics join the second house.
     or
@@ -4239,15 +4239,15 @@ def Sumukha(yoga: Yoga) -> YogaType:
         if valid_relation:
             # Lord of that Kendra
             l_kendra = yoga.get_lord_of_house(h_l2)
-            # Attains Gopuramsa (Use isPlanetPowerful as proxy for now, or check explicit strength if possible)
+            # Attains Gopuramsa (Use is_planet_powerful as proxy for now, or check explicit strength if possible)
             # Gopuramsa is a specific Varga strength (4 vargas).
-            # "isPlanetPowerful" isn't strictly Gopuramsa.
+            # "is_planet_powerful" isn't strictly Gopuramsa.
             # But assume Strong for now.
             if l_kendra:
                 p_lk = yoga.get_planet_by_name(l_kendra)
                 if not p_lk or p_lk["name"] == "Lagna":
                     raise ValueError("L_Kendra not found or is Lagna")
-                is_strong, _ = yoga.isPlanetPowerful(p_lk)
+                is_strong, _ = yoga.is_planet_powerful(p_lk)
                 if is_strong:
                     result["present"] = True
                     result["strength"] = 1.0
@@ -4261,7 +4261,7 @@ def Sumukha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Durmukha")
-def Durmukha(yoga: Yoga) -> YogaType:
+def durmukha(yoga: Yoga) -> YogaType:
     """
     Malefics occupies the second and its Lord joins an evil planet or is in debilitation.
     or
@@ -4359,7 +4359,7 @@ def Durmukha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Bhojana Soukhya")
-def BhojanaSoukhya(yoga: Yoga) -> YogaType:
+def bhojana_soukhya(yoga: Yoga) -> YogaType:
     """
     The powerful Lord of the second house occupies Vaiseshikamsa
     and has the aspect of Jupiter or Venus.
@@ -4388,7 +4388,7 @@ def BhojanaSoukhya(yoga: Yoga) -> YogaType:
     if not p_l2 or p_l2["name"] == "Lagna":
         raise ValueError("L2 not found or is Lagna")
 
-    is_strong, _ = yoga.isPlanetPowerful(p_l2)
+    is_strong, _ = yoga.is_planet_powerful(p_l2)
     if not is_strong:
         result["details"] = f"L2 ({l2_planet}) is not strong/Vaiseshikamsa."
         return result
@@ -4425,7 +4425,7 @@ def BhojanaSoukhya(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Parannabhojana")
-def Parannabhojana(yoga: Yoga) -> YogaType:
+def parannabhojana(yoga: Yoga) -> YogaType:
     """
     The Lord of the second house is in debilitation or in unfriendly navamsas
     and aspected by a debilitated planet.
@@ -4519,7 +4519,7 @@ def Parannabhojana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Sraddhannabhuktha")
-def Sraddhannabhuktha(yoga: Yoga) -> YogaType:
+def sraddhannabhuktha(yoga: Yoga) -> YogaType:
     """
     Saturn owns the second house, or joins the second Lord, or the second house is aspected by debilitated Saturn.
 
@@ -4583,7 +4583,7 @@ def Sraddhannabhuktha(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("Vakchalana")
-def Vakchalana(yoga: Yoga) -> YogaType:
+def vakchalana(yoga: Yoga) -> YogaType:
     """
     A malefic owns the second house, joins a cruel navamsa and the second house is devoid of benefic aspect or association.
 
@@ -4659,7 +4659,7 @@ def Vakchalana(yoga: Yoga) -> YogaType:
 
 
 @register_yoga("VishapraYoga")
-def VishapraYoga(yoga: Yoga) -> YogaType:
+def vishapra_yoga(yoga: Yoga) -> YogaType:
     """
     The second house is joined and aspected by malefics and the second Lord is in a cruel navamsa aspected by a malefic.
 

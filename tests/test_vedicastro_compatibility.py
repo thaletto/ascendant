@@ -7,7 +7,7 @@ from ascendant import Ascendant, HoroscopeData
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HOUSE_SYSTEM_MAPPING
 from ascendant.types import ALLOWED_DIVISIONS
-from ascendant.utils import getHouseSystem
+from ascendant.utils import get_house_system
 
 
 def _digest(value) -> str:
@@ -52,7 +52,7 @@ def test_dasha_matches_vedicastro_021(astro: Ascendant):
 
 
 def test_house_system_normalization_is_preserved():
-    assert getHouseSystem("whole_sign") == HOUSE_SYSTEM_MAPPING["Whole Sign"]
+    assert get_house_system("whole_sign") == HOUSE_SYSTEM_MAPPING["Whole Sign"]
     assert HoroscopeData(
         1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, house_system="whole_sign"
     ).get_house_system() == HOUSE_SYSTEM_MAPPING["Whole Sign"]
@@ -74,7 +74,7 @@ def test_horoscope_data_is_public_advanced_api():
     horoscope = HoroscopeData(
         1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, house_system="Whole Sign"
     )
-    assert horoscope.generate_chart().getAngle("Asc").lon == pytest.approx(343.9226400242266)
+    assert horoscope.generate_chart().get_angle("Asc").lon == pytest.approx(343.9226400242266)
 
 
 @pytest.mark.parametrize(
@@ -95,7 +95,7 @@ def test_supported_ayanamsas_match_vedicastro_baseline(
     chart = HoroscopeData(
         1990, 1, 1, 12, 0, 0, "+5:30", 28.6139, 77.2090, ayanamsa=ayanamsa
     ).generate_chart()
-    assert chart.getAngle("Asc").lon == pytest.approx(ascendant_longitude)
+    assert chart.get_angle("Asc").lon == pytest.approx(ascendant_longitude)
     assert chart.get("Moon").lon == pytest.approx(moon_longitude)
 
 
@@ -121,9 +121,9 @@ def test_negative_utc_and_lunar_nodes_match_vedicastro_baseline():
     chart = HoroscopeData(
         1990, 1, 1, 12, 0, 0, "-5:00", 40.7128, -74.006, house_system="Whole Sign"
     ).generate_chart()
-    assert chart.getAngle("Asc").lon == pytest.approx(356.9442034611048)
-    assert chart.get("North Node").isRetrograde() is True
-    assert chart.get("South Node").isRetrograde() is True
+    assert chart.get_angle("Asc").lon == pytest.approx(356.9442034611048)
+    assert chart.get("North Node").is_retrograde() is True
+    assert chart.get("South Node").is_retrograde() is True
 
 
 @pytest.mark.parametrize(

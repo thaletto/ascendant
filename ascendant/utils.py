@@ -6,23 +6,23 @@ from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
 from ascendant.const import RASHIS as RASHI_MAP
 
 
-def isSignOdd(n: HOUSES) -> bool:
+def is_sign_odd(n: HOUSES) -> bool:
     """Return True if the rashi index is odd-numbered per this module's scheme."""
     return n % 2 == 0
 
 
-def getSignName(n: HOUSES) -> RASHIS:
+def get_sign_name(n: HOUSES) -> RASHIS:
     """Return the rashi name for a zero-based sign index."""
     rashi = RASHI_MAP[n]
     return rashi
 
 
-def getHouseSystem(house_system: str):
+def get_house_system(house_system: str):
     """Return the normalized Swiss Ephemeris house-system code."""
     return normalize_house_system(house_system)
 
 
-def parseDate(s: str | datetime) -> datetime | None:
+def parse_date(s: str | datetime) -> datetime | None:
     """Parse a DD-MM-YYYY date or normalize a datetime to UTC."""
     if not s:
         return None
@@ -34,7 +34,7 @@ def parseDate(s: str | datetime) -> datetime | None:
     return dt.replace(tzinfo=timezone.utc)
 
 
-def planetSignRelation(
+def planet_sign_relation(
     planet: PLANETS, sign: RASHIS, lon: float
 ) -> list[PLANET_SIGN_RELATION]:
     """Return dignity relationships for a planet in a sign."""
@@ -211,7 +211,7 @@ def planetSignRelation(
     return results
 
 
-def yogaNameToId(name: str) -> str:
+def yoga_name_to_id(name: str) -> str:
     """Convert a yoga display name to a stable snake_case identifier."""
     name = name.lower()
     name = re.sub(r"[^a-z0-9]+", "_", name)

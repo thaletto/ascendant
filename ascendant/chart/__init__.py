@@ -22,7 +22,7 @@ from ascendant.types import (
     PlanetsType,
     PlanetType,
 )
-from ascendant.utils import getSignName, planetSignRelation
+from ascendant.utils import get_sign_name, planet_sign_relation
 
 
 class Chart:
@@ -64,14 +64,14 @@ class Chart:
             if data is None:
                 continue
             target_sign, _ = get_divisional_target(lon, n)
-            sign = getSignName(target_sign)
+            sign = get_sign_name(target_sign)
             mapped_name = cast(PLANETS, NODE_MAP.get(name, name) or name)
 
             planet: PlanetType = {
                 "name": mapped_name,
                 "longitude": lon,
-                "is_retrograde": _planet.isRetrograde(),
-                "inSign": planetSignRelation(mapped_name, sign, lon),
+                "is_retrograde": _planet.is_retrograde(),
+                "inSign": planet_sign_relation(mapped_name, sign, lon),
                 "sign": {
                     "name": sign,
                     "lord": data["RasiLord"],
@@ -98,13 +98,13 @@ class Chart:
         if n not in DIVISIONS:
             return None
 
-        asc = self.__chart__.getAngle("Asc")
+        asc = self.__chart__.get_angle("Asc")
         lon: float = asc.lon
         data = self.__horoscope__.get_rl_nl_sl_data(lon)
         if data is None:
             return None
         target_sign, _ = get_divisional_target(lon, n)
-        sign = getSignName(target_sign)
+        sign = get_sign_name(target_sign)
 
         lagna: LagnaType = {
             "name": "Lagna",

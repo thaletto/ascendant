@@ -2,7 +2,7 @@ from typing import cast
 
 from ascendant.const import FIXED, MOVABLE
 from ascendant.types import ALLOWED_DIVISIONS, HOUSES, PLANETS
-from ascendant.utils import isSignOdd
+from ascendant.utils import is_sign_odd
 
 
 def aspect_offsets_for_planet(planet_name: PLANETS) -> list[int]:
@@ -67,7 +67,7 @@ def get_divisional_target(
             HOUSES,
             (
                 (sign_index + part_index) % 12
-                if isSignOdd(sign_index)
+                if is_sign_odd(sign_index)
                 else (sign_index + 6 + part_index) % 12
             ),
         )
@@ -84,7 +84,7 @@ def get_divisional_target(
 
     # D10 dashamsha.
     elif division == 10:
-        start = sign_index if isSignOdd(sign_index) else (sign_index + 8) % 12
+        start = sign_index if is_sign_odd(sign_index) else (sign_index + 8) % 12
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # D12 dvadashamsha.
@@ -103,7 +103,7 @@ def get_divisional_target(
 
     # D24 chaturvimshamsha.
     elif division == 24:
-        start = 4 if isSignOdd(sign_index) else 3
+        start = 4 if is_sign_odd(sign_index) else 3
         target_sign = cast(HOUSES, (start + part_index) % 12)
 
     # D27 bhamsha.
@@ -121,7 +121,7 @@ def get_divisional_target(
 
     # D30 trimshamsha.
     elif division == 30:
-        if isSignOdd(sign_index):
+        if is_sign_odd(sign_index):
             targets, edges = [0, 10, 8, 2, 6], [5, 10, 18, 25]
         else:
             targets, edges = [1, 5, 11, 9, 7], [5, 12, 20, 25]
@@ -135,7 +135,7 @@ def get_divisional_target(
     # D40 khavedamsha.
     elif division == 40:
         target_sign = cast(
-            HOUSES, ((0 if isSignOdd(sign_index) else 6) + part_index) % 12
+            HOUSES, ((0 if is_sign_odd(sign_index) else 6) + part_index) % 12
         )
 
     # D45 akshavedamsha.

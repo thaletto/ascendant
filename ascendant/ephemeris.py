@@ -81,7 +81,7 @@ class EphemerisObject:
     latspeed: float = 0.0
     size: float = 0.0
 
-    def isRetrograde(self) -> bool:
+    def is_retrograde(self) -> bool:
         return self.lonspeed < 0
 
 
@@ -93,21 +93,21 @@ class EphemerisChart:
     houses: tuple[EphemerisObject, ...]
     angles: tuple[EphemerisObject, ...]
 
-    def getObject(self, identifier: str) -> EphemerisObject:
+    def get_object(self, identifier: str) -> EphemerisObject:
         return self._find(self.objects, identifier)
 
-    def getHouse(self, identifier: str) -> EphemerisObject:
+    def get_house(self, identifier: str) -> EphemerisObject:
         return self._find(self.houses, identifier)
 
-    def getAngle(self, identifier: str) -> EphemerisObject:
+    def get_angle(self, identifier: str) -> EphemerisObject:
         return self._find(self.angles, identifier)
 
     def get(self, identifier: str) -> EphemerisObject:
         if identifier.startswith("House"):
-            return self.getHouse(identifier)
+            return self.get_house(identifier)
         if identifier in {"Asc", "MC", "Desc", "IC"}:
-            return self.getAngle(identifier)
-        return self.getObject(identifier)
+            return self.get_angle(identifier)
+        return self.get_object(identifier)
 
     @staticmethod
     def _find(values: tuple[EphemerisObject, ...], identifier: str) -> EphemerisObject:

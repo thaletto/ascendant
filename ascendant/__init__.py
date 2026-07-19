@@ -2,7 +2,7 @@ from ascendant.chart import Chart
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
 from ascendant.types import ALLOWED_DIVISIONS
-from ascendant.utils import getHouseSystem
+from ascendant.utils import get_house_system
 from ascendant.yoga.base import Yoga
 
 
@@ -36,7 +36,7 @@ class Ascendant:
             latitude=latitude,
             longitude=longitude,
             ayanamsa=ayanamsa,
-            house_system=getHouseSystem(house_system),
+            house_system=get_house_system(house_system),
         )
 
         self.chart_module: Chart = Chart(self.horoscope_data)
