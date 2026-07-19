@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
-  Bot,
   Check,
   Clock3,
   Code2,
@@ -15,6 +14,8 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { Tabs, Tab } from "fumadocs-ui/components/tabs";
 import { ImageDithering } from "@paper-design/shaders-react";
 import { baseOptions } from "@/lib/layout.shared";
+import { ASCENDANT_VERSION } from "@/lib/shared";
+
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -110,7 +111,7 @@ function Home() {
         {/* Hero Section with 50/50 Grid */}
         <section className="manual-hero">
           <div className="manual-kicker-row">
-            <p>v1.0.0</p>
+            <p>{ASCENDANT_VERSION}</p>
           </div>
           <div className="manual-hero-grid">
             {/* Left Side: Content */}

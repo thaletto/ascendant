@@ -8,3 +8,5 @@ export const gitConfig = {
   repo: 'ascendant',
   branch: 'main',
 };
+
+export const ASCENDANT_VERSION = '1.0.1';
