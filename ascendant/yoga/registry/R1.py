@@ -541,7 +541,7 @@ def amala(yoga: Yoga) -> YogaType:
 
     result["present"] = bool(benefics_moon or benefics_lagna)
 
-    details_list = []
+    details_list: list[str] = []
     strength = 0
     planet_strength = {"Jupiter": 1.0,
                        "Venus": 0.9, "Mercury": 0.8, "Moon": 0.7}
@@ -966,7 +966,7 @@ def bhadra(yoga: Yoga) -> YogaType:
     own_signs: list[RASHIS] = ["Gemini", "Virgo"]
     exaltation_sign: RASHIS = "Virgo"
 
-    in_own_or_exalted_sign = me_house in own_signs or me_rashi == exaltation_sign
+    in_own_or_exalted_sign = me_rashi in own_signs or me_rashi == exaltation_sign
 
     lagna_house = yoga.get_house_of_planet("Lagna")
     in_kendra = False
