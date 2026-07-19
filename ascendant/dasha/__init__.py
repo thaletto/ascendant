@@ -2,8 +2,6 @@ from datetime import datetime, timezone
 from typing import List, Union
 
 from dateutil.relativedelta import relativedelta
-from flatlib import const
-
 from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.horoscope import HoroscopeData
 from ascendant.types import AntarDashaType, DashasType, MahaDashaType
@@ -73,22 +71,23 @@ class Dasha:
         return dashas
 
     def _compute_vimshottari_dasa(self):
-        moon = self.__chart__.get(const.MOON)
+        moon = self.__chart__.get("Moon")
         moon_data = self.__horoscope__.get_rl_nl_sl_data(moon.lon)
         if moon_data is None:
             return {}
 
         sequence = VIMSHOTTARI_PLANETS.copy()
         lengths = VIMSHOTTARI_YEARS.copy()
-        start_index = sequence.index(str(moon_data["NakshatraLord"]))
+        nakshatra_lord = moon_data["NakshatraLord"]
+        start_index = sequence.index(nakshatra_lord)
         sequence = sequence[start_index:] + sequence[:start_index]
         lengths = lengths[start_index:] + lengths[:start_index]
         dasa_order = dict(zip(sequence, lengths))
 
-        nakshatra_start = NAKSHATRAS.index(str(moon_data["Nakshatra"])) * 800
+        nakshatra_start = NAKSHATRAS.index(moon_data["Nakshatra"]) * 800
         elapsed_moon_mins = round(moon.lon * 60, 2) - nakshatra_start
         remaining_arc_mins = 800 - elapsed_moon_mins
-        duration = dasa_order[str(moon_data["NakshatraLord"])]
+        duration = dasa_order[nakshatra_lord]
         elapsed_duration = duration - (duration / 800) * remaining_arc_mins
 
         start = self._compute_new_date(self._chart_date(), elapsed_duration, "backward")

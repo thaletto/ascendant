@@ -10,11 +10,8 @@ Install via pip:
 pip install astro-ascendant
 ```
 
-> `flatlib`'s sidereal support is provided by a Git dependency, which PyPI cannot declare in package metadata. Install the tested revision after installing Ascendant:
-
-```bash
-pip install "flatlib @ git+https://github.com/thaletto/flatlib.git@2618c348ce1ab2588548f935ff65f031630b4872"
-```
+Ascendant calculates sidereal positions directly with the bundled
+`pyswisseph` dependency; no `flatlib` installation is required.
 
 ## Documentation
 

@@ -1,5 +1,6 @@
 from typing import Dict, Final, List
 
+from ascendant.types import NAKSHATRAS as NAKSHATRAS_TYPE
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
 from ascendant.types import RASHIS as RASHIS_TYPE
 
@@ -20,7 +21,7 @@ RASHIS: Final[list[RASHIS_TYPE]] = [
     "Pisces",
 ]
 
-NAKSHATRAS: Final[list[str]] = [
+NAKSHATRAS: Final[list[NAKSHATRAS_TYPE]] = [
     "Ashwini",
     "Bharani",
     "Krittika",
@@ -50,7 +51,7 @@ NAKSHATRAS: Final[list[str]] = [
     "Revati",
 ]
 
-VIMSHOTTARI_PLANETS: Final[list[str]] = [
+VIMSHOTTARI_PLANETS: Final[list[PLANETS]] = [
     "Ketu",
     "Venus",
     "Sun",

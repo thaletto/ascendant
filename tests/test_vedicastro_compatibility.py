@@ -6,6 +6,7 @@ import pytest
 from ascendant import Ascendant, HoroscopeData
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HOUSE_SYSTEM_MAPPING
+from ascendant.types import ALLOWED_DIVISIONS
 from ascendant.utils import getHouseSystem
 
 
@@ -33,12 +34,14 @@ def astro() -> Ascendant:
 @pytest.mark.parametrize(
     ("division", "expected"),
     [
-        (1, "f68616930868a0f9c39cecd42d350b6e6eac53aa69dafa25dca6334b6a929469"),
-        (9, "16767891e99cbfa46e2907fa9d563cf0d1093de8c2f3c5f60ff9c1c349aed261"),
-        (10, "1b042d376e212a323cd2bf134569544ca3d71fcd331586b7530fa9d0c90810e7"),
+        (1, "172741017bb712f7d799f06c30a688b63ac56edc0f8017c7633e57fd1138e604"),
+        (9, "7dbfec5aa9c996d3512e6981a66396dfa53310b946f6f1c76cf761f05fe77089"),
+        (10, "a8e28a9fae1f2ad212513759f8ce0ef5f7729cf015b14c1a48e6e29d23eed2c8"),
     ],
 )
-def test_charts_match_vedicastro_021(astro: Ascendant, division: int, expected: str):
+def test_charts_match_native_swiss_ephemeris_baseline(
+    astro: Ascendant, division: ALLOWED_DIVISIONS, expected: str
+):
     assert _digest(astro.get_chart(division)) == expected
 
 

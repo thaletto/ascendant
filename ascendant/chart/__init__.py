@@ -64,7 +64,7 @@ class Chart:
                 continue
             target_sign, _ = get_divisional_target(lon, n)
             sign = getSignName(target_sign)
-            mapped_name = NODE_MAP.get(name, name) or name
+            mapped_name = cast(PLANETS, NODE_MAP.get(name, name) or name)
 
             planet: PlanetType = {
                 "name": mapped_name,
@@ -73,11 +73,11 @@ class Chart:
                 "inSign": planetSignRelation(mapped_name, sign, lon),
                 "sign": {
                     "name": sign,
-                    "lord": data.get("RasiLord", ""),
+                    "lord": data["RasiLord"],
                     "nakshatra": {
-                        "name": data.get("Nakshatra", ""),
-                        "lord": data.get("NakshatraLord", ""),
-                        "pada": data.get("Pada", ""),
+                        "name": data["Nakshatra"],
+                        "lord": data["NakshatraLord"],
+                        "pada": data["Pada"],
                     },
                 },
             }
@@ -111,11 +111,11 @@ class Chart:
             "is_retrograde": False,
             "sign": {
                 "name": sign,
-                "lord": data.get("RasiLord", ""),
+                "lord": data["RasiLord"],
                 "nakshatra": {
-                    "name": data.get("Nakshatra", ""),
-                    "lord": data.get("NakshatraLord", ""),
-                    "pada": data.get("Pada", ""),
+                    "name": data["Nakshatra"],
+                    "lord": data["NakshatraLord"],
+                    "pada": data["Pada"],
                 },
             },
         }

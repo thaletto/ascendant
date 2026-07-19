@@ -1,40 +1,56 @@
-"""Birth-chart construction and longitude metadata backed by sidereal flatlib."""
+"""Birth-chart construction and longitude metadata backed by Swiss Ephemeris."""
 
-from typing import Any
+from collections.abc import Mapping
+from typing import Final, TypedDict, cast
 
-from flatlib import const
-from flatlib.chart import Chart as FlatlibChart
-from flatlib.datetime import Datetime
-from flatlib.geopos import GeoPos
+import swisseph as swe
 
 from ascendant.const import NAKSHATRAS, SIGN_LORDS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
+from ascendant.ephemeris import EphemerisChart, build_sidereal_chart
+from ascendant.types import NAKSHATRAS as NAKSHATRA_NAMES
+from ascendant.types import PADA, PLANETS, RASHI_LORDS
 
-AYANAMSA_MAPPING = {
-    "Lahiri": const.AY_LAHIRI,
-    "Lahiri_1940": const.AY_LAHIRI_1940,
-    "Lahiri_VP285": const.AY_LAHIRI_VP285,
-    "Lahiri_ICRC": const.AY_LAHIRI_ICRC,
-    "Raman": const.AY_RAMAN,
-    "Krishnamurti": const.AY_KRISHNAMURTI,
-    "Krishnamurti_Senthilathiban": const.AY_KRISHNAMURTI_SENTHILATHIBAN,
+AYANAMSA_MAPPING: Final[dict[str, int]] = {
+    "Lahiri": swe.SIDM_LAHIRI,
+    "Lahiri_1940": swe.SIDM_LAHIRI_1940,
+    "Lahiri_VP285": swe.SIDM_LAHIRI_VP285,
+    "Lahiri_ICRC": swe.SIDM_LAHIRI_ICRC,
+    "Raman": swe.SIDM_RAMAN,
+    "Krishnamurti": swe.SIDM_KRISHNAMURTI,
+    "Krishnamurti_Senthilathiban": swe.SIDM_KRISHNAMURTI_VP291,
 }
 
-HOUSE_SYSTEM_MAPPING = {
-    "Placidus": const.HOUSES_PLACIDUS,
-    "Equal": const.HOUSES_EQUAL,
-    "Equal 2": const.HOUSES_EQUAL_2,
-    "Whole Sign": const.HOUSES_WHOLE_SIGN,
+HOUSE_SYSTEM_MAPPING: Final[dict[str, bytes]] = {
+    "Placidus": b"P",
+    "Equal": b"A",
+    "Equal 2": b"E",
+    "Whole Sign": b"W",
 }
 
 
-def _canonical_name(value: str, supported: dict[str, Any]) -> str:
+class LongitudeMetadata(TypedDict):
+    """KP sign and nakshatra data derived from an ecliptic longitude."""
+
+    Nakshatra: NAKSHATRA_NAMES
+    Pada: PADA
+    NakshatraLord: PLANETS
+    RasiLord: RASHI_LORDS
+    SubLord: PLANETS
+    SubSubLord: PLANETS
+
+
+def _canonical_name(value: str, supported: Mapping[str, object]) -> str:
     for name in supported:
         if value.casefold() == name.casefold():
             return name
     return value
 
 
-def normalize_house_system(house_system: str) -> Any:
+def normalize_house_system(house_system: str | bytes) -> bytes:
+    if isinstance(house_system, bytes):
+        if house_system in HOUSE_SYSTEM_MAPPING.values():
+            return house_system
+        return HOUSE_SYSTEM_MAPPING["Whole Sign"]
     key = house_system.replace("_", " ").strip().title()
     return HOUSE_SYSTEM_MAPPING.get(key, HOUSE_SYSTEM_MAPPING["Whole Sign"])
 
@@ -54,7 +70,7 @@ class HoroscopeData:
         latitude: float,
         longitude: float,
         ayanamsa: str = "Lahiri",
-        house_system: str = "Equal",
+        house_system: str | bytes = "Equal",
     ):
         self.year = year
         self.month = month
@@ -68,32 +84,31 @@ class HoroscopeData:
         self.ayanamsa = ayanamsa
         self.house_system = house_system
 
-    def get_ayanamsa(self) -> Any:
-        if not isinstance(self.ayanamsa, str):
-            return None
-        return AYANAMSA_MAPPING.get(_canonical_name(self.ayanamsa, AYANAMSA_MAPPING))
-
-    def get_house_system(self) -> Any:
-        if isinstance(self.house_system, str):
-            return normalize_house_system(self.house_system)
-        return self.house_system
-
-    def generate_chart(self) -> FlatlibChart:
-        date = Datetime(
-            [self.year, self.month, self.day],
-            ["+", self.hour, self.minute, self.second],
-            self.utc,
-        )
-        position = GeoPos(self.latitude, self.longitude)
-        return FlatlibChart(
-            date,
-            position,
-            IDs=const.LIST_OBJECTS,
-            hsys=self.get_house_system(),
-            mode=self.get_ayanamsa(),
+    def get_ayanamsa(self) -> int:
+        """Return the requested sidereal mode, defaulting to Lahiri."""
+        return AYANAMSA_MAPPING.get(
+            _canonical_name(self.ayanamsa, AYANAMSA_MAPPING), AYANAMSA_MAPPING["Lahiri"]
         )
 
-    def get_rl_nl_sl_data(self, deg: float) -> dict[str, str | int] | None:
+    def get_house_system(self) -> bytes:
+        return normalize_house_system(self.house_system)
+
+    def generate_chart(self) -> EphemerisChart:
+        return build_sidereal_chart(
+            year=self.year,
+            month=self.month,
+            day=self.day,
+            hour=self.hour,
+            minute=self.minute,
+            second=self.second,
+            utc=self.utc,
+            latitude=self.latitude,
+            longitude=self.longitude,
+            ayanamsa=self.get_ayanamsa(),
+            house_system=self.get_house_system(),
+        )
+
+    def get_rl_nl_sl_data(self, deg: float) -> LongitudeMetadata | None:
         """Return the KP longitude metadata used by Ascendant's public charts.
 
         The interval arithmetic deliberately matches VedicAstro 0.2.1 so existing
@@ -107,7 +122,7 @@ class HoroscopeData:
         sign_index = int(sign_deg // 30)
         nakshatra_deg = sign_deg % 13.332
         nakshatra_index = int(sign_deg // 13.332) % len(NAKSHATRAS)
-        pada = int((nakshatra_deg % 13.332) // 3.325) + 1
+        pada = cast(PADA, int((nakshatra_deg % 13.332) // 3.325) + 1)
 
         deg = deg - 120 * int(deg / 120)
         degcum = 0.0
