@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 from datetime import datetime, timezone
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 from dateutil.relativedelta import relativedelta
 from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
@@ -19,6 +20,7 @@ class _VimshottariMahaDasha(_DashaPeriod):
 
 
 _ChartDate = tuple[int, int, int, int, int]
+_DashaTimelineItem = MahaDashaType | AntarDashaType
 _VimshottariData = dict[PLANETS, _VimshottariMahaDasha]
 
 
@@ -172,8 +174,11 @@ class Dasha:
 
     @staticmethod
     def _find_current_index_by_date(
-        items, date: datetime, start_key="start", end_key="end"
-    ):
+        items: Sequence[_DashaTimelineItem],
+        date: datetime,
+        start_key: Literal["start"] = "start",
+        end_key: Literal["end"] = "end",
+    ) -> int | None:
         """Return index where date lies between start and end."""
         for idx, item in enumerate(items):
             start = parseDate(item.get(start_key))
