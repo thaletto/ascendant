@@ -28,10 +28,10 @@ export function LandingActions({ inverse = false }: { inverse?: boolean }) {
       </Button>
       <Button
         render={<Link to="/docs/$" params={{ _splat: "" }} />}
-        variant="ghost"
+        variant="outline"
         className={cn(
-          "h-12 rounded-xl px-4 text-sm active:scale-[0.96]",
-          inverse && "text-cosmos-foreground hover:bg-white/10 hover:text-cosmos-foreground",
+          "h-12 rounded-xl border-border/70 bg-transparent px-4 text-sm active:scale-[0.96]",
+          inverse && "border-cosmos-foreground/30 text-cosmos-foreground hover:bg-white/10 hover:text-cosmos-foreground",
         )}
       >
         {landingCopy.secondaryCta}

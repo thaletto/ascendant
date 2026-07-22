@@ -14,7 +14,6 @@ export interface PlanetAsset {
 }
 
 export interface LandingVariantProps {
-  version: string;
   installCommand: string;
   sdkCommand: string;
   planets: PlanetAsset[];

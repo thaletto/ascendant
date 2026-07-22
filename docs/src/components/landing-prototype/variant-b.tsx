@@ -14,7 +14,7 @@ import {
   ProofStrip,
 } from "./shared";
 
-export function PlanetaryAtlasLanding({ version, installCommand, sdkCommand, planets }: LandingVariantProps) {
+export function PlanetaryAtlasLanding({ installCommand, sdkCommand, planets }: LandingVariantProps) {
   const saturn = planets.at(-1)!;
 
   return (
@@ -32,10 +32,6 @@ export function PlanetaryAtlasLanding({ version, installCommand, sdkCommand, pla
         />
         <div className="lp-atlas-veil absolute inset-0" aria-hidden="true" />
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-[90rem] flex-col px-5 py-6 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-between gap-4 font-mono text-[0.6875rem] uppercase tracking-[0.16em] text-cosmos-muted">
-            <span>Planetary atlas / Agent edition</span>
-            <span className="tabular-nums">v{version}</span>
-          </div>
           <div className="mt-auto grid gap-10 pb-12 pt-28 lg:grid-cols-[1fr_25rem] lg:items-end">
             <div>
               <Eyebrow inverse>Local calculations. Guided interpretation.</Eyebrow>
