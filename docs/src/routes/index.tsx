@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HomeLayout } from "fumadocs-ui/layouts/home";
-import { PlanetaryAtlasLanding } from "@/components/landing-prototype/variant-b";
+import { PlanetaryAtlasLanding } from "@/components/landing/planetary-atlas";
 import {
   installCommand,
   planets,
   sdkCommand,
-} from "@/components/landing-prototype/landing-data";
+} from "@/components/landing/landing-data";
 import { baseOptions } from "@/lib/layout.shared";
 
 export const Route = createFileRoute("/")({
