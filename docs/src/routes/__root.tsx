@@ -15,19 +15,19 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Ascendant — Vedic astrology, expressed as code',
+        title: 'Ascendant — An astrology engine your agent can explain',
       },
       {
         name: 'description',
-        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+        content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
         property: 'og:title',
-        content: 'Ascendant — Vedic astrology, expressed as code',
+        content: 'Ascendant — An astrology engine your agent can explain',
       },
       {
         property: 'og:description',
-        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+        content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
         property: 'og:image',

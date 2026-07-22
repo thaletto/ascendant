@@ -18,6 +18,22 @@
   --rule: oklch(0.17 0.012 65 / 0.17);
   --gold: oklch(0.77 0.14 76);
   --signal: oklch(0.72 0.16 55);
+  --celestial: oklch(0.61 0.15 48);
+  --celestial-soft: oklch(0.82 0.12 78);
+  --cosmos: oklch(0.13 0.025 265);
+  --cosmos-foreground: oklch(0.96 0.012 85);
+  --cosmos-muted: oklch(0.76 0.018 85);
+  --image-outline: oklch(0 0 0 / 0.1);
+  --dither-paper-back: oklch(0.92 0.025 82);
+  --dither-paper-front: oklch(0.19 0.025 262);
+  --dither-paper-highlight: oklch(0.67 0.15 48);
+  --dither-cosmos-back: oklch(0.11 0.025 265);
+  --dither-cosmos-front: oklch(0.87 0.1 82);
+  --dither-cosmos-highlight: oklch(0.7 0.16 50);
+  --dither-signal-back: oklch(0.16 0.025 265);
+  --dither-signal-front: oklch(0.78 0.12 205);
+  --dither-signal-highlight: oklch(0.82 0.14 78);
+  --lp-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --manual-ease: cubic-bezier(0.23, 1, 0.32, 1);
   --background: var(--paper);
   --foreground: var(--ink);
@@ -57,6 +73,21 @@
   --night-raised: oklch(0.14 0.014 260);
   --night-ink: oklch(0.94 0.012 85);
   --rule: oklch(1 0 0 / 0.15);
+  --celestial: oklch(0.77 0.13 67);
+  --celestial-soft: oklch(0.85 0.1 82);
+  --cosmos: oklch(0.09 0.02 265);
+  --cosmos-foreground: oklch(0.96 0.012 85);
+  --cosmos-muted: oklch(0.75 0.018 85);
+  --image-outline: oklch(1 0 0 / 0.1);
+  --dither-paper-back: oklch(0.15 0.016 265);
+  --dither-paper-front: oklch(0.9 0.03 84);
+  --dither-paper-highlight: oklch(0.77 0.13 67);
+  --dither-cosmos-back: oklch(0.07 0.02 265);
+  --dither-cosmos-front: oklch(0.9 0.08 84);
+  --dither-cosmos-highlight: oklch(0.76 0.15 52);
+  --dither-signal-back: oklch(0.09 0.02 265);
+  --dither-signal-front: oklch(0.81 0.11 205);
+  --dither-signal-highlight: oklch(0.84 0.12 78);
   --background: var(--paper);
   --foreground: var(--ink);
   --card: var(--paper-soft);
@@ -96,6 +127,71 @@ html > body[data-scroll-locked] {
 
 body { background: var(--paper); color: var(--ink); }
 ::selection { color: var(--ink); background: oklch(0.77 0.14 76 / 0.55); }
+
+@theme inline {
+  --color-celestial: var(--celestial);
+  --color-celestial-soft: var(--celestial-soft);
+  --color-cosmos: var(--cosmos);
+  --color-cosmos-foreground: var(--cosmos-foreground);
+  --color-cosmos-muted: var(--cosmos-muted);
+}
+
+.lp-page {
+  min-width: 0;
+  overflow: clip;
+}
+
+.lp-eyebrow {
+  margin: 0;
+  color: var(--celestial);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.lp-dither-frame > div:not(.lp-image-outline) {
+  z-index: 1;
+}
+
+.lp-image-outline {
+  z-index: 2;
+  outline: 1px solid var(--image-outline);
+  outline-offset: -1px;
+}
+
+.lp-atlas-veil {
+  background:
+    linear-gradient(to bottom, color-mix(in oklch, var(--cosmos) 30%, transparent), var(--cosmos)),
+    linear-gradient(to right, color-mix(in oklch, var(--cosmos) 84%, transparent), transparent 72%);
+}
+
+.lp-atlas-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.lp-mobile-cta {
+  position: fixed;
+  z-index: 70;
+  inset-inline: 0.75rem;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  width: calc(100% - 1.5rem);
+  justify-content: space-between;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-page *,
+  .lp-page *::before,
+  .lp-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 .manual-home {
   position: relative;
