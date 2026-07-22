@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import wordmark from "../../../assets/ascendant-wordmark.svg";
 import { documentationLinks, landingCopy, proofPoints } from "./landing-data";
 
 export function Eyebrow({ children, inverse = false }: { children: ReactNode; inverse?: boolean }) {
@@ -72,7 +73,7 @@ export function DocumentationCards({ inverse = false }: { inverse?: boolean }) {
         <Card
           key={item.href}
           className={cn(
-            "rounded-2xl py-0 transition-[transform,box-shadow] duration-200 ease-[var(--lp-ease-out)] hover:-translate-y-0.5 hover:shadow-lg",
+            "rounded-2xl py-0 transition-[transform,box-shadow] duration-200 ease-(--lp-ease-out) hover:-translate-y-0.5 hover:shadow-lg",
             inverse && "bg-white/5 text-cosmos-foreground ring-white/12",
           )}
         >
@@ -101,9 +102,8 @@ export function FinalCta({ inverse = false }: { inverse?: boolean }) {
     <section className={cn("px-5 py-20 sm:px-8 lg:px-12 lg:py-28", inverse && "bg-cosmos text-cosmos-foreground")}>
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <Eyebrow inverse={inverse}>Portable agent workflows</Eyebrow>
-          <h2 className="mt-5 max-w-[15ch] text-4xl font-medium leading-[1.02] tracking-[-0.055em] text-balance sm:text-6xl">
-            Put inspectable astrology evidence in the loop.
+          <h2 className="max-w-[15ch] text-4xl font-medium leading-[1.02] tracking-[-0.055em] text-balance sm:text-6xl">
+            Build on reliable astrology intelligence.
           </h2>
         </div>
         <LandingActions inverse={inverse} />
@@ -118,8 +118,8 @@ export function LandingFooter({ inverse = false }: { inverse?: boolean }) {
       <Separator className={cn("mb-8", inverse && "bg-white/12")} />
       <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
         <p className={cn("max-w-xs text-sm leading-6 text-muted-foreground", inverse && "text-cosmos-muted")}>
-          <strong className={cn("block text-base text-foreground", inverse && "text-cosmos-foreground")}>Ascendant</strong>
-          Vedic astrology, expressed as inspectable code.
+          <img src={wordmark} alt="Ascendant" className="mb-2 block h-5 w-auto dark:brightness-0 dark:invert" />
+          Reliable astrology intelligence for agents.
         </p>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Footer">
           <Link to="/docs/$" params={{ _splat: "" }}>Documentation</Link>
@@ -129,17 +129,5 @@ export function LandingFooter({ inverse = false }: { inverse?: boolean }) {
         </nav>
       </div>
     </footer>
-  );
-}
-
-export function MobileCta() {
-  return (
-    <Button
-      render={<Link to="/docs/$" params={{ _splat: "agents" }} />}
-      className="lp-mobile-cta h-13 rounded-2xl px-5 text-sm shadow-2xl active:scale-[0.96] sm:hidden"
-    >
-      {landingCopy.primaryCta}
-      <ArrowRight aria-hidden="true" />
-    </Button>
   );
 }

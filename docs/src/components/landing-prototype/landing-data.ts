@@ -1,16 +1,18 @@
-import jupiter from "../../../assets/jupiter.png";
-import mars from "../../../assets/mars.webp";
-import mercury from "../../../assets/mercury.png";
-import moon from "../../../assets/moon.png";
-import saturn from "../../../assets/saturn.jpg";
-import sun from "../../../assets/sun.jpg";
-import venus from "../../../assets/venus.jpg";
+import jupiter from "../../../assets/planets/jupiter.png";
+import mars from "../../../assets/planets/mars.png";
+import mercury from "../../../assets/planets/mercury.png";
+import moon from "../../../assets/planets/moon.png";
+import saturn from "../../../assets/planets/saturn.png";
+import sun from "../../../assets/planets/sun.png";
+import venus from "../../../assets/planets/venus.png";
 
 export interface PlanetAsset {
   name: string;
   src: string;
   workflow: string;
   detail: string;
+  description: string;
+  themes: string[];
 }
 
 export interface LandingVariantProps {
@@ -20,9 +22,9 @@ export interface LandingVariantProps {
 }
 
 export const landingCopy = {
-  headline: "Give your agent an astrology engine it can explain.",
+  headline: "Astrology skills and tools your agent needs.",
   subheadline:
-    "Install guided workflows backed by local Python calculations, structured chart data, and explicit evidence boundaries—without relying on a hosted astrology API.",
+    "Astrology calculations your agent can trace and explain.",
   primaryCta: "Install agent skills",
   secondaryCta: "Explore the Python SDK",
 };
@@ -34,7 +36,7 @@ export const proofPoints = [
   { value: "11", label: "agent skills" },
   { value: "16", label: "divisional charts" },
   { value: "7", label: "ayanamsas" },
-  { value: "Local", label: "no hosted API" },
+  { value: "200+", label: "classical yogas" },
 ] as const;
 
 export const workflowSteps = [
@@ -51,7 +53,7 @@ export const workflowSteps = [
   {
     number: "03",
     title: "Apply a bounded skill",
-    text: "Career, finance, health, education, property, family, and relationship skills explain what the evidence supports—and where it stops.",
+    text: "Career, finance, health, education, property, family, and relationship skills explain what the evidence supports and where it stops.",
   },
 ] as const;
 
@@ -87,11 +89,11 @@ export const documentationLinks = [
 ] as const;
 
 export const planets: PlanetAsset[] = [
-  { name: "Moon", src: moon, workflow: "Birth record", detail: "A reusable foundation" },
-  { name: "Mercury", src: mercury, workflow: "Education", detail: "Learning and analysis" },
-  { name: "Venus", src: venus, workflow: "Relationships", detail: "Compatibility evidence" },
-  { name: "Sun", src: sun, workflow: "Career", detail: "Direction and authority" },
-  { name: "Mars", src: mars, workflow: "Property", detail: "Action and fixed assets" },
-  { name: "Jupiter", src: jupiter, workflow: "Finance", detail: "Promise before timing" },
-  { name: "Saturn", src: saturn, workflow: "Daily transit", detail: "Dated planetary context" },
+  { name: "Sun", src: sun, workflow: "Lead", detail: "Direction and authority", description: "Sun frames career questions through calculated houses, planets, Vargas, and dashas before the skill explains what those findings support.", themes: ["Soul", "Authority"] },
+  { name: "Moon", src: moon, workflow: "Feel", detail: "A reusable foundation", description: "Moon anchors the stored birth record: time, place, timezone, and the calculated chart that every later skill can inspect.", themes: ["Mind", "Emotion"] },
+  { name: "Mars", src: mars, workflow: "Act", detail: "Action and fixed assets", description: "Mars focuses the property workflow on fixed-assets evidence, so an agent can show the calculated basis before discussing timing or action.", themes: ["Energy", "Ambition"] },
+  { name: "Mercury", src: mercury, workflow: "Think", detail: "Learning and analysis", description: "Mercury opens the education workflow, which narrows a complete chart into evidence about study, learning style, and analytical strengths.", themes: ["Intellect", "Communication"] },
+  { name: "Venus", src: venus, workflow: "Relate", detail: "Compatibility evidence", description: "Venus leads relationship analysis with clear evidence boundaries, keeping chart themes separate from consent, intent, and lived behavior.", themes: ["Desire", "Harmony"] },
+  { name: "Jupiter", src: jupiter, workflow: "Expand", detail: "Promise before timing", description: "Jupiter guides finance work from natal promise to periods and transits, keeping the rationale inspectable instead of reducing it to a prediction.", themes: ["Wisdom", "Expansion"] },
+  { name: "Saturn", src: saturn, workflow: "Endure", detail: "Dated planetary context", description: "Saturn represents dated transit context: a local calculation gives an agent a precise snapshot to explain against the saved chart record.", themes: ["Discipline", "Destiny"] },
 ];

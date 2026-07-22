@@ -28,7 +28,10 @@ const paletteTokens: Record<DitherPalette, [string, string, string]> = {
 };
 
 function cssTokenToRgb(token: string) {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+  const styles = getComputedStyle(document.documentElement);
+  let value = styles.getPropertyValue(token).trim();
+  const reference = value.match(/^var\((--[^,\s)]+)/)?.[1];
+  if (reference) value = styles.getPropertyValue(reference).trim();
   const canvas = document.createElement("canvas");
   canvas.width = 1;
   canvas.height = 1;

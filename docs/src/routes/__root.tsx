@@ -1,8 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
-import * as React from 'react';
 import appCss from '@/styles/app.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
-import moonImage from '../../assets/moon.png';
+import moonImage from '../../assets/planets/moon.png';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,7 +14,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Ascendant — An astrology engine your agent can explain',
+        title: 'Ascendant',
       },
       {
         name: 'description',
@@ -23,7 +22,7 @@ export const Route = createRootRoute({
       },
       {
         property: 'og:title',
-        content: 'Ascendant — An astrology engine your agent can explain',
+        content: 'Ascendant - AI Skills and SDK for Astrology',
       },
       {
         property: 'og:description',

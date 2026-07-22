@@ -4,13 +4,11 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 interface InstallCommandProps {
   agentCommand: string;
   sdkCommand: string;
-  className?: string;
 }
 
 export function InstallCommand({
   agentCommand,
   sdkCommand,
-  className,
 }: InstallCommandProps) {
   return (
     <Tabs items={["Agent", "Python"]} defaultIndex={0}>
