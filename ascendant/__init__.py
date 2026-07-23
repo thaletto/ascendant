@@ -1,9 +1,18 @@
 from ascendant.chart import Chart
+from ascendant.configuration import (
+    AscendantConfig,
+    Ayanamsa,
+    HouseSystem,
+    configure,
+    get_config,
+    parse_ayanamsa as _parse_ayanamsa,
+    parse_house_system as _parse_house_system,
+    reset_config,
+)
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
 from ascendant.sav import Ashtakavarga, AshtakavargaResult
 from ascendant.types import ALLOWED_DIVISIONS
-from ascendant.utils import get_house_system
 from ascendant.yoga.base import Yoga
 
 
@@ -23,9 +32,10 @@ class Ascendant:
         latitude: float,
         longitude: float,
         utc: str,
-        ayanamsa: str = "Lahiri",
-        house_system: str = "Whole Sign",
+        ayanamsa: Ayanamsa | str | None = None,
+        house_system: HouseSystem | str | None = None,
     ):
+        config = get_config()
         self.horoscope_data: HoroscopeData = HoroscopeData(
             year=year,
             month=month,
@@ -36,8 +46,14 @@ class Ascendant:
             utc=utc,
             latitude=latitude,
             longitude=longitude,
-            ayanamsa=ayanamsa,
-            house_system=get_house_system(house_system),
+            ayanamsa=_parse_ayanamsa(
+                config.ayanamsa if ayanamsa is None else ayanamsa
+            ),
+            house_system=_parse_house_system(
+                config.house_system
+                if house_system is None
+                else house_system
+            ),
         )
 
         self.chart_module: Chart = Chart(self.horoscope_data)
