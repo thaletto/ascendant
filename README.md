@@ -140,3 +140,18 @@ restore Lahiri and Whole Sign. Unsupported constructor values raise
 - Equal
 - Equal 2
 - Porphyry
+
+## Accuracy Verification
+
+Run the Swiss Ephemeris reference cases independently:
+
+```bash
+.venv/bin/python -m pytest tests/test_swiss_ephemeris_accuracy.py -vv
+```
+
+The cases compare sidereal Sun, Moon, ascendant, and house cusp positions
+against fixed reference values with a maximum angular error of `0.1°`. They
+cover Whole Sign, Placidus, Equal, and Porphyry house systems across multiple
+ayanamsas and dates. The Porphyry case also checks House 2 so the test
+distinguishes its cusps from systems that share the same ascendant and first
+house cusp.

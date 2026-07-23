@@ -27,6 +27,7 @@ class ReferenceCase:
     moon: float
     ascendant: float
     first_house: float
+    second_house: float | None = None
 
 
 REFERENCE_CASES = (
@@ -78,6 +79,23 @@ REFERENCE_CASES = (
         158.09447090230287,
         158.09447090230287,
     ),
+    ReferenceCase(
+        1990,
+        1,
+        1,
+        12,
+        0,
+        "+5:30",
+        28.6139,
+        77.209,
+        "Lahiri",
+        "Porphyry",
+        256.8599180914489,
+        306.4652948972497,
+        343.9226400242266,
+        343.9226400242266,
+        13.015604358247334,
+    ),
 )
 
 
@@ -114,3 +132,10 @@ def test_sidereal_positions_match_reference_within_tenth_of_degree(
         angular_error(chart.get_house("House1").lon, reference.first_house)
         <= 0.1
     )
+    if reference.second_house is not None:
+        assert (
+            angular_error(
+                chart.get_house("House2").lon, reference.second_house
+            )
+            <= 0.1
+        )
