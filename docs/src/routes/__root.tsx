@@ -1,8 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from '@tanstack/react-router';
-import * as React from 'react';
 import appCss from '@/styles/app.css?url';
 import { RootProvider } from 'fumadocs-ui/provider/tanstack';
-import moonImage from '../../assets/moon.png';
+import moonImage from '../../assets/planets/moon.png';
 
 export const Route = createRootRoute({
   head: () => ({
@@ -15,19 +14,19 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'Ascendant — Vedic astrology, expressed as code',
+        title: 'Ascendant',
       },
       {
         name: 'description',
-        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+        content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
         property: 'og:title',
-        content: 'Ascendant — Vedic astrology, expressed as code',
+        content: 'Ascendant - AI Skills and SDK for Astrology',
       },
       {
         property: 'og:description',
-        content: 'Typed Vedic astrology calculations for Python and installable workflows for AI coding agents.',
+        content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
         property: 'og:image',

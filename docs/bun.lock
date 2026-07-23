@@ -8,6 +8,7 @@
         "@base-ui/react": "^1.6.0",
         "@fontsource-variable/geist": "^5.2.9",
         "@fontsource-variable/noto-sans": "^5.2.10",
+        "@paper-design/shaders-react": "^0.0.77",
         "@remixicon/react": "^4.9.0",
         "@tanstack/react-router": "1.170.17",
         "@tanstack/react-router-devtools": "1.167.0",
@@ -19,6 +20,7 @@
         "fumadocs-ui": "npm:@fumadocs/base-ui@16.11.3",
         "lucide-react": "^1.23.0",
         "ogl": "^1.0.11",
+        "pasito": "^0.1.3",
         "react": "^19.2.7",
         "react-dom": "^19.2.7",
         "shadcn": "^4.13.0",
@@ -254,6 +256,10 @@
     "@oxlint/binding-win32-ia32-msvc": ["@oxlint/binding-win32-ia32-msvc@1.73.0", "", { "os": "win32", "cpu": "ia32" }, "sha512-5lWj+3h+74Fm1jYOO9qkJA4xkAlZA099DkXppuXsk7UpnpZLttsefrZU469vChGaG6hcSqrkKXQOvMTZtbjeNg=="],
 
     "@oxlint/binding-win32-x64-msvc": ["@oxlint/binding-win32-x64-msvc@1.73.0", "", { "os": "win32", "cpu": "x64" }, "sha512-WaNRvh4f6zY9CvUQk2YoA1O90ieWrIklI84+HXFr9Isjz9CSESrdqo/RtIYt4Dll/cAchqGDMehfaZd0vqEFZw=="],
+
+    "@paper-design/shaders": ["@paper-design/shaders@0.0.77", "", {}, "sha512-y0mR3brBu6qvVgbnvBdXX3zL/hajdamkECLt8NbexaEc1L46W3a+ZIEwxu1NJ2/bqwxAgjJC0o2+4CAii5wp/w=="],
+
+    "@paper-design/shaders-react": ["@paper-design/shaders-react@0.0.77", "", { "dependencies": { "@paper-design/shaders": "0.0.77" }, "peerDependencies": { "@types/react": "^18 || ^19", "react": "^18 || ^19" }, "optionalPeers": ["@types/react"] }, "sha512-VCjhK7k6GT1BMjq7kLsDHMnMy1ryjCTALdhOVIf2Z5b1jh5eEHXqHdQCvMAJ7v6evjiN1twzjM1KUNOg2RoXBw=="],
 
     "@remixicon/react": ["@remixicon/react@4.9.0", "", { "peerDependencies": { "react": ">=18.2.0" } }, "sha512-5/jLDD4DtKxH2B4QVXTobvV1C2uL8ab9D5yAYNtFt+w80O0Ys1xFOrspqROL3fjrZi+7ElFUWE37hBfaAl6U+Q=="],
 
@@ -1052,6 +1058,8 @@
     "parse5": ["parse5@7.3.0", "", { "dependencies": { "entities": "^6.0.0" } }, "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw=="],
 
     "parseurl": ["parseurl@1.3.3", "", {}, "sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ=="],
+
+    "pasito": ["pasito@0.1.3", "", { "peerDependencies": { "react": ">=18", "react-dom": ">=18", "vue": ">=3" }, "optionalPeers": ["react", "react-dom", "vue"] }, "sha512-fPR9Fs22RWJN7CR7bBrcNv6bfYTd57qLRTrQVLpyDXhCLVmFb8F6YLGzmrmW21+XOhupxrPvUVle77YzJg/ILQ=="],
 
     "path-browserify": ["path-browserify@1.0.1", "", {}, "sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g=="],
 

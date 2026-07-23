@@ -1,30 +1,36 @@
 """Birth-chart construction and longitude metadata backed by Swiss Ephemeris."""
 
-from collections.abc import Mapping
 from typing import Final, TypedDict, cast
 
 import swisseph as swe
 
+from ascendant.configuration import (
+    Ayanamsa,
+    HouseSystem,
+    parse_ayanamsa,
+    parse_house_system,
+)
 from ascendant.const import NAKSHATRAS, SIGN_LORDS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.ephemeris import ChartInput, EphemerisChart, build_sidereal_chart
 from ascendant.types import NAKSHATRAS as NAKSHATRA_NAMES
 from ascendant.types import PADA, PLANETS, RASHI_LORDS
 
-AYANAMSA_MAPPING: Final[dict[str, int]] = {
-    "Lahiri": swe.SIDM_LAHIRI,
-    "Lahiri_1940": swe.SIDM_LAHIRI_1940,
-    "Lahiri_VP285": swe.SIDM_LAHIRI_VP285,
-    "Lahiri_ICRC": swe.SIDM_LAHIRI_ICRC,
-    "Raman": swe.SIDM_RAMAN,
-    "Krishnamurti": swe.SIDM_KRISHNAMURTI,
-    "Krishnamurti_Senthilathiban": swe.SIDM_KRISHNAMURTI_VP291,
+AYANAMSA_MAPPING: Final[dict[Ayanamsa, int]] = {
+    Ayanamsa.LAHIRI: swe.SIDM_LAHIRI,
+    Ayanamsa.LAHIRI_1940: swe.SIDM_LAHIRI_1940,
+    Ayanamsa.LAHIRI_VP285: swe.SIDM_LAHIRI_VP285,
+    Ayanamsa.LAHIRI_ICRC: swe.SIDM_LAHIRI_ICRC,
+    Ayanamsa.RAMAN: swe.SIDM_RAMAN,
+    Ayanamsa.KRISHNAMURTI: swe.SIDM_KRISHNAMURTI,
+    Ayanamsa.KRISHNAMURTI_SENTHILATHIBAN: swe.SIDM_KRISHNAMURTI_VP291,
 }
 
-HOUSE_SYSTEM_MAPPING: Final[dict[str, bytes]] = {
-    "Placidus": b"P",
-    "Equal": b"A",
-    "Equal 2": b"E",
-    "Whole Sign": b"W",
+HOUSE_SYSTEM_MAPPING: Final[dict[HouseSystem, bytes]] = {
+    HouseSystem.PLACIDUS: b"P",
+    HouseSystem.EQUAL: b"A",
+    HouseSystem.EQUAL_2: b"E",
+    HouseSystem.WHOLE_SIGN: b"W",
+    HouseSystem.PORPHYRY: b"O",
 }
 
 
@@ -39,20 +45,12 @@ class LongitudeMetadata(TypedDict):
     SubSubLord: PLANETS
 
 
-def _canonical_name(value: str, supported: Mapping[str, object]) -> str:
-    for name in supported:
-        if value.casefold() == name.casefold():
-            return name
-    return value
-
-
 def normalize_house_system(house_system: str | bytes) -> bytes:
     if isinstance(house_system, bytes):
         if house_system in HOUSE_SYSTEM_MAPPING.values():
             return house_system
-        return HOUSE_SYSTEM_MAPPING["Whole Sign"]
-    key = house_system.replace("_", " ").strip().title()
-    return HOUSE_SYSTEM_MAPPING.get(key, HOUSE_SYSTEM_MAPPING["Whole Sign"])
+        raise ValueError(f"Unsupported house system code {house_system!r}")
+    return HOUSE_SYSTEM_MAPPING[parse_house_system(house_system)]
 
 
 class HoroscopeData:
@@ -69,8 +67,8 @@ class HoroscopeData:
         utc: str,
         latitude: float,
         longitude: float,
-        ayanamsa: str = "Lahiri",
-        house_system: str | bytes = "Equal",
+        ayanamsa: Ayanamsa | str = Ayanamsa.LAHIRI,
+        house_system: HouseSystem | str | bytes = HouseSystem.EQUAL,
     ):
         self.year: int = year
         self.month: int = month
@@ -81,8 +79,12 @@ class HoroscopeData:
         self.utc: str = utc
         self.latitude: float = latitude
         self.longitude: float = longitude
-        self.ayanamsa: str = ayanamsa
-        self.house_system: str | bytes = house_system
+        self.ayanamsa = parse_ayanamsa(ayanamsa)
+        if isinstance(house_system, bytes):
+            normalize_house_system(house_system)
+            self.house_system: HouseSystem | bytes = house_system
+        else:
+            self.house_system = parse_house_system(house_system)
 
     def chart_input(self) -> ChartInput:
         """Return the immutable data consumed by the Swiss Ephemeris adapter."""
@@ -99,11 +101,8 @@ class HoroscopeData:
         )
 
     def get_ayanamsa(self) -> int:
-        """Return the requested sidereal mode, defaulting to Lahiri."""
-        return AYANAMSA_MAPPING.get(
-            _canonical_name(
-                self.ayanamsa, AYANAMSA_MAPPING), AYANAMSA_MAPPING["Lahiri"]
-        )
+        """Return the requested Swiss Ephemeris sidereal mode."""
+        return AYANAMSA_MAPPING[self.ayanamsa]
 
     def get_house_system(self) -> bytes:
         return normalize_house_system(self.house_system)

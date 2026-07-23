@@ -63,7 +63,8 @@ All inputs remain explicit. Results are ordinary Python dictionaries and typed s
 
 ## Calculation options
 
-`Lahiri` and `Whole Sign` are the defaults. You can select another supported ayanamsa or house system when creating the instance:
+`Lahiri` and `Whole Sign` are the built-in defaults. Override them for one
+chart when creating the instance:
 
 ```python
 astro = Ascendant(
@@ -80,5 +81,47 @@ astro = Ascendant(
     house_system="Equal",
 )
 ```
+
+When an application uses the same calculation settings for most charts,
+configure typed defaults once:
+
+```python
+from ascendant import (
+    Ascendant,
+    AscendantConfig,
+    Ayanamsa,
+    HouseSystem,
+    configure,
+)
+
+configure(
+    AscendantConfig(
+        ayanamsa=Ayanamsa.LAHIRI,
+        house_system=HouseSystem.PORPHYRY,
+    )
+)
+
+astro = Ascendant(
+    year=1990,
+    month=1,
+    day=1,
+    hour=12,
+    minute=0,
+    second=0,
+    latitude=28.6139,
+    longitude=77.2090,
+    utc="+5:30",
+)
+```
+
+Explicit constructor values take precedence over configured defaults. Each
+instance captures its settings when it is created. `get_config()` returns the
+current immutable defaults, and `reset_config()` restores Lahiri and Whole
+Sign. Unsupported ayanamsa or house-system values raise `ValueError`.
+
+Supported house systems are `Whole Sign`, `Placidus`, `Equal`, `Equal 2`, and
+`Porphyry`. Supported ayanamsas are `Lahiri`, `Lahiri_1940`,
+`Lahiri_VP285`, `Lahiri_ICRC`, `Raman`, `Krishnamurti`, and
+`Krishnamurti_Senthilathiban`.
 
 Continue with [Agent workflows](/docs/agents) or inspect the calculation APIs for [charts](/docs/charts), [dashas](/docs/dasha), [yogas](/docs/yoga), and [Ashtakavarga](/docs/ashtakavarga).

@@ -85,13 +85,43 @@ sarva = ashtakavarga["sarva"]
 ```
 
 # Advanced Usage
-```
+
+Override the built-in Lahiri and Whole Sign defaults for one chart:
+
+```python
 astro = Ascendant(
-    ...
-    ayanamsa = "Krishnamurti"
-    house_system = "equal"
+    ...,
+    ayanamsa="Krishnamurti",
+    house_system="Equal",
 )
 ```
+
+Configure typed application-wide defaults once when most charts use the same
+calculation settings:
+
+```python
+from ascendant import (
+    AscendantConfig,
+    Ayanamsa,
+    HouseSystem,
+    configure,
+)
+
+configure(
+    AscendantConfig(
+        ayanamsa=Ayanamsa.LAHIRI,
+        house_system=HouseSystem.PORPHYRY,
+    )
+)
+
+astro = Ascendant(...)  # Uses Lahiri and Porphyry.
+```
+
+Explicit `Ascendant` arguments take precedence over the configured defaults.
+Configuration is immutable and is captured when each instance is created.
+Use `get_config()` to inspect the current defaults and `reset_config()` to
+restore Lahiri and Whole Sign. Unsupported constructor values raise
+`ValueError`.
 
 ## Available Ayanamsa
 
@@ -109,3 +139,19 @@ astro = Ascendant(
 - Placidus
 - Equal
 - Equal 2
+- Porphyry
+
+## Accuracy Verification
+
+Run the Swiss Ephemeris reference cases independently:
+
+```bash
+.venv/bin/python -m pytest tests/test_swiss_ephemeris_accuracy.py -vv
+```
+
+The cases compare sidereal Sun, Moon, ascendant, and house cusp positions
+against fixed reference values with a maximum angular error of `0.1°`. They
+cover Whole Sign, Placidus, Equal, and Porphyry house systems across multiple
+ayanamsas and dates. The Porphyry case also checks House 2 so the test
+distinguishes its cusps from systems that share the same ascendant and first
+house cusp.
