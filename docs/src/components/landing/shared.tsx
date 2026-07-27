@@ -79,7 +79,7 @@ export function DocumentationCards({ inverse = false }: { inverse?: boolean }) {
           <Link
             to="/docs/$"
             params={{ _splat: item.href }}
-            className="flex min-h-48 flex-col p-6 no-underline active:scale-[0.98]"
+            className="flex min-h-48 flex-col p-6 no-underline transition-transform duration-150 ease-(--lp-ease-out) active:scale-[0.98]"
           >
             <div className="flex items-center justify-between gap-4">
               <span className="font-mono text-xs text-celestial tabular-nums">{item.number}</span>
