@@ -84,7 +84,7 @@ export function PlanetaryAtlasLanding({ installCommand, sdkCommand, planets }: L
         </div>
       </section>
 
-      <ProofStrip className="mx-auto max-w-360 border-x border-y border-border/70" />
+      <ProofStrip className="mx-auto max-w-360 border-y border-border/70" />
 
       <section id="atlas" className="overflow-clip py-20 lg:py-28" aria-labelledby="atlas-title">
         <div className="px-5 sm:px-8 lg:px-12">
