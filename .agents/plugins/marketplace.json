@@ -8,7 +8,7 @@
       "name": "agent",
       "source": {
         "source": "local",
-        "path": "./plugins/agent"
+        "path": "./plugins/agent/"
       },
       "policy": {
         "installation": "AVAILABLE",
