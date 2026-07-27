@@ -3,19 +3,19 @@ title: Agent Workflows
 description: Install Ascendant skills and give coding agents reliable astrology workflows backed by local calculations.
 ---
 
-Ascendant pairs deterministic calculations with installable agent skills. The Python package produces the chart data; the skills tell an agent which evidence to inspect, which safety boundaries to keep, and how to structure a useful response.
+Use these workflows when you want your coding agent to calculate astrology data locally and explain it responsibly. The Python package produces the chart data; each skill tells your agent what evidence to inspect, which safety boundaries to keep, and how to structure a useful response.
 
 ## Install with the Skills CLI
 
-Run this from the project where your agent works:
+Run this in the project where your agent works:
 
 ```bash
 npx skills add thaletto/ascendant
 ```
 
-The Skills CLI discovers the `plugins/agent/skills` pack in this repository and installs the available workflows for your agent environment.
+The Skills CLI discovers the `plugins/agent/skills` pack in this repository and installs the workflows available to your agent environment.
 
-Install the calculation package as well when a workflow needs to generate charts or transits:
+Also install the calculation package when you need a workflow to generate charts or transits:
 
 ```bash
 python3 -m pip install astro-ascendant
@@ -37,7 +37,7 @@ python3 -m pip install astro-ascendant
 | `property` | Homes, land, vehicles, costs, and purchase timing |
 | `relationship-compatibility` | Compare two complete charts without reducing them to one score |
 
-## A reliable agent flow
+## Give your agent a reliable flow
 
 1. Use `init-person` when the user provides a name, complete birth time with timezone, latitude, and longitude.
 2. Let the skill save generated records under `persons/<name>/`.
@@ -45,11 +45,11 @@ python3 -m pip install astro-ascendant
 4. Use `get-transit` when the question depends on the current sky or a specific date.
 5. Apply the matching domain skill, cite the chart factors used, and keep advice within that skill's safety boundaries.
 
-This separation matters: calculations remain reproducible, while interpretation stays visible and reviewable instead of being hidden inside a model prompt.
+This keeps your calculations reproducible and your interpretation visible for review instead of hiding it inside a model prompt.
 
 ## Example prompts
 
-After installation, ask your agent in ordinary language:
+After installation, you can ask your agent in ordinary language:
 
 ```text
 Save Priya's birth details and prepare her chart records.
@@ -63,7 +63,7 @@ Using Priya's saved chart, explain the current career period and show the chart 
 Compare today's transits with Priya's birth chart and give a practical three-day outlook.
 ```
 
-The agent should locate the relevant installed skill automatically. You do not need to paste the skill instructions into every request.
+Your agent should locate the relevant installed skill automatically; you do not need to paste skill instructions into every request.
 
 ## Codex plugin installation
 
@@ -73,7 +73,7 @@ In Codex, open **Plugins**, click **Add Marketplace**, and paste the Ascendant G
 https://github.com/thaletto/ascendant.git
 ```
 
-That adds the Ascendant marketplace and its packaged Codex experience. Use the Skills CLI when you want a portable skill installation instead.
+This adds the Ascendant marketplace and its packaged Codex experience. Use the Skills CLI instead when you want a portable skill installation.
 
 ## Evidence and safety
 

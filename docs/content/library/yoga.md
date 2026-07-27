@@ -3,18 +3,18 @@ title: Yoga Combinations
 description: Identify and inspect classical planetary combinations in a chart.
 ---
 
-Yogas are named planetary combinations evaluated against the calculated chart. Ascendant returns a structured record for every registered yoga so an application or agent can separate a detected combination from one that is absent.
+Use Yogas when you want to evaluate named planetary combinations in a calculated chart. Ascendant returns a structured record for every registered yoga, so you can distinguish a detected combination from one that is absent.
 
-## Types of Yogas
+## Understand yoga types
 
-The library categorizes yogas into:
+Your result categorizes yogas as:
 - **Positive**: Beneficial combinations (e.g., Dhana Yogas, Raja Yogas)
 - **Negative**: Challenging combinations (e.g., Aristha Yogas)
 - **Neutral**: Combinations that have mixed or specific structural effects
 
-## Key Yogas Supported
+## Explore supported yogas
 
-A few examples of supported yogas include:
+For example, you can inspect:
 
 | Yoga | Description |
 |---|---|
@@ -25,9 +25,9 @@ A few examples of supported yogas include:
 | **Adhi Yoga** | Benefics in 6th, 7th, and 8th from Moon or Lagna. |
 | **Malika Yogas** | Continuous occupation of houses by planets. |
 
-## Usage
+## Calculate yogas
 
-To compute all yogas present in a chart:
+Calculate all yogas, then keep only the ones present in your chart:
 
 ```python
 yogas = astro.get_yogas()
@@ -42,7 +42,7 @@ for yoga in present_yogas:
     print("-" * 20)
 ```
 
-## Yoga Object Structure
+## Inspect a yoga result
 
 Each yoga result is a dictionary:
 
@@ -57,4 +57,4 @@ Each yoga result is a dictionary:
 }
 ```
 
-Agents should cite `details` and the relevant chart placements when discussing a detected yoga. Treat `strength` as calculation output, not as a standalone prediction or certainty.
+When you discuss a detected yoga, cite `details` and the relevant chart placements. Treat `strength` as calculation output, not as a standalone prediction or certainty.

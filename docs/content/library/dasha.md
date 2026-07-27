@@ -3,16 +3,16 @@ title: Dasha System
 description: Work with Vimshottari Dasha timelines and current planetary periods.
 ---
 
-The library implements the **Vimshottari Dasha** system as structured Mahadasha and Antardasha records. Applications and agents can inspect the active period without parsing prose.
+Use Vimshottari Dasha when you want structured Mahadasha and Antardasha records instead of prose that your application has to parse.
 
-## Concepts
+## Understand the timeline
 
 Vimshottari Dasha is based on the position of the Moon at the time of birth. It divides a 120-year cycle among the nine planets in a specific order:
 Ketu, Venus, Sun, Moon, Mars, Rahu, Jupiter, Saturn, and Mercury.
 
-## Usage
+## Read a Dasha period
 
-### Get Full Dasha Timeline
+### Get the full timeline
 
 ```python
 timeline = astro.get_dasha_timeline()
@@ -23,9 +23,9 @@ for mahadasha in timeline:
         print(f"  - Antardasha: {antardasha['antardasha']} ({antardasha['start']} to {antardasha['end']})")
 ```
 
-### Get Current Dasha
+### Get the active period
 
-You can get the current Mahadasha and Antardasha for the current time or a specific date in `DD-MM-YYYY` format.
+Get the Mahadasha and Antardasha that are active now, or on a date you provide in `DD-MM-YYYY` format.
 
 ```python
 # Get current dasha for now
@@ -38,4 +38,4 @@ specific_date = "15-08-2025"
 dasha_then = astro.get_current_dasha(date=specific_date)
 ```
 
-`mahadasha` or `antardasha` can be `None` when the requested date falls outside the computed timeline. Check the result before presenting a period as active.
+`mahadasha` or `antardasha` can be `None` when your date falls outside the computed timeline. Check the result before you present a period as active.

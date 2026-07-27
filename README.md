@@ -25,9 +25,9 @@ bun run dev
 
 Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the source pages directly:
 
-- [Divisional Charts (Vargas)](docs/content/charts.md)
-- [Dasha Systems](docs/content/dasha.md)
-- [Yoga Combinations](docs/content/yoga.md)
+- [Divisional Charts (Vargas)](docs/content/library/charts.md)
+- [Dasha Systems](docs/content/library/dasha.md)
+- [Yoga Combinations](docs/content/library/yoga.md)
 
 The docs app is independent: create or configure its Vercel project with `docs/` as the project root.
 

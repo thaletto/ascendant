@@ -3,9 +3,9 @@ title: Ashtakavarga
 description: Calculate Bhinna and Sarvashtakavarga scores, reductions, and Shodhya Pinda.
 ---
 
-Ascendant implements typed Parashari Ashtakavarga calculations. The public result contains raw Bhinna scores, the Sarvashtakavarga total by sign, reduced scores, Shodhya Pinda components, and validation totals.
+Use Ashtakavarga when you want to inspect Bhinna scores, the Sarvashtakavarga total for each sign, reductions, Shodhya Pinda components, and validation totals from one structured result.
 
-## Calculate scores
+## Calculate your scores
 
 ```python
 result = astro.get_sav()
@@ -14,7 +14,7 @@ sarva = result["sarva"]
 aries_score = sarva["Aries"]
 ```
 
-## Result shape
+## Inspect the result
 
 ```python
 {
@@ -40,8 +40,8 @@ aries_score = sarva["Aries"]
 }
 ```
 
-The example uses zeroes only to illustrate the shape. Always calculate a real result before interpreting scores; do not infer missing values from a chart image or narrative description.
+The zeroes only show the result shape. Calculate a real result before you interpret scores; do not infer missing values from a chart image or narrative description.
 
 ## Agent use
 
-For agent workflows, preserve the calculated matrix with the person's chart records. A reading should distinguish the natal chart factors from Ashtakavarga evidence and should explicitly say when no matrix is available.
+When you use agent workflows, keep the calculated matrix with the person's chart records. Make the reading distinguish natal-chart factors from Ashtakavarga evidence, and say clearly when no matrix is available.

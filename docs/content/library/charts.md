@@ -3,11 +3,11 @@ title: Divisional Charts (Vargas)
 description: Calculate and inspect Ascendant's supported Vedic divisional charts.
 ---
 
-Ascendant supports sixteen divisional charts (Varga chakras). Each call returns a twelve-house dictionary with the sign, planets, and Lagna data needed by applications and agents.
+Use a divisional chart when you need a specific Varga view of a birth chart. Ascendant supports sixteen divisions, and each call gives you a twelve-house dictionary with sign, planet, and Lagna data.
 
-## Supported Divisions
+## Choose a division
 
-The following divisions are supported:
+Choose from these supported divisions:
 
 | Division | Name | Description |
 |---|---|---|
@@ -28,24 +28,24 @@ The following divisions are supported:
 | 45 | Akshavedamsa | Character and conduct |
 | 60 | Shastyamsa | All aspects of life (very important) |
 
-## Usage
+## Calculate a chart
 
-To get a specific divisional chart:
+For example, calculate the Navamsa (D9) chart:
 
 ```python
 from ascendant import Ascendant
 
 # Create `astro` as shown in Getting Started.
-# Get the Navamsa (D9) chart
+# Calculate the Navamsa (D9) chart.
 d9_chart = astro.get_chart(division=9)
 
-# The output is a dictionary mapping house numbers (1-12) to sign and planet data
+# Inspect the house numbers (1-12), signs, and planet data.
 for house, data in d9_chart.items():
     print(f"House {house}: Sign {data['sign']}")
     for planet in data['planets']:
         print(f"  - {planet['name']} at {planet['longitude']:.2f}°")
 ```
 
-Each planet includes its longitude, retrograde status, sign relationship, sign lord, Nakshatra, Nakshatra lord, and Pada. This lets an agent cite the exact placement behind an interpretation instead of working from a rendered chart alone.
+Each planet includes its longitude, retrograde status, sign relationship, sign lord, Nakshatra, Nakshatra lord, and Pada. Use these values to ground an interpretation in the calculated placement rather than a rendered chart alone.
 
 Passing a division outside the supported list raises `ValueError`.

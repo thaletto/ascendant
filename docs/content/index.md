@@ -3,13 +3,13 @@ title: Getting Started
 description: Install Ascendant for Python or an AI coding agent, then calculate your first chart.
 ---
 
-Ascendant is a local Vedic astrology calculation engine for Python and AI agents. It returns structured charts, Vimshottari Dasha periods, yoga results, and Ashtakavarga scores without requiring a hosted API.
+Use Ascendant when you want to calculate Vedic astrology data locally from Python or an AI coding agent. You get structured charts, Vimshottari Dasha periods, yoga results, and Ashtakavarga scores without relying on a hosted API.
 
-## Choose an installation
+## Choose how you want to use Ascendant
 
 ### Python package
 
-Use the package when you want to call Ascendant directly from application code:
+Choose the package when you want to call Ascendant directly from your application:
 
 ```bash
 pip install astro-ascendant
@@ -17,7 +17,7 @@ pip install astro-ascendant
 
 ### Agent skills
 
-Use the Skills CLI when you want a coding agent to handle saved birth records, transits, and guided reading workflows:
+Choose the Skills CLI when you want your coding agent to handle saved birth records, transits, and guided reading workflows:
 
 ```bash
 npx skills add thaletto/ascendant
@@ -25,7 +25,7 @@ npx skills add thaletto/ascendant
 
 The skill pack includes executable setup and transit flows plus guidance for career, finance, health, education, family, marriage, property, daily transit, and relationship compatibility.
 
-## Calculate a chart
+## Calculate your first chart
 
 ```python
 from ascendant import Ascendant
@@ -49,9 +49,9 @@ yogas = astro.get_yogas()
 ashtakavarga = astro.get_sav()
 ```
 
-All inputs remain explicit. Results are ordinary Python dictionaries and typed structures that an application or agent can inspect, validate, store, and cite in a response.
+Provide the complete birth details explicitly. The results are ordinary Python dictionaries and typed structures that you can inspect, validate, store, or cite in a response.
 
-## Public methods
+## Choose the result you need
 
 | Method | Result |
 |---|---|
@@ -63,8 +63,8 @@ All inputs remain explicit. Results are ordinary Python dictionaries and typed s
 
 ## Calculation options
 
-`Lahiri` and `Whole Sign` are the built-in defaults. Override them for one
-chart when creating the instance:
+Your charts use `Lahiri` and `Whole Sign` by default. Override either setting
+for one chart when you create the instance:
 
 ```python
 astro = Ascendant(
@@ -82,7 +82,7 @@ astro = Ascendant(
 )
 ```
 
-When an application uses the same calculation settings for most charts,
+If your application uses the same calculation settings for most charts,
 configure typed defaults once:
 
 ```python
@@ -114,14 +114,14 @@ astro = Ascendant(
 )
 ```
 
-Explicit constructor values take precedence over configured defaults. Each
-instance captures its settings when it is created. `get_config()` returns the
-current immutable defaults, and `reset_config()` restores Lahiri and Whole
-Sign. Unsupported ayanamsa or house-system values raise `ValueError`.
+Values you pass to `Ascendant` take precedence over configured defaults. Each
+instance keeps the settings it had at creation time. Use `get_config()` to
+inspect the current immutable defaults and `reset_config()` to restore Lahiri
+and Whole Sign. Unsupported ayanamsa or house-system values raise `ValueError`.
 
 Supported house systems are `Whole Sign`, `Placidus`, `Equal`, `Equal 2`, and
 `Porphyry`. Supported ayanamsas are `Lahiri`, `Lahiri_1940`,
 `Lahiri_VP285`, `Lahiri_ICRC`, `Raman`, `Krishnamurti`, and
 `Krishnamurti_Senthilathiban`.
 
-Continue with [Agent workflows](/docs/agents) or inspect the calculation APIs for [charts](/docs/charts), [dashas](/docs/dasha), [yogas](/docs/yoga), and [Ashtakavarga](/docs/ashtakavarga).
+Continue with [Agent workflows](/docs/agents), or use the Python library guides for [charts](/docs/library/charts), [dashas](/docs/library/dasha), [yogas](/docs/library/yoga), and [Ashtakavarga](/docs/library/ashtakavarga).
