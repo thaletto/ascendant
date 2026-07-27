@@ -6,6 +6,14 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/noto-sans";
 
+/* Geist Pixel Square is licensed under SIL OFL 1.1; see docs/assets/LICENSE-Geist-Pixel.txt. */
+@font-face {
+  font-family: "Geist Pixel Square";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../../assets/geist-pixel-square.woff2") format("woff2");
+}
 
 :root {
   --paper: oklch(1 0 0);
@@ -144,6 +152,15 @@ html > body[data-scroll-locked] {
 
 body { background: var(--paper); color: var(--ink); }
 ::selection { color: var(--ink); background: oklch(0.77 0.14 76 / 0.55); }
+
+.wordmark {
+  font-family: "Geist Pixel Square", "Geist Mono", ui-monospace, monospace;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
 
 @theme inline {
   --color-celestial: var(--celestial);

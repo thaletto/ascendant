@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import wordmark from "../../../assets/ascendant-wordmark.svg";
 import { documentationLinks, landingCopy, proofPoints } from "./landing-data";
 
 export function Eyebrow({ children, inverse = false }: { children: ReactNode; inverse?: boolean }) {
@@ -118,7 +117,7 @@ export function LandingFooter({ inverse = false }: { inverse?: boolean }) {
       <Separator className={cn("mb-8", inverse && "bg-white/12")} />
       <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
         <p className={cn("max-w-xs text-sm leading-6 text-muted-foreground", inverse && "text-cosmos-muted")}>
-          <img src={wordmark} alt="Ascendant" className="mb-2 block h-5 w-auto dark:brightness-0 dark:invert" />
+          <span className="wordmark mb-2 block">Ascendant</span>
           Reliable astrology intelligence for agents.
         </p>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Footer">
