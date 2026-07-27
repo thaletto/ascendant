@@ -64,8 +64,14 @@ def init_person(person: Person) -> str:
         if hash_file.exists():
             existing_hash = hash_file.read_text(encoding="utf-8").strip()
             if existing_hash == person_hash:
-                logging.info(f"{directory} already exists. Skipping.")
-                return str(directory.resolve())
+                sav_file = directory / "sav.json"
+                if sav_file.exists():
+                    logging.info(f"{directory} already exists. Skipping.")
+                    return str(directory.resolve())
+                logging.info(
+                    f"{directory} already exists. Generating missing SAV data."
+                )
+                break
 
         suffix += 1
 
@@ -93,7 +99,8 @@ def init_person(person: Person) -> str:
             "---",
         )
     )
-    _ = context_file.write_text(context, encoding="utf-8")
+    if not context_file.exists():
+        _ = context_file.write_text(context, encoding="utf-8")
 
     ascendant = Ascendant(
         year=person.dob.year,
@@ -131,6 +138,10 @@ def init_person(person: Person) -> str:
             json.dump(yogas, f, indent=2, ensure_ascii=False)
     else:
         logging.warning("Failed to get yogas")
+
+    sav = ascendant.get_sav()
+    with (directory / "sav.json").open("w", encoding="utf-8") as f:
+        json.dump(sav, f, indent=2, ensure_ascii=False)
 
     logging.info(f"Saved data for {person.name} to {directory}")
     return str(directory.resolve())

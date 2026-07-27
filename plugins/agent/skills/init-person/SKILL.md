@@ -1,6 +1,6 @@
 ---
 name: init-person
-description: Save a person's birth details and prepare the charts and timing information used by the astrology skills.
+description: Save a person's birth details and prepare reusable charts, timing, yoga, and SAV information used by the astrology skills.
 license: MIT
 ---
 
@@ -18,6 +18,13 @@ python3 <path-to-init-person-skill>/scripts/init-person.py \
   --longitude <longitude>
 ```
 
-The command creates `persons/<name>/`, saves the original details, and prepares the charts and planetary periods used by later readings. Running it again with the same details should reuse the existing record.
+The command creates `persons/<name>/`, saves the original details, and prepares:
+
+- divisional charts under `charts/`
+- planetary periods in `dasha.json`
+- yoga results in `yogas.json`
+- the complete Ashtakavarga/Sarvashtakavarga result in `sav.json`
+
+Running it again with the same details reuses the existing record. If an older record is missing `sav.json`, the command backfills it in place. If the same name is used with different birth details, a numeric suffix is appended to the directory name.
 
 After it completes, read the generated files before answering the user's astrology question.
