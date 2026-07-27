@@ -272,51 +272,37 @@ body { background: var(--paper); color: var(--ink); }
   outline-color: var(--ring);
 }
 
-.lp-atlas-panel {
-  animation: lp-atlas-panel-in 620ms var(--lp-ease-settle) both;
+.lp-hero-reveal {
+  animation: lp-hero-reveal-in 260ms var(--lp-ease-out) both;
 }
 
-.lp-atlas-copy {
-  animation: lp-atlas-copy-in 620ms var(--lp-ease-settle) 110ms both;
+.lp-hero-reveal-copy {
+  animation-delay: 70ms;
 }
 
-.lp-atlas-plate {
-  animation: lp-atlas-plate-in 620ms var(--lp-ease-settle) both;
+.lp-hero-reveal-actions {
+  animation-delay: 140ms;
 }
 
-@keyframes lp-atlas-panel-in {
+@keyframes lp-hero-reveal-in {
   from {
     opacity: 0;
-    transform: translateX(0.75rem);
+    transform: translateY(0.5rem);
   }
 
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
-@keyframes lp-atlas-copy-in {
+@keyframes lp-hero-fade-in {
   from {
     opacity: 0;
-    transform: translateX(1rem);
   }
 
   to {
     opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes lp-atlas-plate-in {
-  from {
-    opacity: 0;
-    transform: translateX(0.5rem) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
   }
 }
 
@@ -328,6 +314,12 @@ body { background: var(--paper); color: var(--ink); }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .lp-hero-reveal {
+    animation-name: lp-hero-fade-in;
+    animation-duration: 160ms !important;
+    animation-delay: 0ms;
   }
 }
 

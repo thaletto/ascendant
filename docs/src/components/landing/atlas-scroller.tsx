@@ -42,12 +42,12 @@ export function AtlasScroller({ planets }: AtlasScrollerProps) {
 
   return (
     <div className="mt-12">
-      <article key={activePlanet.name} className="lp-atlas-panel mx-auto grid max-w-7xl gap-8 px-5 pb-6 sm:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,0.65fr)] lg:items-start lg:gap-16 lg:px-12">
+      <article className="mx-auto grid max-w-7xl gap-8 px-5 pb-6 sm:px-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,0.65fr)] lg:items-start lg:gap-16 lg:px-12">
         <div>
           <DitheredPlanet
             src={activePlanet.src}
             alt={`${activePlanet.name} rendered as a dithered atlas plate`}
-            className="lp-atlas-plate aspect-square rounded-[1.5rem]"
+            className="aspect-square rounded-[1.5rem]"
             palette="signal"
             size={2.4}
             scale={1.08}
@@ -66,7 +66,7 @@ export function AtlasScroller({ planets }: AtlasScrollerProps) {
             />
           </div>
         </div>
-        <div className="lp-atlas-copy" aria-live="polite">
+        <div aria-live="polite">
           <p className="font-mono text-lg font-medium uppercase tracking-[0.08em] text-celestial">
             {activePlanet.name}
           </p>

@@ -56,13 +56,13 @@ export function PlanetaryAtlasLanding({ installCommand, sdkCommand, planets }: L
         <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-360 flex-col px-5 py-6 sm:px-8 lg:px-12">
           <div className="mt-auto pb-12 pt-28">
             <div>
-              <h1 className="max-w-[12ch] text-[clamp(3.2rem,7vw,7.75rem)] font-medium leading-[0.9] tracking-[-0.075em] text-balance text-(--hero-foreground)">
+              <h1 className="lp-hero-reveal lp-hero-reveal-heading max-w-[12ch] text-[clamp(3.2rem,7vw,7.75rem)] font-medium leading-[0.9] tracking-[-0.075em] text-balance text-(--hero-foreground)">
                 {landingCopy.headline}
               </h1>
-              <p className="mt-7 max-w-[62ch] text-base leading-7 text-pretty text-(--hero-muted) sm:text-lg sm:leading-8">
+              <p className="lp-hero-reveal lp-hero-reveal-copy mt-7 max-w-[62ch] text-base leading-7 text-pretty text-(--hero-muted) sm:text-lg sm:leading-8">
                 {landingCopy.subheadline}
               </p>
-              <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div className="lp-hero-reveal lp-hero-reveal-actions mt-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <LandingActions />
                 <div className="w-full lg:ms-auto lg:w-md lg:self-end lg:translate-y-4.5">
                   <InstallCommand agentCommand={installCommand} sdkCommand={sdkCommand} />
