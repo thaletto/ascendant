@@ -29,16 +29,8 @@ export const Route = createRootRoute({
         content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
-        property: 'og:image',
-        content: '/og.png',
-      },
-      {
         name: 'twitter:card',
         content: 'summary_large_image',
-      },
-      {
-        name: 'twitter:image',
-        content: '/og.png',
       },
     ],
     links: [
