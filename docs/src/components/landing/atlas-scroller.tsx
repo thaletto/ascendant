@@ -47,7 +47,7 @@ export function AtlasScroller({ planets }: AtlasScrollerProps) {
           <DitheredPlanet
             src={activePlanet.src}
             alt={`${activePlanet.name} rendered as a dithered atlas plate`}
-            className="aspect-square rounded-[1.5rem]"
+            className="aspect-square rounded-xl"
             palette="signal"
             size={2.4}
             scale={1.08}
