@@ -4,7 +4,7 @@ from ascendant.types import NAKSHATRAS as NAKSHATRAS_TYPE
 from ascendant.types import PLANETS, RASHI_LORDS, DeepExaltationPointsType
 from ascendant.types import RASHIS as RASHIS_TYPE
 
-__all__ = ["RASHIS", "NAKSHATRAS"]
+__all__ = ["NAKSHATRAS", "RASHIS"]
 
 RASHIS: Final[list[RASHIS_TYPE]] = [
     "Aries",

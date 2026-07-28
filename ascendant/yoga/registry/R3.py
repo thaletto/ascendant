@@ -1344,10 +1344,9 @@ def nishkapata(yoga: Yoga) -> YogaType:
             assoc_type = f"conjoined with benefics ({', '.join(benefics_in_4)})"
 
         # Aspect
-        if not has_benefic_assoc:
-            if yoga.is_house_benefic_aspected(4):
-                has_benefic_assoc = True
-                assoc_type = "aspected by a benefic"
+        if not has_benefic_assoc and yoga.is_house_benefic_aspected(4):
+            has_benefic_assoc = True
+            assoc_type = "aspected by a benefic"
 
         if has_benefic_assoc:
             condition_two = True

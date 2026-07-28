@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 from threading import RLock
+from typing import cast
 
 
 class Ayanamsa(StrEnum):
@@ -58,9 +59,11 @@ class AscendantConfig:
     house_system: HouseSystem = HouseSystem.WHOLE_SIGN
 
     def __post_init__(self) -> None:
-        if not isinstance(self.ayanamsa, Ayanamsa):
+        ayanamsa = cast(object, self.ayanamsa)
+        house_system = cast(object, self.house_system)
+        if not isinstance(ayanamsa, Ayanamsa):
             raise TypeError("ayanamsa must be an Ayanamsa value")
-        if not isinstance(self.house_system, HouseSystem):
+        if not isinstance(house_system, HouseSystem):
             raise TypeError("house_system must be a HouseSystem value")
 
 
@@ -70,7 +73,8 @@ _config = AscendantConfig()
 
 def configure(config: AscendantConfig) -> None:
     """Replace the defaults used by newly created Ascendant instances."""
-    if not isinstance(config, AscendantConfig):
+    candidate = cast(object, config)
+    if not isinstance(candidate, AscendantConfig):
         raise TypeError("config must be an AscendantConfig instance")
     global _config
     with _CONFIG_LOCK:

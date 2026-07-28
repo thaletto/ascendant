@@ -5,15 +5,29 @@ from ascendant.configuration import (
     HouseSystem,
     configure,
     get_config,
-    parse_ayanamsa as _parse_ayanamsa,
-    parse_house_system as _parse_house_system,
     reset_config,
+)
+from ascendant.configuration import (
+    parse_ayanamsa as _parse_ayanamsa,
+)
+from ascendant.configuration import (
+    parse_house_system as _parse_house_system,
 )
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
 from ascendant.sav import Ashtakavarga, AshtakavargaResult
 from ascendant.types import ALLOWED_DIVISIONS, ChartType
 from ascendant.yoga.base import Yoga
+
+__all__ = [
+    "Ascendant",
+    "AscendantConfig",
+    "Ayanamsa",
+    "HouseSystem",
+    "configure",
+    "get_config",
+    "reset_config",
+]
 
 
 class Ascendant:
@@ -56,11 +70,18 @@ class Ascendant:
             ),
         )
 
-        self.chart_module: Chart = Chart(self.horoscope_data)
-        self.yoga_module: Yoga = Yoga(self.horoscope_data)
-        self.dasha_module: Dasha = Dasha(self.horoscope_data)
-        self.ashtakavarga_module: Ashtakavarga = Ashtakavarga(
-            self.horoscope_data
+        ephemeris = self.horoscope_data.generate_chart()
+        self.chart_module: Chart = Chart.from_ephemeris(
+            self.horoscope_data,
+            ephemeris,
+        )
+        self.yoga_module: Yoga = Yoga.from_chart(self.chart_module)
+        self.dasha_module: Dasha = Dasha.from_ephemeris(
+            self.horoscope_data,
+            ephemeris,
+        )
+        self.ashtakavarga_module: Ashtakavarga = (
+            Ashtakavarga.from_ephemeris(ephemeris)
         )
 
     def get_chart(self, division: ALLOWED_DIVISIONS) -> ChartType:
@@ -77,12 +98,7 @@ class Ascendant:
 
     def get_current_dasha(self, date: str | None = None):
         """Get current Mahadasha and Antardasha."""
-        # This is a helper accessing the internal dasha logic if needed
-        # Reuse the first indexed period as the current-period helper.
-        mahadasha = self.dasha_module.get_mahadasha_by_index(0, date)
-        antardasha = self.dasha_module.get_antardasha_by_index(0, date)
-
-        return {"mahadasha": mahadasha, "antardasha": antardasha}
+        return self.dasha_module.timeline.current(date)
 
     def get_sav(self) -> AshtakavargaResult:
         """Return the complete Ashtakavarga result."""

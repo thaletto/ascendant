@@ -1,4 +1,5 @@
-from typing import Callable, cast
+from collections.abc import Callable
+from typing import TYPE_CHECKING, cast
 
 from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
 from ascendant.horoscope import HoroscopeData
@@ -15,6 +16,9 @@ from ascendant.types import (
     YogaType,
 )
 from ascendant.utils import yoga_name_to_id
+
+if TYPE_CHECKING:
+    from ascendant.chart import Chart
 
 YogaFunction = Callable[["Yoga"], YogaType]
 
@@ -75,7 +79,16 @@ class Yoga:
     def __init__(self, horoscope: HoroscopeData):
         from ascendant.chart import Chart
 
-        self.__chart__: Chart = Chart(horoscope)
+        self._initialize(Chart(horoscope))
+
+    @classmethod
+    def from_chart(cls, chart: "Chart") -> "Yoga":
+        yoga = cls.__new__(cls)
+        yoga._initialize(chart)
+        return yoga
+
+    def _initialize(self, chart: "Chart") -> None:
+        self.__chart__: Chart = chart
         self.chart: ChartType = self.__chart__.get_rasi_chart()
 
     def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES:
@@ -159,12 +172,12 @@ class Yoga:
         self, planet: PLANETS_LAGNA
     ) -> PlanetType | LagnaType:
         if planet == "Lagna":
-            for _, data in self.chart.items():
+            for data in self.chart.values():
                 lagna = data["lagna"]
                 if lagna is not None:
                     return lagna
         else:
-            for _, data in self.chart.items():
+            for data in self.chart.values():
                 planets = data["planets"]
                 for _planet in planets:
                     if _planet["name"] == planet:
@@ -265,7 +278,7 @@ class Yoga:
     def compute_all(self) -> list[YogaType]:
         """Compute all registered yogas"""
         results: list[YogaType] = []
-        for _, func in YOGA_REGISTRY.items():
+        for func in YOGA_REGISTRY.values():
             result = func(self)
             results.append(result)
 

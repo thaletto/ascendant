@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from threading import RLock
 from typing import Final
 
 import swisseph as swe
-
 
 SIDEREAL_FLAGS: Final[int] = swe.FLG_SWIEPH | swe.FLG_SPEED | swe.FLG_SIDEREAL
 DEFAULT_SIDEREAL_MODE: Final[int] = swe.SIDM_FAGAN_BRADLEY
@@ -168,8 +167,7 @@ def _calculate_objects(jd: float) -> tuple[EphemerisObject, ...]:
 
     if north_node is None:
         raise RuntimeError("Swiss Ephemeris did not return the north node")
-    return tuple(
-        [
+    return (
             *objects,
             EphemerisObject(
                 id="South Node",
@@ -178,8 +176,7 @@ def _calculate_objects(jd: float) -> tuple[EphemerisObject, ...]:
                 lonspeed=north_node.lonspeed,
                 latspeed=north_node.latspeed,
             ),
-        ]
-    )
+        )
 
 
 def _calculate_houses(

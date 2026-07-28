@@ -10,7 +10,12 @@ from ascendant.configuration import (
     parse_ayanamsa,
     parse_house_system,
 )
-from ascendant.const import NAKSHATRAS, SIGN_LORDS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
+from ascendant.const import (
+    NAKSHATRAS,
+    SIGN_LORDS,
+    VIMSHOTTARI_PLANETS,
+    VIMSHOTTARI_YEARS,
+)
 from ascendant.ephemeris import ChartInput, EphemerisChart, build_sidereal_chart
 from ascendant.types import NAKSHATRAS as NAKSHATRA_NAMES
 from ascendant.types import PADA, PLANETS, RASHI_LORDS
@@ -79,9 +84,9 @@ class HoroscopeData:
         self.utc: str = utc
         self.latitude: float = latitude
         self.longitude: float = longitude
-        self.ayanamsa = parse_ayanamsa(ayanamsa)
+        self.ayanamsa: Ayanamsa = parse_ayanamsa(ayanamsa)
         if isinstance(house_system, bytes):
-            normalize_house_system(house_system)
+            _ = normalize_house_system(house_system)
             self.house_system: HouseSystem | bytes = house_system
         else:
             self.house_system = parse_house_system(house_system)

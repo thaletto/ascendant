@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 import argparse
-import json
 import logging
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import TypeAlias, cast, get_args
+from datetime import UTC, datetime
+from typing import TypeAlias, TypedDict, cast, get_args
 
 from ascendant import Ascendant
-from ascendant.types import RASHIS as RASHIS_LITERAL, ALLOWED_DIVISIONS
+from ascendant.person_record import PersonRecordError, PersonRecordStore
+from ascendant.types import ALLOWED_DIVISIONS, HOUSES, ChartType
+from ascendant.types import RASHIS as RASHIS_LITERAL
 
 logging.basicConfig(
     level=logging.INFO, format="[%(levelname)s] %(asctime)s %(message)s"
 )
+LOGGER = logging.getLogger(__name__)
 
 RASHI: TypeAlias = RASHIS_LITERAL
 RASHIS = cast(tuple[RASHI, ...], get_args(RASHIS_LITERAL))
@@ -26,59 +27,23 @@ class TransitQuery:
     division: ALLOWED_DIVISIONS
 
 
-def validate_name(name: str) -> str:
-    if not name or name in {".", ".."} or Path(name).name != name:
-        raise ValueError("name must identify one direct persons/<name> record")
-    return name
+@dataclass
+class Arguments:
+    name: object = ""
+    date: object = None
+    division: object = 1
 
 
-def load_native(name: str) -> tuple[Path, dict[str, str]]:
-    directory = Path("persons") / validate_name(name)
-    if not directory.exists() or not directory.is_dir():
-        raise FileNotFoundError(
-            f"Native '{name}' has no data directory at {directory}. ",
-            "Run init-person first."
-        )
-
-    context_file = directory / "CONTEXT.md"
-    if not context_file.exists():
-        raise FileNotFoundError(
-            f"Missing CONTEXT.md for native '{name}' at {context_file}."
-        )
-
-    text = context_file.read_text(encoding="utf-8")
-    fields: dict[str, str] = {}
-    in_frontmatter = False
-    for line in text.splitlines():
-        if line.strip() == "---":
-            if not in_frontmatter:
-                in_frontmatter = True
-                continue
-            break
-        if in_frontmatter and ":" in line:
-            key, _, value = line.partition(":")
-            fields[key.strip()] = value.strip()
-
-    for required in ("latitude", "longitude", "utc"):
-        if required not in fields:
-            raise ValueError(
-                f"CONTEXT.md for '{name}' is missing required field "
-                f"'{required}'."
-            )
-
-    return directory, fields
-
-
-def natal_lagna_sign(chart_dir: Path) -> RASHI:
-    d1 = chart_dir / "charts" / "D1.json"
-    if not d1.exists():
-        raise FileNotFoundError(f"Missing natal chart at {d1}.")
-    with d1.open("r", encoding="utf-8") as f:
-        chart = json.load(f)
-    house1 = chart.get("1")
-    if not house1:
-        raise ValueError("Natal D1.json has no house 1 entry.")
-    return cast(RASHI, house1["sign"])
+class TransitRow(TypedDict):
+    planet: str
+    house: int
+    sign: str
+    degree: str
+    in_sign: str
+    retrograde: str
+    nakshatra: str
+    pada: int
+    natal_house: int
 
 
 def natal_house_for_sign(transit_sign: RASHI, lagna_sign: RASHI) -> int:
@@ -92,21 +57,19 @@ def format_degree(longitude: float) -> str:
     return f"{deg_in_sign:.2f}°"
 
 
-def render_houses(chart, citation: str) -> str:
+def render_houses(chart: ChartType, citation: str) -> str:
     """Render the transit houses as a concise, readable list."""
     lines = ["## Transit houses", ""]
     for h in range(1, 13):
-        house = chart.get(h)
+        house = chart.get(cast(HOUSES, h))
         if not house:
-            lines.append(
-                f"{h}. No house data available. [sources: {citation}]"
-            )
+            lines.append(f"{h}. No house data available. [sources: {citation}]")
             continue
         sign = house["sign"]
         if house.get("planets"):
             lord = house["planets"][0]["sign"]["lord"]
-        elif house.get("lagna"):
-            lord = house["lagna"]["sign"]["lord"]
+        elif (lagna := house.get("lagna")) is not None:
+            lord = lagna["sign"]["lord"]
         else:
             lord = "—"
         planet_cells: list[str] = []
@@ -118,16 +81,16 @@ def render_houses(chart, citation: str) -> str:
         planets_str = ", ".join(planet_cells) if planet_cells else "—"
         lines.append(
             f"{h}. {sign} — ruled by {lord}; planets: {planets_str}. "
-            f"[sources: {citation}]"
+            + f"[sources: {citation}]"
         )
     return "\n".join(lines)
 
 
-def render_planets(chart, lagna_sign: RASHI, citation: str) -> str:
+def render_planets(chart: ChartType, lagna_sign: RASHI, citation: str) -> str:
     """Render transit planet details as one item per planet."""
-    rows = []
+    rows: list[TransitRow] = []
     for h in range(1, 13):
-        house = chart.get(h)
+        house = chart.get(cast(HOUSES, h))
         if not house:
             continue
         for p in house.get("planets", []):
@@ -141,9 +104,7 @@ def render_planets(chart, lagna_sign: RASHI, citation: str) -> str:
                     "retrograde": "Yes" if p.get("is_retrograde") else "No",
                     "nakshatra": p["sign"]["nakshatra"]["name"],
                     "pada": p["sign"]["nakshatra"]["pada"],
-                    "natal_house": natal_house_for_sign(
-                        p["sign"]["name"], lagna_sign
-                    ),
+                    "natal_house": natal_house_for_sign(p["sign"]["name"], lagna_sign),
                 }
             )
     rows.sort(key=lambda r: (r["house"], r["planet"]))
@@ -152,21 +113,21 @@ def render_planets(chart, lagna_sign: RASHI, citation: str) -> str:
     for r in rows:
         lines.append(
             f"- {r['planet']}: {r['degree']} in {r['sign']}; "
-            f"transit house {r['house']}, natal house {r['natal_house']}; "
-            f"{r['retrograde'].lower()} retrograde; {r['nakshatra']}, "
-            f"pada {r['pada']}; in sign with {r['in_sign']}. "
-            f"[sources: {citation}]"
+            + f"transit house {r['house']}, natal house {r['natal_house']}; "
+            + f"{r['retrograde'].lower()} retrograde; {r['nakshatra']}, "
+            + f"pada {r['pada']}; in sign with {r['in_sign']}. "
+            + f"[sources: {citation}]"
         )
     return "\n".join(lines)
 
 
 def get_transit(query: TransitQuery) -> str:
-    directory, fields = load_native(query.name)
-    lagna_sign = natal_lagna_sign(directory)
+    record = PersonRecordStore().open(query.name)
+    lagna_sign = record.d1[1]["sign"]
 
     target = query.date
     if target.tzinfo is None:
-        target = target.replace(tzinfo=timezone.utc)
+        target = target.replace(tzinfo=UTC)
 
     offset = target.utcoffset()
     if offset is None:
@@ -176,8 +137,7 @@ def get_transit(query: TransitQuery) -> str:
     sign_char = "+" if total_minutes >= 0 else "-"
     utc = f"{sign_char}{hours:02}:{minutes:02}"
 
-    latitude = float(fields["latitude"])
-    longitude = float(fields["longitude"])
+    latitude, longitude = record.coordinates
 
     ascendant = Ascendant(
         year=target.year,
@@ -191,9 +151,7 @@ def get_transit(query: TransitQuery) -> str:
         utc=utc,
     )
 
-    logging.info(
-        "Computed transit chart for %s at %s", query.name, target.isoformat()
-    )
+    LOGGER.info("Computed transit chart for %s at %s", query.name, target.isoformat())
     chart = ascendant.get_chart(query.division)
 
     timestamp = target.strftime("%Y-%m-%d %H:%M %Z").strip()
@@ -207,8 +165,7 @@ def get_transit(query: TransitQuery) -> str:
         f"persons/{query.name}/charts/D1.json]\n"
     )
     citation = (
-        f"computed transit {target.isoformat()}; "
-        f"persons/{query.name}/charts/D1.json"
+        f"computed transit {target.isoformat()}; persons/{query.name}/charts/D1.json"
     )
 
     return "\n".join(
@@ -221,23 +178,16 @@ def get_transit(query: TransitQuery) -> str:
 
 
 def parse_args(argv: list[str] | None = None) -> TransitQuery:
-    divisions = cast(
-        tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS)
-    )
+    divisions = cast(tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS))
     parser = argparse.ArgumentParser(
         description="Render a native's transit chart as a readable report."
     )
-    _ = parser.add_argument(
-        "--name", required=True, help="Native's display name"
-    )
+    _ = parser.add_argument("--name", required=True, help="Native's display name")
     _ = parser.add_argument(
         "--date",
         required=False,
         default=None,
-        help=(
-            "Target moment in ISO 8601 with timezone offset. "
-            "Defaults to now (UTC)."
-        ),
+        help=("Target moment in ISO 8601 with timezone offset. Defaults to now (UTC)."),
     )
     _ = parser.add_argument(
         "--division",
@@ -246,33 +196,32 @@ def parse_args(argv: list[str] | None = None) -> TransitQuery:
         default=1,
         help=f"Divisional chart number. Allowed: {divisions}",
     )
-    args = parser.parse_args(argv)
+    args = parser.parse_args(argv, namespace=Arguments())
 
-    name: object = args.name
-    date_text: object = args.date
-    division: object = args.division
+    name = args.name
+    date_text = args.date
+    division = args.division
     if not isinstance(name, str):
-        raise ValueError("name must be a string")
+        raise TypeError("name must be a string")
     if not isinstance(division, int) or division not in divisions:
-        raise ValueError(
-            f"division must be one of {divisions}, got {division}")
+        raise ValueError(f"division must be one of {divisions}, got {division}")
 
     if date_text is None:
-        date = datetime.now(timezone.utc)
+        date = datetime.now(UTC)
     else:
         if not isinstance(date_text, str):
-            raise ValueError("date must be an ISO 8601 string")
+            raise TypeError("date must be an ISO 8601 string")
         date = datetime.fromisoformat(date_text)
         if date.tzinfo is None:
-            date = date.replace(tzinfo=timezone.utc)
+            date = date.replace(tzinfo=UTC)
 
-    return TransitQuery(name=validate_name(name), date=date, division=division)
+    return TransitQuery(name=name, date=date, division=division)
 
 
 def main(argv: list[str] | None = None) -> int:
     try:
         query = parse_args(argv)
-    except (ValueError, SystemExit) as e:
+    except (TypeError, ValueError, SystemExit) as e:
         if isinstance(e, SystemExit) and e.code == 0:
             return 0
         print(f"error: {e}", file=sys.stderr)
@@ -280,11 +229,11 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         markdown = get_transit(query)
-    except FileNotFoundError as e:
+    except PersonRecordError as e:
         print(f"error: {e}", file=sys.stderr)
-        return 1
+        return 2
     except Exception as e:
-        logging.exception("Failed to render transit")
+        LOGGER.exception("Failed to render transit")
         print(f"error: {e}", file=sys.stderr)
         return 1
 
