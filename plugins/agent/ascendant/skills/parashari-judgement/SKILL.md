@@ -16,7 +16,11 @@ Use this shared workflow for every interpretation of a saved chart.
 2. Resolve the requested date. Use the supplied ISO 8601 moment with timezone;
    when absent, use the current UTC moment and retain the resolved timestamp.
    **Complete when:** the exact `as_of` moment is known.
-3. Run the evaluator from the user's project directory.
+3. Resolve the output mode. When the user's skill invocation contains the exact
+   `--html` flag, select HTML. Otherwise, select Markdown. Do not infer HTML
+   from words such as "pretty", "web", or "formatted".
+   **Complete when:** the output mode is exactly `html` or `markdown`.
+4. Run the evaluator from the user's project directory.
 
    ```bash
    python3 <path-to-parashari-judgement-skill>/scripts/evaluate_reading.py \
@@ -24,16 +28,20 @@ Use this shared workflow for every interpretation of a saved chart.
    ```
 
    Add `--other-name "<name>"` for `relationship-compatibility`; add
-   `--family-role "<role>"` for `family`.
+   `--family-role "<role>"` for `family`. Add `--html` only when the resolved
+   output mode is HTML.
    **Complete when:** the command exits successfully and returns its evidence
    ledger.
-4. Render the ledger in its order: status, evidence, practical guidance, then
-   sources. Copy the citations supplied for every factual or interpretive
-   sentence exactly as emitted. Add only a direct restatement of a cited ledger
-   item, retaining all of its citations.
+5. Return the evaluator output without changing its order: status, evidence,
+   practical guidance, then sources. For HTML, return the complete document
+   beginning with `<!doctype html>` without a Markdown code fence or
+   surrounding prose. For Markdown, copy the citations supplied for every
+   factual or interpretive sentence exactly as emitted. Add only a direct
+   restatement of a cited ledger item, retaining all of its citations.
    **Complete when:** every statement has one or more `[sources: ...]` markers;
-   headings and direct questions are the only uncited text.
-5. State any missing file, unavailable rule, or `insufficient evidence` result
+   headings, source bibliography entries, and direct questions are the only
+   uncited text.
+6. State any missing file, unavailable rule, or `insufficient evidence` result
    exactly as reported. Keep relationship, health, financial, and legal
    guidance within the cited practical boundary.
    **Complete when:** the response makes no claim beyond the ledger.
