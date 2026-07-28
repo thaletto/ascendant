@@ -12,7 +12,7 @@ REPOSITORY = Path(__file__).resolve().parents[1]
 EVALUATOR = (
     REPOSITORY
     / "plugins/agent/ascendant/skills/parashari-judgement/scripts"
-    / "evaluate-reading.py"
+    / "evaluate_reading.py"
 )
 GET_TRANSIT = (
     REPOSITORY

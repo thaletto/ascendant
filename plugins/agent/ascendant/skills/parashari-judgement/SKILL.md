@@ -19,7 +19,7 @@ Use this shared workflow for every interpretation of a saved chart.
 3. Run the evaluator from the user's project directory.
 
    ```bash
-   python3 <path-to-parashari-judgement-skill>/scripts/evaluate-reading.py \
+   python3 <path-to-parashari-judgement-skill>/scripts/evaluate_reading.py \
      --name "<name>" --topic "<topic>" --date "<ISO-8601 date>"
    ```
 
