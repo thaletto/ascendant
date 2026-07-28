@@ -48,19 +48,21 @@ def validate_name(name: str) -> str:
 
 def init_person(person: Person) -> str:
     """
-    Creates a directory under persons/ containing the person's astrological data.
+    Creates a directory under persons/ containing the person's
+    astrological data.
     Returns the absolute path of the created directory.
     Skips generation if a directory with the same hash already exists.
-    If the name exists but the hash differs, a new directory with a numeric suffix is created.
+    If the name exists but the hash differs, a new directory with a numeric
+    suffix is created.
     """
     person_hash = person.hash
     base = Path("persons")
     suffix = 1
 
     while True:
-        directory = (
-            base / person.name if suffix == 1 else base / f"{person.name}_{suffix}"
-        )
+        directory = base / person.name
+        if suffix != 1:
+            directory = base / f"{person.name}_{suffix}"
         hash_file = directory / "hash.txt"
 
         if not directory.exists():
@@ -77,7 +79,8 @@ def init_person(person: Person) -> str:
                     logging.info(f"{directory} already exists. Skipping.")
                     return str(directory.resolve())
                 logging.info(
-                    f"{directory} already exists. Generating missing derived data."
+                    "%s already exists. Generating missing derived data.",
+                    directory,
                 )
                 break
 
@@ -124,13 +127,16 @@ def init_person(person: Person) -> str:
 
     logging.info(f"Initialized ascendant for {person.name}")
 
-    divisions = cast(tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS))
+    divisions = cast(
+        tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS)
+    )
     for division in divisions:
         chart = ascendant.get_chart(division)
         if chart is None:
             logging.warning(f"Failed to get chart for D{division}")
             continue
-        with (charts_dir / f"D{division}.json").open("w", encoding="utf-8") as f:
+        chart_file = charts_dir / f"D{division}.json"
+        with chart_file.open("w", encoding="utf-8") as f:
             json.dump(chart, f, indent=2, ensure_ascii=False)
 
     dasha = ascendant.get_dasha_timeline()
@@ -170,17 +176,28 @@ def parse_args(argv: list[str] | None = None) -> Person:
     parser = argparse.ArgumentParser(
         description="Initialize a native's astrological data directory."
     )
-    _ = parser.add_argument("--name", required=True, help="Native's display name")
+    _ = parser.add_argument(
+        "--name", required=True, help="Native's display name"
+    )
     _ = parser.add_argument(
         "--dob",
         required=True,
-        help="Date and time of birth in ISO 8601 with timezone offset, e.g. 2003-08-19T11:55:00+05:30",
+        help=(
+            "Date and time of birth in ISO 8601 with timezone offset, "
+            "e.g. 2003-08-19T11:55:00+05:30"
+        ),
     )
     _ = parser.add_argument(
-        "--latitude", required=True, type=float, help="Latitude in decimal degrees"
+        "--latitude",
+        required=True,
+        type=float,
+        help="Latitude in decimal degrees",
     )
     _ = parser.add_argument(
-        "--longitude", required=True, type=float, help="Longitude in decimal degrees"
+        "--longitude",
+        required=True,
+        type=float,
+        help="Longitude in decimal degrees",
     )
     args = parser.parse_args(argv)
 

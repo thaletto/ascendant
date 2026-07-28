@@ -18,6 +18,7 @@ logging.basicConfig(
 RASHI: TypeAlias = RASHIS_LITERAL
 RASHIS = cast(tuple[RASHI, ...], get_args(RASHIS_LITERAL))
 
+
 @dataclass(frozen=True)
 class TransitQuery:
     name: str
@@ -61,7 +62,8 @@ def load_native(name: str) -> tuple[Path, dict[str, str]]:
     for required in ("latitude", "longitude", "utc"):
         if required not in fields:
             raise ValueError(
-                f"CONTEXT.md for '{name}' is missing required field '{required}'."
+                f"CONTEXT.md for '{name}' is missing required field "
+                f"'{required}'."
             )
 
     return directory, fields
@@ -96,14 +98,17 @@ def render_houses(chart, citation: str) -> str:
     for h in range(1, 13):
         house = chart.get(h)
         if not house:
-            lines.append(f"{h}. No house data available. [sources: {citation}]")
+            lines.append(
+                f"{h}. No house data available. [sources: {citation}]"
+            )
             continue
         sign = house["sign"]
-        lord = (
-            house["planets"][0]["sign"]["lord"]
-            if house.get("planets")
-            else (house["lagna"]["sign"]["lord"] if house.get("lagna") else "—")
-        )
+        if house.get("planets"):
+            lord = house["planets"][0]["sign"]["lord"]
+        elif house.get("lagna"):
+            lord = house["lagna"]["sign"]["lord"]
+        else:
+            lord = "—"
         planet_cells: list[str] = []
         for p in house.get("planets", []):
             tag = f" ({format_degree(p['longitude'])})"
@@ -136,7 +141,9 @@ def render_planets(chart, lagna_sign: RASHI, citation: str) -> str:
                     "retrograde": "Yes" if p.get("is_retrograde") else "No",
                     "nakshatra": p["sign"]["nakshatra"]["name"],
                     "pada": p["sign"]["nakshatra"]["pada"],
-                    "natal_house": natal_house_for_sign(p["sign"]["name"], lagna_sign),
+                    "natal_house": natal_house_for_sign(
+                        p["sign"]["name"], lagna_sign
+                    ),
                 }
             )
     rows.sort(key=lambda r: (r["house"], r["planet"]))
@@ -184,7 +191,9 @@ def get_transit(query: TransitQuery) -> str:
         utc=utc,
     )
 
-    logging.info(f"Computed transit chart for {query.name} at {target.isoformat()}")
+    logging.info(
+        "Computed transit chart for %s at %s", query.name, target.isoformat()
+    )
     chart = ascendant.get_chart(query.division)
 
     timestamp = target.strftime("%Y-%m-%d %H:%M %Z").strip()
@@ -197,24 +206,38 @@ def get_transit(query: TransitQuery) -> str:
         f"[sources: persons/{query.name}/CONTEXT.md; "
         f"persons/{query.name}/charts/D1.json]\n"
     )
-    citation = f"computed transit {target.isoformat()}; persons/{query.name}/charts/D1.json"
+    citation = (
+        f"computed transit {target.isoformat()}; "
+        f"persons/{query.name}/charts/D1.json"
+    )
 
     return "\n".join(
-        [header, render_houses(chart, citation), render_planets(chart, lagna_sign, citation)]
+        [
+            header,
+            render_houses(chart, citation),
+            render_planets(chart, lagna_sign, citation),
+        ]
     )
 
 
 def parse_args(argv: list[str] | None = None) -> TransitQuery:
-    divisions = cast(tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS))
+    divisions = cast(
+        tuple[ALLOWED_DIVISIONS, ...], get_args(ALLOWED_DIVISIONS)
+    )
     parser = argparse.ArgumentParser(
         description="Render a native's transit chart as a readable report."
     )
-    _ = parser.add_argument("--name", required=True, help="Native's display name")
+    _ = parser.add_argument(
+        "--name", required=True, help="Native's display name"
+    )
     _ = parser.add_argument(
         "--date",
         required=False,
         default=None,
-        help="Target moment in ISO 8601 with timezone offset. Defaults to now (UTC).",
+        help=(
+            "Target moment in ISO 8601 with timezone offset. "
+            "Defaults to now (UTC)."
+        ),
     )
     _ = parser.add_argument(
         "--division",
@@ -231,7 +254,8 @@ def parse_args(argv: list[str] | None = None) -> TransitQuery:
     if not isinstance(name, str):
         raise ValueError("name must be a string")
     if not isinstance(division, int) or division not in divisions:
-        raise ValueError(f"division must be one of {divisions}, got {division}")
+        raise ValueError(
+            f"division must be one of {divisions}, got {division}")
 
     if date_text is None:
         date = datetime.now(timezone.utc)

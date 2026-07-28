@@ -91,7 +91,8 @@ class ReadingError(ValueError):
 
 def _safe_person_name(name: str) -> str:
     if not name or name in {".", ".."} or Path(name).name != name:
-        raise ReadingError("name must identify one direct persons/<name> record")
+        raise ReadingError(
+            "name must identify one direct persons/<name> record")
     return name
 
 
@@ -155,7 +156,9 @@ def _house(chart: dict[str, Any], number: int) -> dict[str, Any]:
     return house
 
 
-def _planet(chart: dict[str, Any], name: str) -> tuple[int, dict[str, Any]] | None:
+def _planet(
+    chart: dict[str, Any], name: str
+) -> tuple[int, dict[str, Any]] | None:
     for house_number in range(1, 13):
         for planet in _house(chart, house_number).get("planets", []):
             if isinstance(planet, dict) and planet.get("name") == name:
@@ -193,11 +196,21 @@ def _house_evidence(
     dignity = planet.get("inSign", [])
     if not isinstance(dignity, list):
         dignity = []
-    dignity_text = ", ".join(str(item) for item in dignity) or "no dignity label"
-    if any(item in dignity for item in ("Exalted", "Moola Trikona", "Own", "Friend")):
-        polarity: Literal["support", "constraint", "neutral", "missing"] = "support"
+    dignity_text = (
+        ", ".join(str(item) for item in dignity) or "no dignity label"
+    )
+    if any(
+        item in dignity
+        for item in ("Exalted", "Moola Trikona", "Own", "Friend")
+    ):
+        polarity: Literal["support", "constraint", "neutral", "missing"] = (
+            "support"
+        )
         phrase = "supports"
-    elif any(item in dignity for item in ("Debilitated", "Enemy")) or lord_house in (6, 8, 12):
+    elif (
+        any(item in dignity for item in ("Debilitated", "Enemy"))
+        or lord_house in (6, 8, 12)
+    ):
         polarity = "constraint"
         phrase = "constrains"
     else:
@@ -211,7 +224,9 @@ def _house_evidence(
     )
 
 
-def _provenance_evidence(record: dict[str, Any], topic_prefix: str) -> Evidence:
+def _provenance_evidence(
+    record: dict[str, Any], topic_prefix: str
+) -> Evidence:
     citations = _citation(
         record["name"], "provenance.json", f"PR-{topic_prefix}-PROVENANCE",
     )
@@ -226,7 +241,8 @@ def _provenance_evidence(record: dict[str, Any], topic_prefix: str) -> Evidence:
     house_system = provenance.get("house_system", "unspecified")
     rule_pack = provenance.get("rule_pack", "unspecified")
     return Evidence(
-        f"Calculation provenance is {ayanamsa}, {house_system}, and {rule_pack}.",
+        f"Calculation provenance is {ayanamsa}, {house_system}, "
+        f"and {rule_pack}.",
         citations,
         "neutral",
     )
@@ -271,10 +287,12 @@ def _dasha_evidence(
     as_of: date,
 ) -> Evidence:
     active = _active_dasha(record["dasha"], as_of)
-    citations = _citation(record["name"], "dasha.json", f"PR-{topic_prefix}-DASHA")
+    citations = _citation(
+        record["name"], "dasha.json", f"PR-{topic_prefix}-DASHA")
     if active is None:
         return Evidence(
-            f"No active Vimshottari period is available for {as_of.isoformat()}.",
+            "No active Vimshottari period is available for "
+            f"{as_of.isoformat()}.",
             citations,
             "missing",
         )
@@ -302,7 +320,10 @@ def _sav_evidence(
     sarva = sav.get("sarva") if isinstance(sav, dict) else None
     citations = _citation(record["name"], "sav.json", f"PR-{topic_prefix}-SAV")
     if not isinstance(sarva, dict):
-        return Evidence("No SAV scores are available for this reading.", citations, "missing")
+        return Evidence(
+            "No SAV scores are available for this reading.",
+            citations,
+            "missing")
     d1 = cast(dict[str, Any], record["d1"])
     scores: list[str] = []
     for house_number in primary_houses:
@@ -311,7 +332,10 @@ def _sav_evidence(
         if isinstance(score, int | float):
             scores.append(f"house {house_number} ({sign}) = {score}")
     if not scores:
-        return Evidence("No relevant SAV scores are available for this topic.", citations, "missing")
+        return Evidence(
+            "No relevant SAV scores are available for this topic.",
+            citations,
+            "missing")
     return Evidence(
         "Supplementary SAV scores: " + "; ".join(scores) + ".",
         citations,
@@ -350,16 +374,23 @@ def _topic_transit_evidence(
     as_of: datetime,
 ) -> Evidence:
     transit = _transit_chart(record, as_of)
-    natal_lagna = cast(str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"])
+    natal_lagna = cast(
+        str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"]
+    )
     matches: list[str] = []
     for transit_house in range(1, 13):
         house = _house(transit, transit_house)
-        natal_house = (SIGNS.index(cast(str, house["sign"])) - SIGNS.index(natal_lagna)) % 12 + 1
+        natal_house = (
+            SIGNS.index(cast(str, house["sign"])) - SIGNS.index(natal_lagna)
+        ) % 12 + 1
         if natal_house not in primary_houses:
             continue
         for planet in house.get("planets", []):
-            if isinstance(planet, dict) and isinstance(planet.get("name"), str):
-                matches.append(f"{planet['name']} in natal house {natal_house}")
+            if isinstance(planet, dict) and isinstance(
+                planet.get("name"), str
+            ):
+                matches.append(
+                    f"{planet['name']} in natal house {natal_house}")
     citations = (
         f"computed transit {as_of.isoformat()}",
         f"persons/{record['name']}/CONTEXT.md",
@@ -367,7 +398,9 @@ def _topic_transit_evidence(
         f"PR-{topic_prefix}-TRANSIT",
         *SOURCE_IDS,
     )
-    detail = "; ".join(matches) if matches else "no planets in the selected natal houses"
+    detail = "; ".join(matches)
+    if not detail:
+        detail = "no planets in the selected natal houses"
     return Evidence(
         f"Computed transit at {as_of.isoformat()} has {detail}.",
         citations,
@@ -391,7 +424,10 @@ def _topic_reading(
 ) -> Reading:
     if topic == "family":
         if family_role not in FAMILY_CONFIG:
-            raise ReadingError("family requires --family-role: mother, father, sibling, child, or household")
+            raise ReadingError(
+                "family requires --family-role: mother, father, sibling, "
+                "child, or household"
+            )
         primary_houses = FAMILY_CONFIG[family_role]
         required_varga = None
         title = f"Family ({family_role})"
@@ -400,30 +436,43 @@ def _topic_reading(
     record = _load_record(name, required_varga)
     prefix = topic.replace("-", "").upper()[:3]
     evidence = [_provenance_evidence(record, prefix)] + [
-        _house_evidence(record["name"], record["d1"], "charts/D1.json", prefix, house)
+        _house_evidence(
+            record["name"], record["d1"], "charts/D1.json", prefix, house
+        )
         for house in primary_houses
     ]
     if required_varga is not None:
         evidence.extend(
             _house_evidence(
-                record["name"], record["varga"], f"charts/D{required_varga}.json",
+                record["name"],
+                record["varga"],
+                f"charts/D{required_varga}.json",
                 prefix, house,
             )
             for house in primary_houses
         )
-    evidence.append(_dasha_evidence(record, primary_houses, prefix, as_of.date()))
-    evidence.append(_topic_transit_evidence(record, primary_houses, prefix, as_of))
+    evidence.append(
+        _dasha_evidence(record, primary_houses, prefix, as_of.date())
+    )
+    evidence.append(
+        _topic_transit_evidence(record, primary_houses, prefix, as_of)
+    )
     evidence.append(_sav_evidence(record, primary_houses, prefix))
     frozen_evidence = tuple(evidence)
     status = _status(frozen_evidence, required_varga is not None)
     guidance = Evidence(
-        f"Use the {title.lower()} evidence as planning context, not certainty.",
+        f"Use the {title.lower()} evidence as planning context, "
+        "not certainty.",
         ("PRV1-POLICY-001", "PRV1"),
         "neutral",
     )
     return Reading(
-        person=record["name"], topic=topic, as_of=as_of.isoformat(), status=status,
-        evidence=frozen_evidence, practical_guidance=guidance,
+        person=record["name"],
+        topic=topic,
+        as_of=as_of.isoformat(),
+        status=status,
+        evidence=frozen_evidence,
+        practical_guidance=guidance,
         sources=_source_bibliography(),
     )
 
@@ -431,17 +480,24 @@ def _topic_reading(
 def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
     record = _load_record(name, None)
     transit = _transit_chart(record, as_of)
-    natal_lagna = cast(str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"])
+    natal_lagna = cast(
+        str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"]
+    )
     evidence: list[Evidence] = []
     for house_number in range(1, 13):
         house = _house(cast(dict[str, Any], transit), house_number)
         for planet in house.get("planets", []):
-            if not isinstance(planet, dict) or not isinstance(planet.get("name"), str):
+            if not isinstance(planet, dict) or not isinstance(
+                planet.get("name"), str
+            ):
                 continue
             sign_name = cast(str, house["sign"])
-            natal_house = (SIGNS.index(sign_name) - SIGNS.index(natal_lagna)) % 12 + 1
+            natal_house = (
+                SIGNS.index(sign_name) - SIGNS.index(natal_lagna)
+            ) % 12 + 1
             evidence.append(Evidence(
-                f"{planet['name']} transits {sign_name}, the natal house {natal_house}.",
+                f"{planet['name']} transits {sign_name}, "
+                f"the natal house {natal_house}.",
                 (
                     f"computed transit {as_of.isoformat()}",
                     f"persons/{record['name']}/CONTEXT.md",
@@ -451,7 +507,8 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
                 "neutral",
             ))
     guidance = Evidence(
-        "Use the dated transit facts to plan the next few days, not to promise an event.",
+        "Use the dated transit facts to plan the next few days, "
+        "not to promise an event.",
         ("PRV1-POLICY-001", "PRV1"), "neutral",
     )
     return Reading(
@@ -461,7 +518,9 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
     )
 
 
-def _compatibility_reading(name: str, other_name: str, as_of: datetime) -> Reading:
+def _compatibility_reading(
+    name: str, other_name: str, as_of: datetime
+) -> Reading:
     first = _load_record(name, 9)
     second = _load_record(other_name, 9)
     evidence: list[Evidence] = []
@@ -469,7 +528,8 @@ def _compatibility_reading(name: str, other_name: str, as_of: datetime) -> Readi
         d1 = cast(dict[str, Any], record["d1"])
         moon = _planet(d1, "Moon")
         if moon is None:
-            raise ReadingError(f"Missing Moon placement in {record['name']}'s D1 chart")
+            raise ReadingError(
+                f"Missing Moon placement in {record['name']}'s D1 chart")
         moon_house, moon_data = moon
         moon_sign = cast(dict[str, Any], moon_data["sign"])["name"]
         evidence.append(Evidence(
@@ -480,32 +540,47 @@ def _compatibility_reading(name: str, other_name: str, as_of: datetime) -> Readi
         d9 = cast(dict[str, Any], record["varga"])
         d9_moon = _planet(d9, "Moon")
         if d9_moon is None:
-            raise ReadingError(f"Missing Moon placement in {record['name']}'s D9 chart")
+            raise ReadingError(
+                f"Missing Moon placement in {record['name']}'s D9 chart")
         d9_house, d9_moon_data = d9_moon
         d9_moon_sign = cast(dict[str, Any], d9_moon_data["sign"])["name"]
         evidence.append(Evidence(
-            f"{record['name']}'s D9 Moon is in {d9_moon_sign}, house {d9_house}.",
+            f"{record['name']}'s D9 Moon is in {d9_moon_sign}, "
+            f"house {d9_house}.",
             _citation(record["name"], "charts/D9.json", "PR-REL-D9-MOON"),
             "neutral",
         ))
-        evidence.append(_dasha_evidence(record, (5, 7, 8), "REL", as_of.date()))
-        evidence.append(_topic_transit_evidence(record, (5, 7, 8), "REL", as_of))
+        evidence.append(
+            _dasha_evidence(record, (5, 7, 8), "REL", as_of.date())
+        )
+        evidence.append(
+            _topic_transit_evidence(record, (5, 7, 8), "REL", as_of)
+        )
         evidence.append(_sav_evidence(record, (5, 7, 8), "REL"))
     guidance = Evidence(
-        "Treat the two cited chart patterns as communication themes; consent and mutual conduct establish a relationship.",
+        "Treat the two cited chart patterns as communication themes; "
+        "consent and mutual conduct establish a relationship.",
         ("PRV1-POLICY-RELATIONSHIP", "PRV1"), "neutral",
     )
     return Reading(
-        person=f"{first['name']} and {second['name']}", topic="relationship-compatibility",
-        as_of=as_of.isoformat(), status="qualitative comparison", evidence=tuple(evidence),
-        practical_guidance=guidance, sources=_source_bibliography(),
+        person=f"{first['name']} and {second['name']}",
+        topic="relationship-compatibility",
+        as_of=as_of.isoformat(),
+        status="qualitative comparison",
+        evidence=tuple(evidence),
+        practical_guidance=guidance,
+        sources=_source_bibliography(),
     )
 
 
 def _source_bibliography() -> dict[str, str]:
     return {
-        "BPHS-RS-1984": "Brihat Parashara Hora Shastra, R. Santhanam translation (1984).",
-        "BVR-HTJH": "B. V. Raman, How to Judge a Horoscope, Volumes I and II.",
+        "BPHS-RS-1984": (
+            "Brihat Parashara Hora Shastra, R. Santhanam translation (1984)."
+        ),
+        "BVR-HTJH": (
+            "B. V. Raman, How to Judge a Horoscope, Volumes I and II."
+        ),
         "PRV1": "Ascendant Parashari-Raman v1 curated rule catalogue.",
     }
 
@@ -524,10 +599,14 @@ def _render_markdown(reading: Reading) -> str:
         "",
     ]
     for item in reading.evidence:
-        lines.append(f"- {item.statement} [sources: {'; '.join(item.citations)}]")
+        lines.append(
+            f"- {item.statement} [sources: {'; '.join(item.citations)}]")
+    guidance_sources = "; ".join(reading.practical_guidance.citations)
     lines.extend([
         "", "## Practical guidance", "",
-        f"- {reading.practical_guidance.statement} [sources: {'; '.join(reading.practical_guidance.citations)}]",
+        "- "
+        f"{reading.practical_guidance.statement} "
+        f"[sources: {guidance_sources}]",
         "", "## Sources", "",
     ])
     for source_id, source in reading.sources.items():
@@ -551,12 +630,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Render a deterministic, cited Parashari evidence ledger.",
     )
-    _ = parser.add_argument("--name", required=True, help="Saved persons/<name> record")
+    _ = parser.add_argument("--name", required=True,
+                            help="Saved persons/<name> record")
     _ = parser.add_argument("--topic", required=True, choices=TOPICS)
     _ = parser.add_argument("--date", help="ISO 8601 moment with timezone")
-    _ = parser.add_argument("--other-name", help="Second saved record for compatibility")
+    _ = parser.add_argument(
+        "--other-name", help="Second saved record for compatibility")
     _ = parser.add_argument("--family-role", choices=tuple(FAMILY_CONFIG))
-    _ = parser.add_argument("--format", choices=("markdown", "json"), default="markdown")
+    _ = parser.add_argument(
+        "--format", choices=("markdown", "json"), default="markdown")
     return parser.parse_args(argv)
 
 
@@ -570,10 +652,12 @@ def main(argv: list[str] | None = None) -> int:
             reading = _daily_transit_reading(name, as_of)
         elif topic == "relationship-compatibility":
             if not isinstance(args.other_name, str):
-                raise ReadingError("relationship-compatibility requires --other-name")
+                raise ReadingError(
+                    "relationship-compatibility requires --other-name")
             reading = _compatibility_reading(name, args.other_name, as_of)
         else:
-            reading = _topic_reading(name, topic, as_of, cast(str | None, args.family_role))
+            reading = _topic_reading(
+                name, topic, as_of, cast(str | None, args.family_role))
     except ReadingError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
