@@ -25,6 +25,25 @@ npx skills add thaletto/ascendant
 
 The skill pack includes executable setup and transit flows plus guidance for career, finance, health, education, family, marriage, property, daily transit, and relationship compatibility.
 
+## What system the Ascendant skills use
+
+Ascendant's interpretation skills use a versioned **Parashari–Raman** workflow
+named `parashari_raman_v1`. The calculator uses the **sidereal zodiac**, with
+**Lahiri ayanamsa** and **Whole Sign houses** as its defaults. A reading begins
+with the D1 natal chart, adds the relevant divisional chart when the topic
+requires one, checks Vimshottari Mahadasha and Antardasha, and then uses dated
+transits and Sarvashtakavarga as corroborating evidence.
+
+The workflow is deliberately narrower than the whole Parashari tradition. It
+does not silently switch to Jaimini or KP rules, and every statement emitted by
+the shared evaluator carries the saved chart artifact, rule identifier, and
+source identifiers used for that statement. Choosing a Krishnamurti ayanamsa in
+the Python configuration changes the sidereal reference point; it does not turn
+the skills into a KP astrology engine.
+
+Learn how these traditions differ in [Learn astrology](/docs/astrology), or
+read the exact [agent workflow](/docs/agents).
+
 ## Calculate your first chart
 
 ```python
@@ -61,67 +80,14 @@ Provide the complete birth details explicitly. The results are ordinary Python d
 | `get_yogas()` | Structured yoga presence, strength, type, and details |
 | `get_sav()` | Bhinna, Sarva, reduced scores, and Shodhya Pinda |
 
-## Calculation options
+## Configure the calculation model
 
-Your charts use `Lahiri` and `Whole Sign` by default. Override either setting
-for one chart when you create the instance:
+Charts use Lahiri ayanamsa and Whole Sign houses by default. You can override
+either value for one instance or set immutable application defaults for future
+instances. See [Configuration](/docs/configuration) for precedence, supported
+values, validation, and reproducible examples.
 
-```python
-astro = Ascendant(
-    year=1990,
-    month=1,
-    day=1,
-    hour=12,
-    minute=0,
-    second=0,
-    latitude=28.6139,
-    longitude=77.2090,
-    utc="+5:30",
-    ayanamsa="Krishnamurti",
-    house_system="Equal",
-)
-```
-
-If your application uses the same calculation settings for most charts,
-configure typed defaults once:
-
-```python
-from ascendant import (
-    Ascendant,
-    AscendantConfig,
-    Ayanamsa,
-    HouseSystem,
-    configure,
-)
-
-configure(
-    AscendantConfig(
-        ayanamsa=Ayanamsa.LAHIRI,
-        house_system=HouseSystem.PORPHYRY,
-    )
-)
-
-astro = Ascendant(
-    year=1990,
-    month=1,
-    day=1,
-    hour=12,
-    minute=0,
-    second=0,
-    latitude=28.6139,
-    longitude=77.2090,
-    utc="+5:30",
-)
-```
-
-Values you pass to `Ascendant` take precedence over configured defaults. Each
-instance keeps the settings it had at creation time. Use `get_config()` to
-inspect the current immutable defaults and `reset_config()` to restore Lahiri
-and Whole Sign. Unsupported ayanamsa or house-system values raise `ValueError`.
-
-Supported house systems are `Whole Sign`, `Placidus`, `Equal`, `Equal 2`, and
-`Porphyry`. Supported ayanamsas are `Lahiri`, `Lahiri_1940`,
-`Lahiri_VP285`, `Lahiri_ICRC`, `Raman`, `Krishnamurti`, and
-`Krishnamurti_Senthilathiban`.
-
-Continue with [Agent workflows](/docs/agents), or use the Python library guides for [charts](/docs/library/charts), [dashas](/docs/library/dasha), [yogas](/docs/library/yoga), and [Ashtakavarga](/docs/library/ashtakavarga).
+Continue with [Agent workflows](/docs/agents), [Learn astrology](/docs/astrology),
+or the Python library guides for [charts](/docs/library/charts),
+[dashas](/docs/library/dasha), [yogas](/docs/library/yoga), and
+[Ashtakavarga](/docs/library/ashtakavarga).
