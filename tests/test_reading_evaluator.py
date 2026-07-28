@@ -103,18 +103,14 @@ def _write_person(workspace: Path, name: str = "Ada") -> None:
     person = workspace / "persons" / name
     charts = person / "charts"
     charts.mkdir(parents=True)
-    context = "\n".join(
-        (
-            "---",
-            "name: Ada",
-            "dob: 1990-01-01 12:00",
-            "utc: +05:30",
-            "latitude: 28.6139",
-            "longitude: 77.2090",
-            "---",
-            "",
-        )
-    )
+    context = f"""---
+name: {name}
+dob: 1990-01-01 12:00
+utc: +05:30
+latitude: 28.6139
+longitude: 77.2090
+---
+"""
     (person / "CONTEXT.md").write_text(context, encoding="utf-8")
     for division in (1, 9, 10):
         (charts / f"D{division}.json").write_text(
