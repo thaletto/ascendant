@@ -111,12 +111,12 @@ latitude: 28.6139
 longitude: 77.2090
 ---
 """
-    (person / "CONTEXT.md").write_text(context, encoding="utf-8")
+    _ = (person / "CONTEXT.md").write_text(context, encoding="utf-8")
     for division in (1, 9, 10):
-        (charts / f"D{division}.json").write_text(
+        _ = (charts / f"D{division}.json").write_text(
             json.dumps(_chart()), encoding="utf-8"
         )
-    (person / "dasha.json").write_text(
+    _ = (person / "dasha.json").write_text(
         json.dumps(
             [
                 {
@@ -136,7 +136,7 @@ longitude: 77.2090
         ),
         encoding="utf-8",
     )
-    (person / "provenance.json").write_text(
+    _ = (person / "provenance.json").write_text(
         json.dumps(
             {
                 "schema_version": 1,
@@ -147,7 +147,7 @@ longitude: 77.2090
         ),
         encoding="utf-8",
     )
-    (person / "sav.json").write_text(
+    _ = (person / "sav.json").write_text(
         json.dumps(
             {
                 "sarva": {

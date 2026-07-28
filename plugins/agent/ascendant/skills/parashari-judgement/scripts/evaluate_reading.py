@@ -4,26 +4,25 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, dataclass
-from datetime import date, datetime, timezone
 import json
-from pathlib import Path
 import sys
+from dataclasses import asdict, dataclass
+from datetime import UTC, date, datetime
+from pathlib import Path
 from typing import Literal, TypedDict, cast
 
 from ascendant import Ascendant
 from ascendant.sav import AshtakavargaResult
 from ascendant.types import (
-    ChartType,
-    DashasType,
     HOUSES,
-    HouseType,
     PLANETS,
-    PlanetType,
     RASHI_LORDS,
     RASHIS,
+    ChartType,
+    DashasType,
+    HouseType,
+    PlanetType,
 )
-
 
 Topic = Literal[
     "career",
@@ -36,6 +35,7 @@ Topic = Literal[
     "property",
     "relationship-compatibility",
 ]
+OutputFormat = Literal["markdown", "json"]
 
 TOPICS: tuple[Topic, ...] = (
     "career",
@@ -119,6 +119,18 @@ class PersonRecord:
     varga: ChartType | None = None
 
 
+@dataclass
+class Arguments:
+    """Typed command-line values populated by argparse."""
+
+    name: str = ""
+    topic: Topic = "career"
+    date: str | None = None
+    other_name: str | None = None
+    family_role: str | None = None
+    output_format: OutputFormat = "markdown"
+
+
 class ReadingError(ValueError):
     """An input record cannot support the requested deterministic reading."""
 
@@ -134,7 +146,7 @@ def _read_json(path: Path) -> object:
     if not path.is_file():
         raise ReadingError(f"Missing required data: {path}")
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        return cast(object, json.loads(path.read_text(encoding="utf-8")))
     except json.JSONDecodeError as error:
         raise ReadingError(f"Invalid JSON: {path}") from error
 
@@ -146,11 +158,12 @@ def _optional_json(path: Path) -> object | None:
 
 
 def _mapping(value: object, path: Path) -> dict[str, object]:
-    if not isinstance(value, dict) or not all(
-        isinstance(key, str) for key in value
-    ):
+    if not isinstance(value, dict):
         raise ReadingError(f"Expected an object in {path}")
-    return cast(dict[str, object], value)
+    mapping = cast(dict[object, object], value)
+    if not all(isinstance(key, str) for key in mapping):
+        raise ReadingError(f"Expected string keys in {path}")
+    return cast(dict[str, object], mapping)
 
 
 def _chart_from_json(value: object, path: Path) -> ChartType:
@@ -161,23 +174,26 @@ def _chart_from_json(value: object, path: Path) -> ChartType:
         sign = raw_house.get("sign")
         if not isinstance(sign, str) or sign not in SIGNS:
             raise ReadingError(f"Chart has no valid house {number} in {path}")
-        chart[cast(HOUSES, number)] = cast(HouseType, raw_house)
+        chart[cast(HOUSES, number)] = cast(
+            HouseType, cast(object, raw_house)
+        )
     return chart
 
 
 def _dashas_from_json(value: object, path: Path) -> DashasType:
-    if not isinstance(value, list) or not all(
-        isinstance(item, dict) for item in value
-    ):
+    if not isinstance(value, list):
         raise ReadingError(f"Expected a dasha timeline list in {path}")
-    return cast(DashasType, value)
+    items = cast(list[object], value)
+    if not all(isinstance(item, dict) for item in items):
+        raise ReadingError(f"Expected dasha timeline entries in {path}")
+    return cast(DashasType, cast(object, items))
 
 
 def _sav_from_json(value: object, path: Path) -> AshtakavargaResult:
     raw_sav = _mapping(value, path)
     if not isinstance(raw_sav.get("sarva"), dict):
         raise ReadingError(f"Expected SAV scores in {path}")
-    return cast(AshtakavargaResult, raw_sav)
+    return cast(AshtakavargaResult, cast(object, raw_sav))
 
 
 def _provenance_from_json(
@@ -191,7 +207,7 @@ def _provenance_from_json(
     for field in ("rule_pack", "ayanamsa", "house_system"):
         if not isinstance(provenance.get(field), str):
             raise ReadingError(f"Expected provenance field {field} in {path}")
-    return cast(Provenance, provenance)
+    return cast(Provenance, cast(object, provenance))
 
 
 def _load_record(name: str, required_varga: int | None) -> PersonRecord:
@@ -281,9 +297,7 @@ def _house_evidence(
         )
 
     lord_house, planet = found
-    dignity = planet.get("inSign", [])
-    if not isinstance(dignity, list):
-        dignity = []
+    dignity = planet["inSign"]
     dignity_text = (
         ", ".join(str(item) for item in dignity) or "no dignity label"
     )
@@ -304,9 +318,12 @@ def _house_evidence(
     else:
         polarity = "neutral"
         phrase = "gives mixed evidence for"
-    return Evidence(
+    statement = (
         f"House {house_number} is {sign}; {lord}, its lord, is in house "
-        f"{lord_house} with {dignity_text}, which {phrase} this topic.",
+        + f"{lord_house} with {dignity_text}, which {phrase} this topic."
+    )
+    return Evidence(
+        statement,
         citations,
         polarity,
     )
@@ -328,9 +345,12 @@ def _provenance_evidence(
     ayanamsa = provenance["ayanamsa"]
     house_system = provenance["house_system"]
     rule_pack = provenance["rule_pack"]
-    return Evidence(
+    statement = (
         f"Calculation provenance is {ayanamsa}, {house_system}, "
-        f"and {rule_pack}.",
+        + f"and {rule_pack}."
+    )
+    return Evidence(
+        statement,
         citations,
         "neutral",
     )
@@ -354,7 +374,9 @@ def _active_dasha(
 
 def _dasha_date(value: str) -> date | None:
     try:
-        return datetime.strptime(value, "%d-%m-%Y").date()
+        return datetime.strptime(value, "%d-%m-%Y").replace(
+            tzinfo=UTC
+        ).date()
     except ValueError:
         return None
 
@@ -369,9 +391,12 @@ def _dasha_evidence(
     citations = _citation(
         record.name, "dasha.json", f"PR-{topic_prefix}-DASHA")
     if active is None:
-        return Evidence(
+        statement = (
             "No active Vimshottari period is available for "
-            f"{as_of.isoformat()}.",
+            + f"{as_of.isoformat()}."
+        )
+        return Evidence(
+            statement,
             citations,
             "missing",
         )
@@ -379,13 +404,15 @@ def _dasha_evidence(
         SIGN_LORDS[_house(record.d1, house)["sign"]]
         for house in primary_houses
     }
-    active_planets = set(active)
     activated = active[0] in relevant_planets and active[1] in relevant_planets
     result = "activates" if activated else "does not jointly activate"
-    return Evidence(
+    statement = (
         f"Vimshottari {active[0]}–{active[1]} is active on "
-        f"{as_of.isoformat()} and {result} the selected house lords; "
-        "timing requires both period lords to activate them.",
+        + f"{as_of.isoformat()} and {result} the selected house lords; "
+        + "timing requires both period lords to activate them."
+    )
+    return Evidence(
+        statement,
         citations,
         "support" if activated else "neutral",
     )
@@ -486,10 +513,11 @@ def _topic_reading(
 ) -> Reading:
     if topic == "family":
         if family_role not in FAMILY_CONFIG:
-            raise ReadingError(
+            message = (
                 "family requires --family-role: mother, father, sibling, "
-                "child, or household"
+                + "child, or household"
             )
+            raise ReadingError(message)
         primary_houses = FAMILY_CONFIG[family_role]
         required_varga = None
         title = f"Family ({family_role})"
@@ -522,9 +550,12 @@ def _topic_reading(
     evidence.append(_sav_evidence(record, primary_houses, prefix))
     frozen_evidence = tuple(evidence)
     status = _status(frozen_evidence, required_varga is not None)
-    guidance = Evidence(
+    guidance_statement = (
         f"Use the {title.lower()} evidence as planning context, "
-        "not certainty.",
+        + "not certainty."
+    )
+    guidance = Evidence(
+        guidance_statement,
         ("PRV1-POLICY-001", "PRV1"),
         "neutral",
     )
@@ -551,9 +582,12 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
             natal_house = (
                 SIGNS.index(sign_name) - SIGNS.index(natal_lagna)
             ) % 12 + 1
-            evidence.append(Evidence(
+            statement = (
                 f"{planet['name']} transits {sign_name}, "
-                f"the natal house {natal_house}.",
+                + f"the natal house {natal_house}."
+            )
+            evidence.append(Evidence(
+                statement,
                 (
                     f"computed transit {as_of.isoformat()}",
                     f"persons/{record.name}/CONTEXT.md",
@@ -562,9 +596,12 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
                 ),
                 "neutral",
             ))
-    guidance = Evidence(
+    guidance_statement = (
         "Use the dated transit facts to plan the next few days, "
-        "not to promise an event.",
+        + "not to promise an event."
+    )
+    guidance = Evidence(
+        guidance_statement,
         ("PRV1-POLICY-001", "PRV1"), "neutral",
     )
     return Reading(
@@ -600,9 +637,12 @@ def _compatibility_reading(
                 f"Missing Moon placement in {record.name}'s D9 chart")
         d9_house, d9_moon_data = d9_moon
         d9_moon_sign = d9_moon_data["sign"]["name"]
-        evidence.append(Evidence(
+        statement = (
             f"{record.name}'s D9 Moon is in {d9_moon_sign}, "
-            f"house {d9_house}.",
+            + f"house {d9_house}."
+        )
+        evidence.append(Evidence(
+            statement,
             _citation(record.name, "charts/D9.json", "PR-REL-D9-MOON"),
             "neutral",
         ))
@@ -613,9 +653,12 @@ def _compatibility_reading(
             _topic_transit_evidence(record, (5, 7, 8), "REL", as_of)
         )
         evidence.append(_sav_evidence(record, (5, 7, 8), "REL"))
-    guidance = Evidence(
+    guidance_statement = (
         "Treat the two cited chart patterns as communication themes; "
-        "consent and mutual conduct establish a relationship.",
+        + "consent and mutual conduct establish a relationship."
+    )
+    guidance = Evidence(
+        guidance_statement,
         ("PRV1-POLICY-RELATIONSHIP", "PRV1"), "neutral",
     )
     return Reading(
@@ -658,11 +701,13 @@ def _render_markdown(reading: Reading) -> str:
         lines.append(
             f"- {item.statement} [sources: {'; '.join(item.citations)}]")
     guidance_sources = "; ".join(reading.practical_guidance.citations)
+    guidance_line = (
+        f"- {reading.practical_guidance.statement} "
+        + f"[sources: {guidance_sources}]"
+    )
     lines.extend([
         "", "## Practical guidance", "",
-        "- "
-        f"{reading.practical_guidance.statement} "
-        f"[sources: {guidance_sources}]",
+        guidance_line,
         "", "## Sources", "",
     ])
     for source_id, source in reading.sources.items():
@@ -672,7 +717,7 @@ def _render_markdown(reading: Reading) -> str:
 
 def _parse_datetime(value: str | None) -> datetime:
     if value is None:
-        return datetime.now(timezone.utc)
+        return datetime.now(UTC)
     try:
         parsed = datetime.fromisoformat(value)
     except ValueError as error:
@@ -682,7 +727,7 @@ def _parse_datetime(value: str | None) -> datetime:
     return parsed
 
 
-def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> Arguments:
     parser = argparse.ArgumentParser(
         description="Render a deterministic, cited Parashari evidence ledger.",
     )
@@ -694,16 +739,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--other-name", help="Second saved record for compatibility")
     _ = parser.add_argument("--family-role", choices=tuple(FAMILY_CONFIG))
     _ = parser.add_argument(
-        "--format", choices=("markdown", "json"), default="markdown")
-    return parser.parse_args(argv)
+        "--format",
+        choices=("markdown", "json"),
+        default="markdown",
+        dest="output_format",
+    )
+    return parser.parse_args(argv, namespace=Arguments())
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
-        name = _safe_person_name(cast(str, args.name))
-        topic = cast(Topic, args.topic)
-        as_of = _parse_datetime(cast(str | None, args.date))
+        name = _safe_person_name(args.name)
+        topic = args.topic
+        as_of = _parse_datetime(args.date)
         if topic == "daily-transit":
             reading = _daily_transit_reading(name, as_of)
         elif topic == "relationship-compatibility":
@@ -713,11 +762,11 @@ def main(argv: list[str] | None = None) -> int:
             reading = _compatibility_reading(name, args.other_name, as_of)
         else:
             reading = _topic_reading(
-                name, topic, as_of, cast(str | None, args.family_role))
+                name, topic, as_of, args.family_role)
     except ReadingError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
-    if args.format == "json":
+    if args.output_format == "json":
         print(json.dumps(asdict(reading), indent=2))
     else:
         print(_render_markdown(reading))
