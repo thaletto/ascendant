@@ -206,66 +206,6 @@ def test_career_evaluator_emits_cited_deterministic_ledger(
     assert "Computed transit" in result.stdout
 
 
-def test_html_flag_emits_a_standalone_cited_reading(tmp_path: Path) -> None:
-    _write_person(tmp_path, "Ada & Co")
-    environment = os.environ | {"PYTHONPATH": str(REPOSITORY)}
-
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(EVALUATOR),
-            "--name",
-            "Ada & Co",
-            "--topic",
-            "career",
-            "--date",
-            "2026-07-28T12:00:00+05:30",
-            "--html",
-        ],
-        cwd=tmp_path,
-        env=environment,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.startswith("<!doctype html>")
-    assert '<meta name="viewport"' in result.stdout
-    assert '<section aria-labelledby="evidence-heading">' in result.stdout
-    assert "Career — Ada &amp; Co | Ascendant" in result.stdout
-    assert "[sources: persons/Ada &amp; Co/charts/D1.json;" in result.stdout
-    assert "Ada & Co" not in result.stdout
-    assert "## Evidence" not in result.stdout
-
-
-def test_html_flag_is_exclusive_with_json_format(tmp_path: Path) -> None:
-    _write_person(tmp_path)
-    environment = os.environ | {"PYTHONPATH": str(REPOSITORY)}
-
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(EVALUATOR),
-            "--name",
-            "Ada",
-            "--topic",
-            "career",
-            "--html",
-            "--format",
-            "json",
-        ],
-        cwd=tmp_path,
-        env=environment,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-
-    assert result.returncode == 2
-    assert "not allowed with argument" in result.stderr
-
-
 def test_init_person_backfills_provenance_without_rewriting_context(
     tmp_path: Path,
 ) -> None:

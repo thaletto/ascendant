@@ -8,7 +8,6 @@ import json
 import sys
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
-from html import escape
 from pathlib import Path
 from typing import Literal, TypedDict, cast
 
@@ -130,7 +129,6 @@ class Arguments:
     other_name: str | None = None
     family_role: str | None = None
     output_format: OutputFormat = "markdown"
-    html: bool = False
 
 
 class ReadingError(ValueError):
@@ -717,281 +715,6 @@ def _render_markdown(reading: Reading) -> str:
     return "\n".join(lines)
 
 
-def _render_html_citations(citations: tuple[str, ...]) -> str:
-    source_list = "; ".join(escape(source) for source in citations)
-    marker = f"[sources: {source_list}]"
-    return f'<span class="citations" aria-label="Sources">{marker}</span>'
-
-
-def _render_html(reading: Reading) -> str:
-    title = escape(reading.topic.replace("-", " ").title())
-    person = escape(reading.person)
-    as_of = escape(reading.as_of)
-    status = escape(reading.status)
-    status_class = escape(reading.status.replace(" ", "-").lower())
-    as_of_citations = _render_html_citations(("PRV1",))
-    status_citations = _render_html_citations(("PRV1",))
-    evidence_items = "\n".join(
-        f"""
-        <li class="evidence evidence--{escape(item.polarity)}">
-          <span class="evidence__marker" aria-hidden="true"></span>
-          <p>{escape(item.statement)}
-            {_render_html_citations(item.citations)}
-          </p>
-        </li>""".strip()
-        for item in reading.evidence
-    )
-    guidance = escape(reading.practical_guidance.statement)
-    guidance_citations = _render_html_citations(
-        reading.practical_guidance.citations
-    )
-    source_items = "\n".join(
-        f"""
-        <div class="source">
-          <dt>{escape(source_id)}</dt>
-          <dd>{escape(source)}</dd>
-        </div>""".strip()
-        for source_id, source in reading.sources.items()
-    )
-    styles = """
-    :root {
-      color-scheme: dark;
-      font-family:
-        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-      background: #090b14;
-      color: #f7f1e8;
-    }
-    * { box-sizing: border-box; }
-    body {
-      min-height: 100vh;
-      margin: 0;
-      background:
-        radial-gradient(circle at 15% 0%, #34245f 0, transparent 34rem),
-        radial-gradient(circle at 90% 18%, #164d52 0, transparent 28rem),
-        #090b14;
-    }
-    body::before {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      content: "";
-      opacity: 0.3;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: linear-gradient(to bottom, black, transparent 80%);
-    }
-    main {
-      width: min(880px, calc(100% - 2rem));
-      margin: 0 auto;
-      padding: 4rem 0;
-    }
-    header, section {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 1.25rem;
-      background: rgba(16, 18, 31, 0.84);
-      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.26);
-      backdrop-filter: blur(18px);
-    }
-    header {
-      position: relative;
-      overflow: hidden;
-      padding: clamp(1.5rem, 5vw, 3.5rem);
-    }
-    header::after {
-      position: absolute;
-      width: 12rem;
-      height: 12rem;
-      right: -4rem;
-      bottom: -6rem;
-      border: 1px solid rgba(234, 190, 116, 0.38);
-      border-radius: 50%;
-      content: "";
-      box-shadow:
-        0 0 0 2rem rgba(234, 190, 116, 0.05),
-        0 0 0 4rem rgba(234, 190, 116, 0.03);
-    }
-    .eyebrow {
-      margin: 0 0 0.85rem;
-      color: #eabe74;
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-    h1 {
-      max-width: 14ch;
-      margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.4rem, 7vw, 5rem);
-      font-weight: 500;
-      letter-spacing: -0.045em;
-      line-height: 0.96;
-    }
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-      align-items: center;
-      margin-top: 2rem;
-    }
-    .status-wrap {
-      display: inline-flex;
-      gap: 0.65rem;
-      align-items: center;
-    }
-    .status-wrap .citations {
-      display: inline;
-      margin-top: 0;
-    }
-    .status {
-      display: inline-flex;
-      padding: 0.48rem 0.78rem;
-      border: 1px solid rgba(119, 227, 191, 0.35);
-      border-radius: 999px;
-      background: rgba(45, 145, 117, 0.17);
-      color: #aaf1d9;
-      font-size: 0.82rem;
-      font-weight: 750;
-      text-transform: capitalize;
-    }
-    .as-of {
-      color: #b5b8c9;
-      font-size: 0.86rem;
-    }
-    section {
-      margin-top: 1rem;
-      padding: clamp(1.25rem, 4vw, 2.25rem);
-    }
-    h2 {
-      margin: 0 0 1.25rem;
-      color: #f5dcae;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.55rem;
-      font-weight: 500;
-    }
-    p { margin: 0; line-height: 1.72; }
-    .evidence-list {
-      display: grid;
-      gap: 0.75rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-    .evidence {
-      display: grid;
-      grid-template-columns: 0.65rem 1fr;
-      gap: 0.85rem;
-      padding: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 0.9rem;
-      background: rgba(255, 255, 255, 0.035);
-    }
-    .evidence__marker {
-      width: 0.52rem;
-      height: 0.52rem;
-      margin-top: 0.55rem;
-      border-radius: 50%;
-      background: #8f96aa;
-      box-shadow: 0 0 1rem currentColor;
-    }
-    .evidence--support .evidence__marker { background: #77e3bf; }
-    .evidence--constraint .evidence__marker { background: #ff9c82; }
-    .evidence--missing .evidence__marker { background: #eabe74; }
-    .citations {
-      display: block;
-      margin-top: 0.45rem;
-      color: #9499ad;
-      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-      font-size: 0.72rem;
-      line-height: 1.55;
-      overflow-wrap: anywhere;
-    }
-    .guidance {
-      padding-left: 1rem;
-      border-left: 3px solid #eabe74;
-    }
-    .sources {
-      display: grid;
-      gap: 0.75rem;
-      margin: 0;
-    }
-    .source {
-      display: grid;
-      grid-template-columns: minmax(7rem, 0.25fr) 1fr;
-      gap: 1rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .source:first-child { padding-top: 0; border-top: 0; }
-    dt { color: #eabe74; font-weight: 800; }
-    dd { margin: 0; color: #c6c8d3; line-height: 1.55; }
-    @media (max-width: 560px) {
-      main { padding: 1rem 0 2rem; }
-      .source { grid-template-columns: 1fr; gap: 0.25rem; }
-    }
-    @media print {
-      :root { color-scheme: light; background: white; color: #171717; }
-      body { background: white; }
-      body::before { display: none; }
-      main { width: 100%; padding: 0; }
-      header, section {
-        border-color: #d7d7d7;
-        background: white;
-        box-shadow: none;
-        break-inside: avoid;
-      }
-      .citations, .as-of, dd { color: #454545; }
-    }
-    """
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{title} — {person} | Ascendant</title>
-  <style>{styles}</style>
-</head>
-<body>
-  <main>
-    <header>
-      <p class="eyebrow">Ascendant · cited reading</p>
-      <h1>{title} — {person}</h1>
-      <div class="meta">
-        <span class="status-wrap">
-          <span class="status status--{status_class}">{status}</span>
-          {status_citations}
-        </span>
-        <span class="as-of">As of {as_of}{as_of_citations}</span>
-      </div>
-    </header>
-    <section aria-labelledby="promise-heading">
-      <h2 id="promise-heading">Natal promise</h2>
-      <p>Status: {status}.{status_citations}</p>
-    </section>
-    <section aria-labelledby="evidence-heading">
-      <h2 id="evidence-heading">Evidence</h2>
-      <ol class="evidence-list">
-        {evidence_items}
-      </ol>
-    </section>
-    <section aria-labelledby="guidance-heading">
-      <h2 id="guidance-heading">Practical guidance</h2>
-      <p class="guidance">{guidance}{guidance_citations}</p>
-    </section>
-    <section aria-labelledby="sources-heading">
-      <h2 id="sources-heading">Sources</h2>
-      <dl class="sources">
-        {source_items}
-      </dl>
-    </section>
-  </main>
-</body>
-</html>"""
-
-
 def _parse_datetime(value: str | None) -> datetime:
     if value is None:
         return datetime.now(UTC)
@@ -1015,13 +738,7 @@ def parse_args(argv: list[str] | None = None) -> Arguments:
     _ = parser.add_argument(
         "--other-name", help="Second saved record for compatibility")
     _ = parser.add_argument("--family-role", choices=tuple(FAMILY_CONFIG))
-    output_group = parser.add_mutually_exclusive_group()
-    _ = output_group.add_argument(
-        "--html",
-        action="store_true",
-        help="Render a styled, standalone HTML reading",
-    )
-    _ = output_group.add_argument(
+    _ = parser.add_argument(
         "--format",
         choices=("markdown", "json"),
         default="markdown",
@@ -1049,9 +766,7 @@ def main(argv: list[str] | None = None) -> int:
     except ReadingError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
-    if args.html:
-        print(_render_html(reading))
-    elif args.output_format == "json":
+    if args.output_format == "json":
         print(json.dumps(asdict(reading), indent=2))
     else:
         print(_render_markdown(reading))
