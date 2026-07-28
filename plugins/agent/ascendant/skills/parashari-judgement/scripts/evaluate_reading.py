@@ -9,9 +9,20 @@ from datetime import date, datetime, timezone
 import json
 from pathlib import Path
 import sys
-from typing import Any, Literal, cast
+from typing import Literal, TypedDict, cast
 
 from ascendant import Ascendant
+from ascendant.sav import AshtakavargaResult
+from ascendant.types import (
+    ChartType,
+    DashasType,
+    HOUSES,
+    HouseType,
+    PLANETS,
+    PlanetType,
+    RASHI_LORDS,
+    RASHIS,
+)
 
 
 Topic = Literal[
@@ -38,11 +49,11 @@ TOPICS: tuple[Topic, ...] = (
     "relationship-compatibility",
 )
 
-SIGNS = (
+SIGNS: tuple[RASHIS, ...] = (
     "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra",
     "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
 )
-SIGN_LORDS = {
+SIGN_LORDS: dict[RASHIS, RASHI_LORDS] = {
     "Aries": "Mars", "Taurus": "Venus", "Gemini": "Mercury",
     "Cancer": "Moon", "Leo": "Sun", "Virgo": "Mercury",
     "Libra": "Venus", "Scorpio": "Mars", "Sagittarius": "Jupiter",
@@ -85,6 +96,29 @@ class Reading:
     sources: dict[str, str]
 
 
+class Provenance(TypedDict):
+    """Saved calculation metadata for a personal chart record."""
+
+    schema_version: int
+    rule_pack: str
+    ayanamsa: str
+    house_system: str
+
+
+@dataclass(frozen=True)
+class PersonRecord:
+    """Typed persisted inputs for one named personal-chart reading."""
+
+    name: str
+    directory: Path
+    d1: ChartType
+    dasha: DashasType
+    sav: AshtakavargaResult
+    provenance: Provenance | None
+    context: dict[str, str]
+    varga: ChartType | None = None
+
+
 class ReadingError(ValueError):
     """An input record cannot support the requested deterministic reading."""
 
@@ -96,7 +130,7 @@ def _safe_person_name(name: str) -> str:
     return name
 
 
-def _read_json(path: Path) -> Any:
+def _read_json(path: Path) -> object:
     if not path.is_file():
         raise ReadingError(f"Missing required data: {path}")
     try:
@@ -105,31 +139,88 @@ def _read_json(path: Path) -> Any:
         raise ReadingError(f"Invalid JSON: {path}") from error
 
 
-def _optional_json(path: Path) -> Any | None:
+def _optional_json(path: Path) -> object | None:
     if not path.is_file():
         return None
     return _read_json(path)
 
 
-def _load_record(name: str, required_varga: int | None) -> dict[str, Any]:
+def _mapping(value: object, path: Path) -> dict[str, object]:
+    if not isinstance(value, dict) or not all(
+        isinstance(key, str) for key in value
+    ):
+        raise ReadingError(f"Expected an object in {path}")
+    return cast(dict[str, object], value)
+
+
+def _chart_from_json(value: object, path: Path) -> ChartType:
+    raw_chart = _mapping(value, path)
+    chart: ChartType = {}
+    for number in range(1, 13):
+        raw_house = _mapping(raw_chart.get(str(number)), path)
+        sign = raw_house.get("sign")
+        if not isinstance(sign, str) or sign not in SIGNS:
+            raise ReadingError(f"Chart has no valid house {number} in {path}")
+        chart[cast(HOUSES, number)] = cast(HouseType, raw_house)
+    return chart
+
+
+def _dashas_from_json(value: object, path: Path) -> DashasType:
+    if not isinstance(value, list) or not all(
+        isinstance(item, dict) for item in value
+    ):
+        raise ReadingError(f"Expected a dasha timeline list in {path}")
+    return cast(DashasType, value)
+
+
+def _sav_from_json(value: object, path: Path) -> AshtakavargaResult:
+    raw_sav = _mapping(value, path)
+    if not isinstance(raw_sav.get("sarva"), dict):
+        raise ReadingError(f"Expected SAV scores in {path}")
+    return cast(AshtakavargaResult, raw_sav)
+
+
+def _provenance_from_json(
+    value: object | None, path: Path
+) -> Provenance | None:
+    if value is None:
+        return None
+    provenance = _mapping(value, path)
+    if not isinstance(provenance.get("schema_version"), int):
+        raise ReadingError(f"Expected a provenance schema version in {path}")
+    for field in ("rule_pack", "ayanamsa", "house_system"):
+        if not isinstance(provenance.get(field), str):
+            raise ReadingError(f"Expected provenance field {field} in {path}")
+    return cast(Provenance, provenance)
+
+
+def _load_record(name: str, required_varga: int | None) -> PersonRecord:
     safe_name = _safe_person_name(name)
     directory = Path("persons") / safe_name
     context = directory / "CONTEXT.md"
     if not context.is_file():
         raise ReadingError(f"Missing required data: {context}")
     charts = directory / "charts"
-    record: dict[str, Any] = {
-        "name": safe_name,
-        "directory": directory,
-        "d1": _read_json(charts / "D1.json"),
-        "dasha": _read_json(directory / "dasha.json"),
-        "sav": _read_json(directory / "sav.json"),
-        "provenance": _optional_json(directory / "provenance.json"),
-        "context": _context_fields(context),
-    }
+    d1_path = charts / "D1.json"
+    dasha_path = directory / "dasha.json"
+    sav_path = directory / "sav.json"
+    provenance_path = directory / "provenance.json"
+    varga = None
     if required_varga is not None:
-        record["varga"] = _read_json(charts / f"D{required_varga}.json")
-    return record
+        varga_path = charts / f"D{required_varga}.json"
+        varga = _chart_from_json(_read_json(varga_path), varga_path)
+    return PersonRecord(
+        name=safe_name,
+        directory=directory,
+        d1=_chart_from_json(_read_json(d1_path), d1_path),
+        dasha=_dashas_from_json(_read_json(dasha_path), dasha_path),
+        sav=_sav_from_json(_read_json(sav_path), sav_path),
+        provenance=_provenance_from_json(
+            _optional_json(provenance_path), provenance_path
+        ),
+        context=_context_fields(context),
+        varga=varga,
+    )
 
 
 def _context_fields(path: Path) -> dict[str, str]:
@@ -147,22 +238,19 @@ def _context_fields(path: Path) -> dict[str, str]:
     return fields
 
 
-def _house(chart: dict[str, Any], number: int) -> dict[str, Any]:
-    house = chart.get(str(number))
-    if house is None:
-        house = cast(Any, chart).get(number)
-    if not isinstance(house, dict) or not isinstance(house.get("sign"), str):
+def _house(chart: ChartType, number: int) -> HouseType:
+    if number not in range(1, 13):
         raise ReadingError(f"Chart has no valid house {number}")
-    return house
+    return chart[cast(HOUSES, number)]
 
 
 def _planet(
-    chart: dict[str, Any], name: str
-) -> tuple[int, dict[str, Any]] | None:
+    chart: ChartType, name: PLANETS
+) -> tuple[HOUSES, PlanetType] | None:
     for house_number in range(1, 13):
         for planet in _house(chart, house_number).get("planets", []):
-            if isinstance(planet, dict) and planet.get("name") == name:
-                return house_number, planet
+            if planet["name"] == name:
+                return cast(HOUSES, house_number), planet
     return None
 
 
@@ -174,13 +262,13 @@ def _citation(person: str, file_name: str, rule_id: str) -> tuple[str, ...]:
 
 def _house_evidence(
     person: str,
-    chart: dict[str, Any],
+    chart: ChartType,
     chart_label: str,
     topic_prefix: str,
     house_number: int,
 ) -> Evidence:
     house = _house(chart, house_number)
-    sign = cast(str, house["sign"])
+    sign = house["sign"]
     lord = SIGN_LORDS[sign]
     found = _planet(chart, lord)
     rule_id = f"PR-{topic_prefix}-H{house_number:02}"
@@ -225,21 +313,21 @@ def _house_evidence(
 
 
 def _provenance_evidence(
-    record: dict[str, Any], topic_prefix: str
+    record: PersonRecord, topic_prefix: str
 ) -> Evidence:
     citations = _citation(
-        record["name"], "provenance.json", f"PR-{topic_prefix}-PROVENANCE",
+        record.name, "provenance.json", f"PR-{topic_prefix}-PROVENANCE",
     )
-    provenance = record["provenance"]
-    if not isinstance(provenance, dict):
+    provenance = record.provenance
+    if provenance is None:
         return Evidence(
             "This legacy record has no saved calculation provenance.",
             citations,
             "neutral",
         )
-    ayanamsa = provenance.get("ayanamsa", "unspecified")
-    house_system = provenance.get("house_system", "unspecified")
-    rule_pack = provenance.get("rule_pack", "unspecified")
+    ayanamsa = provenance["ayanamsa"]
+    house_system = provenance["house_system"]
+    rule_pack = provenance["rule_pack"]
     return Evidence(
         f"Calculation provenance is {ayanamsa}, {house_system}, "
         f"and {rule_pack}.",
@@ -248,32 +336,23 @@ def _provenance_evidence(
     )
 
 
-def _active_dasha(dasha: Any, as_of: date) -> tuple[str, str] | None:
-    if not isinstance(dasha, list):
-        raise ReadingError("dasha.json must contain a timeline list")
+def _active_dasha(
+    dasha: DashasType, as_of: date
+) -> tuple[PLANETS, PLANETS] | None:
     for maha in dasha:
-        if not isinstance(maha, dict):
-            continue
-        start = _dasha_date(maha.get("start"))
-        end = _dasha_date(maha.get("end"))
+        start = _dasha_date(maha["start"])
+        end = _dasha_date(maha["end"])
         if start is None or end is None or not start <= as_of <= end:
             continue
-        for antar in maha.get("antardashas", []):
-            if not isinstance(antar, dict):
-                continue
-            antar_start = _dasha_date(antar.get("start"))
-            antar_end = _dasha_date(antar.get("end"))
+        for antar in maha["antardashas"]:
+            antar_start = _dasha_date(antar["start"])
+            antar_end = _dasha_date(antar["end"])
             if antar_start and antar_end and antar_start <= as_of <= antar_end:
-                maha_name = maha.get("mahadasha")
-                antar_name = antar.get("antardasha")
-                if isinstance(maha_name, str) and isinstance(antar_name, str):
-                    return maha_name, antar_name
+                return maha["mahadasha"], antar["antardasha"]
     return None
 
 
-def _dasha_date(value: Any) -> date | None:
-    if not isinstance(value, str):
-        return None
+def _dasha_date(value: str) -> date | None:
     try:
         return datetime.strptime(value, "%d-%m-%Y").date()
     except ValueError:
@@ -281,14 +360,14 @@ def _dasha_date(value: Any) -> date | None:
 
 
 def _dasha_evidence(
-    record: dict[str, Any],
+    record: PersonRecord,
     primary_houses: tuple[int, ...],
     topic_prefix: str,
     as_of: date,
 ) -> Evidence:
-    active = _active_dasha(record["dasha"], as_of)
+    active = _active_dasha(record.dasha, as_of)
     citations = _citation(
-        record["name"], "dasha.json", f"PR-{topic_prefix}-DASHA")
+        record.name, "dasha.json", f"PR-{topic_prefix}-DASHA")
     if active is None:
         return Evidence(
             "No active Vimshottari period is available for "
@@ -296,9 +375,8 @@ def _dasha_evidence(
             citations,
             "missing",
         )
-    d1 = cast(dict[str, Any], record["d1"])
     relevant_planets = {
-        SIGN_LORDS[cast(str, _house(d1, house)["sign"])]
+        SIGN_LORDS[_house(record.d1, house)["sign"]]
         for house in primary_houses
     }
     active_planets = set(active)
@@ -314,23 +392,16 @@ def _dasha_evidence(
 
 
 def _sav_evidence(
-    record: dict[str, Any], primary_houses: tuple[int, ...], topic_prefix: str,
+    record: PersonRecord,
+    primary_houses: tuple[int, ...],
+    topic_prefix: str,
 ) -> Evidence:
-    sav = record["sav"]
-    sarva = sav.get("sarva") if isinstance(sav, dict) else None
-    citations = _citation(record["name"], "sav.json", f"PR-{topic_prefix}-SAV")
-    if not isinstance(sarva, dict):
-        return Evidence(
-            "No SAV scores are available for this reading.",
-            citations,
-            "missing")
-    d1 = cast(dict[str, Any], record["d1"])
+    sarva = record.sav["sarva"]
+    citations = _citation(record.name, "sav.json", f"PR-{topic_prefix}-SAV")
     scores: list[str] = []
     for house_number in primary_houses:
-        sign = cast(str, _house(d1, house_number)["sign"])
-        score = sarva.get(sign)
-        if isinstance(score, int | float):
-            scores.append(f"house {house_number} ({sign}) = {score}")
+        sign = _house(record.d1, house_number)["sign"]
+        scores.append(f"house {house_number} ({sign}) = {sarva[sign]}")
     if not scores:
         return Evidence(
             "No relevant SAV scores are available for this topic.",
@@ -343,8 +414,8 @@ def _sav_evidence(
     )
 
 
-def _transit_chart(record: dict[str, Any], as_of: datetime) -> dict[str, Any]:
-    fields = cast(dict[str, str], record["context"])
+def _transit_chart(record: PersonRecord, as_of: datetime) -> ChartType:
+    fields = record.context
     try:
         latitude = float(fields["latitude"])
         longitude = float(fields["longitude"])
@@ -356,45 +427,36 @@ def _transit_chart(record: dict[str, Any], as_of: datetime) -> dict[str, Any]:
     minutes = int(offset.total_seconds() // 60)
     sign = "+" if minutes >= 0 else "-"
     hours, remainder = divmod(abs(minutes), 60)
-    return cast(
-        dict[str, Any],
-        Ascendant(
-            year=as_of.year, month=as_of.month, day=as_of.day,
-            hour=as_of.hour, minute=as_of.minute, second=as_of.second,
-            latitude=latitude, longitude=longitude,
-            utc=f"{sign}{hours:02}:{remainder:02}",
-        ).get_chart(1),
-    )
+    return Ascendant(
+        year=as_of.year, month=as_of.month, day=as_of.day,
+        hour=as_of.hour, minute=as_of.minute, second=as_of.second,
+        latitude=latitude, longitude=longitude,
+        utc=f"{sign}{hours:02}:{remainder:02}",
+    ).get_chart(1)
 
 
 def _topic_transit_evidence(
-    record: dict[str, Any],
+    record: PersonRecord,
     primary_houses: tuple[int, ...],
     topic_prefix: str,
     as_of: datetime,
 ) -> Evidence:
     transit = _transit_chart(record, as_of)
-    natal_lagna = cast(
-        str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"]
-    )
+    natal_lagna = _house(record.d1, 1)["sign"]
     matches: list[str] = []
     for transit_house in range(1, 13):
         house = _house(transit, transit_house)
         natal_house = (
-            SIGNS.index(cast(str, house["sign"])) - SIGNS.index(natal_lagna)
+            SIGNS.index(house["sign"]) - SIGNS.index(natal_lagna)
         ) % 12 + 1
         if natal_house not in primary_houses:
             continue
         for planet in house.get("planets", []):
-            if isinstance(planet, dict) and isinstance(
-                planet.get("name"), str
-            ):
-                matches.append(
-                    f"{planet['name']} in natal house {natal_house}")
+            matches.append(f"{planet['name']} in natal house {natal_house}")
     citations = (
         f"computed transit {as_of.isoformat()}",
-        f"persons/{record['name']}/CONTEXT.md",
-        f"persons/{record['name']}/charts/D1.json",
+        f"persons/{record.name}/CONTEXT.md",
+        f"persons/{record.name}/charts/D1.json",
         f"PR-{topic_prefix}-TRANSIT",
         *SOURCE_IDS,
     )
@@ -437,15 +499,15 @@ def _topic_reading(
     prefix = topic.replace("-", "").upper()[:3]
     evidence = [_provenance_evidence(record, prefix)] + [
         _house_evidence(
-            record["name"], record["d1"], "charts/D1.json", prefix, house
+            record.name, record.d1, "charts/D1.json", prefix, house
         )
         for house in primary_houses
     ]
-    if required_varga is not None:
+    if required_varga is not None and record.varga is not None:
         evidence.extend(
             _house_evidence(
-                record["name"],
-                record["varga"],
+                record.name,
+                record.varga,
                 f"charts/D{required_varga}.json",
                 prefix, house,
             )
@@ -467,7 +529,7 @@ def _topic_reading(
         "neutral",
     )
     return Reading(
-        person=record["name"],
+        person=record.name,
         topic=topic,
         as_of=as_of.isoformat(),
         status=status,
@@ -480,18 +542,12 @@ def _topic_reading(
 def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
     record = _load_record(name, None)
     transit = _transit_chart(record, as_of)
-    natal_lagna = cast(
-        str, _house(cast(dict[str, Any], record["d1"]), 1)["sign"]
-    )
+    natal_lagna = _house(record.d1, 1)["sign"]
     evidence: list[Evidence] = []
     for house_number in range(1, 13):
-        house = _house(cast(dict[str, Any], transit), house_number)
+        house = _house(transit, house_number)
         for planet in house.get("planets", []):
-            if not isinstance(planet, dict) or not isinstance(
-                planet.get("name"), str
-            ):
-                continue
-            sign_name = cast(str, house["sign"])
+            sign_name = house["sign"]
             natal_house = (
                 SIGNS.index(sign_name) - SIGNS.index(natal_lagna)
             ) % 12 + 1
@@ -500,8 +556,8 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
                 f"the natal house {natal_house}.",
                 (
                     f"computed transit {as_of.isoformat()}",
-                    f"persons/{record['name']}/CONTEXT.md",
-                    f"persons/{record['name']}/charts/D1.json",
+                    f"persons/{record.name}/CONTEXT.md",
+                    f"persons/{record.name}/charts/D1.json",
                     "PR-DAI-TRANSIT", "BPHS-RS-1984", "PRV1",
                 ),
                 "neutral",
@@ -512,7 +568,7 @@ def _daily_transit_reading(name: str, as_of: datetime) -> Reading:
         ("PRV1-POLICY-001", "PRV1"), "neutral",
     )
     return Reading(
-        person=record["name"], topic="daily-transit", as_of=as_of.isoformat(),
+        person=record.name, topic="daily-transit", as_of=as_of.isoformat(),
         status="factual transit report", evidence=tuple(evidence),
         practical_guidance=guidance, sources=_source_bibliography(),
     )
@@ -525,29 +581,29 @@ def _compatibility_reading(
     second = _load_record(other_name, 9)
     evidence: list[Evidence] = []
     for record in (first, second):
-        d1 = cast(dict[str, Any], record["d1"])
-        moon = _planet(d1, "Moon")
+        moon = _planet(record.d1, "Moon")
         if moon is None:
             raise ReadingError(
-                f"Missing Moon placement in {record['name']}'s D1 chart")
+                f"Missing Moon placement in {record.name}'s D1 chart")
         moon_house, moon_data = moon
-        moon_sign = cast(dict[str, Any], moon_data["sign"])["name"]
+        moon_sign = moon_data["sign"]["name"]
         evidence.append(Evidence(
-            f"{record['name']}'s Moon is in {moon_sign}, house {moon_house}.",
-            _citation(record["name"], "charts/D1.json", "PR-REL-MOON"),
+            f"{record.name}'s Moon is in {moon_sign}, house {moon_house}.",
+            _citation(record.name, "charts/D1.json", "PR-REL-MOON"),
             "neutral",
         ))
-        d9 = cast(dict[str, Any], record["varga"])
-        d9_moon = _planet(d9, "Moon")
+        if record.varga is None:
+            raise ReadingError(f"Missing D9 chart for {record.name}")
+        d9_moon = _planet(record.varga, "Moon")
         if d9_moon is None:
             raise ReadingError(
-                f"Missing Moon placement in {record['name']}'s D9 chart")
+                f"Missing Moon placement in {record.name}'s D9 chart")
         d9_house, d9_moon_data = d9_moon
-        d9_moon_sign = cast(dict[str, Any], d9_moon_data["sign"])["name"]
+        d9_moon_sign = d9_moon_data["sign"]["name"]
         evidence.append(Evidence(
-            f"{record['name']}'s D9 Moon is in {d9_moon_sign}, "
+            f"{record.name}'s D9 Moon is in {d9_moon_sign}, "
             f"house {d9_house}.",
-            _citation(record["name"], "charts/D9.json", "PR-REL-D9-MOON"),
+            _citation(record.name, "charts/D9.json", "PR-REL-D9-MOON"),
             "neutral",
         ))
         evidence.append(
@@ -563,7 +619,7 @@ def _compatibility_reading(
         ("PRV1-POLICY-RELATIONSHIP", "PRV1"), "neutral",
     )
     return Reading(
-        person=f"{first['name']} and {second['name']}",
+        person=f"{first.name} and {second.name}",
         topic="relationship-compatibility",
         as_of=as_of.isoformat(),
         status="qualitative comparison",

@@ -12,7 +12,7 @@ from ascendant.configuration import (
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
 from ascendant.sav import Ashtakavarga, AshtakavargaResult
-from ascendant.types import ALLOWED_DIVISIONS
+from ascendant.types import ALLOWED_DIVISIONS, ChartType
 from ascendant.yoga.base import Yoga
 
 
@@ -63,7 +63,7 @@ class Ascendant:
             self.horoscope_data
         )
 
-    def get_chart(self, division: ALLOWED_DIVISIONS):
+    def get_chart(self, division: ALLOWED_DIVISIONS) -> ChartType:
         """Get the divisional chart."""
         return self.chart_module.get_varga_chakra_chart(division)
 
