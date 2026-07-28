@@ -27,4 +27,7 @@ The command creates `persons/<name>/`, saves the original details, and prepares:
 
 Running it again with the same details reuses the existing record. If an older record is missing `sav.json`, the command backfills it in place. If the same name is used with different birth details, a numeric suffix is appended to the directory name.
 
-After it completes, read the generated files before answering the user's astrology question.
+After it completes, read `provenance.json` and the generated files before
+answering the user's astrology question. Cite the resulting record and
+provenance for every factual statement about the saved chart; use the shared
+`parashari-judgement` evaluator for interpretation.

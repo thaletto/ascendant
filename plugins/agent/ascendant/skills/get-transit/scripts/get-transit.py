@@ -25,8 +25,14 @@ class TransitQuery:
     division: ALLOWED_DIVISIONS
 
 
+def validate_name(name: str) -> str:
+    if not name or name in {".", ".."} or Path(name).name != name:
+        raise ValueError("name must identify one direct persons/<name> record")
+    return name
+
+
 def load_native(name: str) -> tuple[Path, dict[str, str]]:
-    directory = Path("persons") / name
+    directory = Path("persons") / validate_name(name)
     if not directory.exists() or not directory.is_dir():
         raise FileNotFoundError(
             f"Native '{name}' has no data directory at {directory}. ",
@@ -84,13 +90,13 @@ def format_degree(longitude: float) -> str:
     return f"{deg_in_sign:.2f}°"
 
 
-def render_houses(chart) -> str:
+def render_houses(chart, citation: str) -> str:
     """Render the transit houses as a concise, readable list."""
     lines = ["## Transit houses", ""]
     for h in range(1, 13):
         house = chart.get(h)
         if not house:
-            lines.append(f"{h}. No house data available.")
+            lines.append(f"{h}. No house data available. [sources: {citation}]")
             continue
         sign = house["sign"]
         lord = (
@@ -105,11 +111,14 @@ def render_houses(chart) -> str:
                 tag = f" (R){tag}"
             planet_cells.append(f"{p['name']}{tag}")
         planets_str = ", ".join(planet_cells) if planet_cells else "—"
-        lines.append(f"{h}. {sign} — ruled by {lord}; planets: {planets_str}.")
+        lines.append(
+            f"{h}. {sign} — ruled by {lord}; planets: {planets_str}. "
+            f"[sources: {citation}]"
+        )
     return "\n".join(lines)
 
 
-def render_planets(chart, lagna_sign: RASHI) -> str:
+def render_planets(chart, lagna_sign: RASHI, citation: str) -> str:
     """Render transit planet details as one item per planet."""
     rows = []
     for h in range(1, 13):
@@ -138,7 +147,8 @@ def render_planets(chart, lagna_sign: RASHI) -> str:
             f"- {r['planet']}: {r['degree']} in {r['sign']}; "
             f"transit house {r['house']}, natal house {r['natal_house']}; "
             f"{r['retrograde'].lower()} retrograde; {r['nakshatra']}, "
-            f"pada {r['pada']}; in sign with {r['in_sign']}."
+            f"pada {r['pada']}; in sign with {r['in_sign']}. "
+            f"[sources: {citation}]"
         )
     return "\n".join(lines)
 
@@ -183,11 +193,14 @@ def get_transit(query: TransitQuery) -> str:
         f"**Moment:** {timestamp}  \n"
         f"**Division:** D{query.division}  \n"
         f"**Location:** {latitude}, {longitude} (natal location)  \n"
-        f"**Natal Lagna:** {lagna_sign}\n"
+        f"**Natal Lagna:** {lagna_sign}  \n"
+        f"[sources: persons/{query.name}/CONTEXT.md; "
+        f"persons/{query.name}/charts/D1.json]\n"
     )
+    citation = f"computed transit {target.isoformat()}; persons/{query.name}/charts/D1.json"
 
     return "\n".join(
-        [header, render_houses(chart), render_planets(chart, lagna_sign)]
+        [header, render_houses(chart, citation), render_planets(chart, lagna_sign, citation)]
     )
 
 
@@ -229,7 +242,7 @@ def parse_args(argv: list[str] | None = None) -> TransitQuery:
         if date.tzinfo is None:
             date = date.replace(tzinfo=timezone.utc)
 
-    return TransitQuery(name=name, date=date, division=division)
+    return TransitQuery(name=validate_name(name), date=date, division=division)
 
 
 def main(argv: list[str] | None = None) -> int:

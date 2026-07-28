@@ -4,14 +4,18 @@ These skills help explain a birth chart in clear, practical language. They suppo
 
 ## Shared reading rules
 
-1. Use the user's saved birth chart and the requested date or question.
-2. Start with the birth-chart promise: describe what the chart supports before discussing timing.
-3. Use the active planetary period and current planetary movements to explain why a theme is stronger now.
-4. Prefer specific chart evidence over broad predictions.
-5. Explain astrology terms the first time they appear, then use everyday language.
-6. Separate what the chart suggests from what is certain.
-7. State missing birth details or missing chart files instead of filling them in.
-8. End with practical choices the user can make.
+1. Use only the explicitly requested saved `persons/<name>` record.
+2. For every interpretive request, run the bundled `parashari-judgement`
+   evaluator before writing the reading.
+3. State only the evaluator's evidence and practical guidance, in its emitted
+   order.
+4. Retain every `[sources: ...]` marker on every factual or interpretive
+   sentence. Headings and direct questions are the only uncited text.
+5. State missing birth details, chart files, or unavailable factors exactly as
+   reported by the evaluator.
+6. Describe chart patterns as planning context, never certainty, a diagnosis,
+   financial advice, legal advice, proof of feelings, consent, availability, or
+   relationship status.
 
 ## Which skill to use
 

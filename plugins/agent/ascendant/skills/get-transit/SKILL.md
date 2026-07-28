@@ -6,6 +6,8 @@ license: MIT
 
 # Current planetary positions
 
+Read [`../../../AGENTS.md`](../../../AGENTS.md).
+
 Use this skill when a user asks what is moving through their chart now or on a specific date.
 
 ## Inputs
@@ -24,11 +26,16 @@ Leave out `--date` for the current moment. Use the requested chart division when
 
 ## Result
 
-Return a readable report showing:
+Return the script's cited report without adding an uncited factual or
+interpretive statement. Every report line already identifies the saved chart or
+the exact computed transit moment that supports it.
+
+The report shows:
 
 - each house and its sign;
 - planets currently in each house;
 - each planet's sign, degree, direction, birth-star, and quarter;
 - the birth-chart house affected by each moving planet.
 
-Use this report as the factual basis for any follow-up interpretation.
+Use this report as the factual basis for a follow-up only through the shared
+`parashari-judgement` evaluator.

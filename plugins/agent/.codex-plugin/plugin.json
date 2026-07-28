@@ -6,7 +6,7 @@
     "name": "thaletto"
   },
   "license": "MIT",
-  "skills": "./skills/",
+  "skills": "./ascendant/skills/",
   "interface": {
     "displayName": "Ascendant",
     "shortDescription": "Explore astrology with Ascendant.",

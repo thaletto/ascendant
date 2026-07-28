@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import cast, get_args
 
 from ascendant import Ascendant
+from ascendant.configuration import get_config
 from ascendant.types import ALLOWED_DIVISIONS
 
 logging.basicConfig(
@@ -39,6 +40,12 @@ class Person:
         return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
 
+def validate_name(name: str) -> str:
+    if not name or name in {".", ".."} or Path(name).name != name:
+        raise ValueError("name must identify one direct persons/<name> record")
+    return name
+
+
 def init_person(person: Person) -> str:
     """
     Creates a directory under persons/ containing the person's astrological data.
@@ -65,11 +72,12 @@ def init_person(person: Person) -> str:
             existing_hash = hash_file.read_text(encoding="utf-8").strip()
             if existing_hash == person_hash:
                 sav_file = directory / "sav.json"
-                if sav_file.exists():
+                provenance_file = directory / "provenance.json"
+                if sav_file.exists() and provenance_file.exists():
                     logging.info(f"{directory} already exists. Skipping.")
                     return str(directory.resolve())
                 logging.info(
-                    f"{directory} already exists. Generating missing SAV data."
+                    f"{directory} already exists. Generating missing derived data."
                 )
                 break
 
@@ -143,6 +151,17 @@ def init_person(person: Person) -> str:
     with (directory / "sav.json").open("w", encoding="utf-8") as f:
         json.dump(sav, f, indent=2, ensure_ascii=False)
 
+    config = get_config()
+    provenance = {
+        "schema_version": 1,
+        "rule_pack": "parashari_raman_v1",
+        "ayanamsa": config.ayanamsa.value,
+        "house_system": config.house_system.value,
+        "input_hash": person_hash,
+    }
+    with (directory / "provenance.json").open("w", encoding="utf-8") as f:
+        json.dump(provenance, f, indent=2, ensure_ascii=False)
+
     logging.info(f"Saved data for {person.name} to {directory}")
     return str(directory.resolve())
 
@@ -177,7 +196,7 @@ def parse_args(argv: list[str] | None = None) -> Person:
         raise ValueError("latitude and longitude must be decimal numbers")
 
     return Person(
-        name=name,
+        name=validate_name(name),
         dob=datetime.fromisoformat(dob),
         latitude=latitude,
         longitude=longitude,
