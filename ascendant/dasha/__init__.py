@@ -1,13 +1,20 @@
 from collections.abc import Sequence
-from datetime import datetime, timezone
-from typing import Literal, TypedDict
+from datetime import UTC, datetime
+from datetime import date as Date
+from typing import TypedDict
 
 from dateutil.relativedelta import relativedelta
+
 from ascendant.const import NAKSHATRAS, VIMSHOTTARI_PLANETS, VIMSHOTTARI_YEARS
 from ascendant.ephemeris import EphemerisChart
 from ascendant.horoscope import HoroscopeData
-from ascendant.types import AntarDashaType, DashasType, MahaDashaType, PLANETS
-from ascendant.utils import parse_date
+from ascendant.types import (
+    PLANETS,
+    AntarDashaType,
+    CurrentDashaType,
+    DashasType,
+    MahaDashaType,
+)
 
 
 class _DashaPeriod(TypedDict):
@@ -20,12 +27,145 @@ class _VimshottariMahaDasha(_DashaPeriod):
 
 
 _ChartDate = tuple[int, int, int, int, int]
-_DashaTimelineItem = MahaDashaType | AntarDashaType
 _VimshottariData = dict[PLANETS, _VimshottariMahaDasha]
+
+
+class DashaTimeline:
+    """Select periods from an existing Vimshottari Dasha timeline."""
+
+    timeline: DashasType
+
+    def __init__(self, timeline: DashasType) -> None:
+        for period in timeline:
+            maha_start, maha_end = self._bounds(period)
+            for subperiod in period["antardashas"]:
+                antar_start, antar_end = self._bounds(subperiod)
+                if antar_start < maha_start or antar_end > maha_end:
+                    raise ValueError("antardasha boundaries must be within mahadasha")
+        self.timeline = timeline
+
+    def current(
+        self,
+        when: str | Date | datetime | None = None,
+    ) -> CurrentDashaType:
+        """Return the period at a UTC-normalized moment.
+
+        Strings use ``DD-MM-YYYY``. Dates are used directly, aware datetimes
+        are converted to UTC, naive datetimes are treated as UTC, and an
+        omitted value uses the current UTC date.
+        """
+        target = self._normalize(when)
+        mahadasha: MahaDashaType | None = None
+        antardasha: AntarDashaType | None = None
+        for period in self.timeline:
+            if self._contains(period, target):
+                mahadasha = period
+                for subperiod in period["antardashas"]:
+                    if self._contains(subperiod, target):
+                        antardasha = subperiod
+                        break
+                break
+        return {
+            "mahadasha": mahadasha,
+            "antardasha": antardasha,
+        }
+
+    def mahadasha(
+        self,
+        offset: int = 0,
+        when: str | Date | datetime | None = None,
+    ) -> MahaDashaType | None:
+        target = self._normalize(when)
+        current_index = self._index_containing(self.timeline, target)
+        if current_index is None:
+            return None
+        target_index = current_index + offset
+        if 0 <= target_index < len(self.timeline):
+            return self.timeline[target_index]
+        return None
+
+    def antardasha(
+        self,
+        offset: int = 0,
+        when: str | Date | datetime | None = None,
+    ) -> AntarDashaType | None:
+        target = self._normalize(when)
+        mahadasha = self.mahadasha(0, target)
+        if mahadasha is None:
+            return None
+        periods = mahadasha["antardashas"]
+        current_index = self._index_containing(periods, target)
+        if current_index is None:
+            return None
+        target_index = current_index + offset
+        if 0 <= target_index < len(periods):
+            return periods[target_index]
+        return None
+
+    @staticmethod
+    def _normalize(value: str | Date | datetime | None) -> Date:
+        if value is None:
+            return datetime.now(UTC).date()
+        if isinstance(value, datetime):
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=UTC)
+            return value.astimezone(UTC).date()
+        if isinstance(value, Date):
+            return value
+        try:
+            return (
+                datetime.strptime(value, "%d-%m-%Y")
+                .replace(tzinfo=UTC)
+                .date()
+            )
+        except ValueError as error:
+            raise ValueError("date must use DD-MM-YYYY") from error
+
+    @staticmethod
+    def _contains(
+        period: MahaDashaType | AntarDashaType,
+        target: Date,
+    ) -> bool:
+        start, end = DashaTimeline._bounds(period)
+        return start <= target <= end
+
+    @staticmethod
+    def _bounds(
+        period: MahaDashaType | AntarDashaType,
+    ) -> tuple[Date, Date]:
+        try:
+            start = (
+                datetime.strptime(period["start"], "%d-%m-%Y")
+                .replace(tzinfo=UTC)
+                .date()
+            )
+            end = (
+                datetime.strptime(period["end"], "%d-%m-%Y")
+                .replace(tzinfo=UTC)
+                .date()
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError("timeline boundaries must use DD-MM-YYYY") from error
+        if start > end:
+            raise ValueError("timeline period start must not follow end")
+        return start, end
+
+    @classmethod
+    def _index_containing(
+        cls,
+        periods: Sequence[MahaDashaType | AntarDashaType],
+        target: Date,
+    ) -> int | None:
+        for index, period in enumerate(periods):
+            if cls._contains(period, target):
+                return index
+        return None
 
 
 class Dasha:
     """Utility class to compute and format Vimshottari Dasha timeline."""
+
+    timeline: DashaTimeline
 
     def __init__(self, horoscope: HoroscopeData):
         """
@@ -34,10 +174,28 @@ class Dasha:
         Args:
             horoscope: An instance of HoroscopeData containing the birth chart information.
         """
+        self._initialize(horoscope, horoscope.generate_chart())
+
+    @classmethod
+    def from_ephemeris(
+        cls,
+        horoscope: HoroscopeData,
+        ephemeris: EphemerisChart,
+    ) -> "Dasha":
+        dasha = cls.__new__(cls)
+        dasha._initialize(horoscope, ephemeris)
+        return dasha
+
+    def _initialize(
+        self,
+        horoscope: HoroscopeData,
+        ephemeris: EphemerisChart,
+    ) -> None:
         self.__horoscope__: HoroscopeData = horoscope
-        self.__chart__: EphemerisChart = horoscope.generate_chart()
+        self.__chart__: EphemerisChart = ephemeris
 
         self.dasha: DashasType = self.get_dasha_timeline()
+        self.timeline = DashaTimeline(self.dasha)
 
     def get_dasha_timeline(self) -> DashasType:
         """
@@ -106,12 +264,10 @@ class Dasha:
         duration = dasa_order[nakshatra_lord]
         elapsed_duration = duration - (duration / 800) * remaining_arc_mins
 
-        start = self._compute_new_date(
-            self._chart_date(), elapsed_duration, "backward")
+        start = self._compute_new_date(self._chart_date(), elapsed_duration, "backward")
         dashas: _VimshottariData = {}
         for dasa, length in zip(sequence, lengths):
-            end = self._compute_new_date(
-                self._date_tuple(start), length, "forward")
+            end = self._compute_new_date(self._date_tuple(start), length, "forward")
             bhuktis: dict[PLANETS, _DashaPeriod] = {}
             dashas[dasa] = {
                 "start": start.strftime("%d-%m-%Y"),
@@ -170,30 +326,15 @@ class Dasha:
             hours=whole_hours,
             minutes=int(minutes),
         )
-        initial = datetime(year, month, day, hour, minute)
+        initial = datetime(year, month, day, hour, minute, tzinfo=UTC)
         if direction == "backward":
             return initial - delta
         if direction == "forward":
             return initial + delta
         raise ValueError("direction must be either 'backward' or 'forward'")
 
-    @staticmethod
-    def _find_current_index_by_date(
-        items: Sequence[_DashaTimelineItem],
-        date: datetime,
-        start_key: Literal["start"] = "start",
-        end_key: Literal["end"] = "end",
-    ) -> int | None:
-        """Return index where date lies between start and end."""
-        for idx, item in enumerate(items):
-            start = parse_date(item.get(start_key))
-            end = parse_date(item.get(end_key))
-            if start and end and start <= date <= end:
-                return idx
-        return None
-
     def get_antardasha_by_index(
-        self, n: int, date: str | datetime | None = None
+        self, n: int, date: str | Date | datetime | None = None
     ) -> AntarDashaType | None:
         """
         Returns an Antardasha period relative to the current Antardasha for a given date.
@@ -206,32 +347,10 @@ class Dasha:
         Returns:
             An AntarDashaType object if found, otherwise None.
         """
-        if (maha := self.get_mahadasha_by_index(0, date)) is None:
-            return None
-
-        antardashas = maha["antardashas"]
-
-        if date:
-            target_date = parse_date(date)
-        else:
-            target_date = datetime.now(timezone.utc)
-        if target_date is None:
-            return None
-
-        current_index = self._find_current_index_by_date(
-            antardashas, target_date)
-        if current_index is None:
-            return None
-
-        target_index = current_index + n
-
-        if 0 <= target_index < len(antardashas):
-            return antardashas[target_index]
-
-        return None
+        return self.timeline.antardasha(n, date)
 
     def get_mahadasha_by_index(
-        self, n: int, date: str | datetime | None = None
+        self, n: int, date: str | Date | datetime | None = None
     ) -> MahaDashaType | None:
         """
         Returns a Mahadasha period relative to the current Mahadasha for a given date.
@@ -244,24 +363,4 @@ class Dasha:
         Returns:
             A MahaDashaType object if found, otherwise None.
         """
-        if not self.dasha:
-            return None
-
-        if date:
-            target_date = parse_date(date)
-        else:
-            target_date = datetime.now(timezone.utc)
-        if target_date is None:
-            return None
-
-        if (
-            current_index := self._find_current_index_by_date(self.dasha, target_date)
-        ) is None:
-            return None
-
-        target = current_index + n
-
-        if 0 <= target < len(self.dasha):
-            return self.dasha[target]
-
-        return None
+        return self.timeline.mahadasha(n, date)

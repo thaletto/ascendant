@@ -206,6 +206,34 @@ def test_career_evaluator_emits_cited_deterministic_ledger(
     assert "Computed transit" in result.stdout
 
 
+def test_evaluator_uses_utc_moment_for_persisted_dasha_selection(
+    tmp_path: Path,
+) -> None:
+    _write_person(tmp_path)
+    environment = os.environ | {"PYTHONPATH": str(REPOSITORY)}
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(EVALUATOR),
+            "--name",
+            "Ada",
+            "--topic",
+            "career",
+            "--date",
+            "2025-01-01T00:30:00+05:30",
+        ],
+        cwd=tmp_path,
+        env=environment,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "No active Vimshottari period is available" in result.stdout
+
+
 def test_init_person_backfills_provenance_without_rewriting_context(
     tmp_path: Path,
 ) -> None:
@@ -340,3 +368,42 @@ def test_person_tools_reject_paths_outside_persons_directory(
         )
         assert result.returncode == 2
         assert "one direct persons/<name> record" in result.stderr
+
+
+def test_person_reading_tools_report_missing_records_as_user_errors(
+    tmp_path: Path,
+) -> None:
+    environment = os.environ | {"PYTHONPATH": str(REPOSITORY)}
+    commands = (
+        [
+            sys.executable,
+            str(GET_TRANSIT),
+            "--name",
+            "Ada",
+            "--date",
+            "2026-07-28T12:00:00+05:30",
+        ],
+        [
+            sys.executable,
+            str(EVALUATOR),
+            "--name",
+            "Ada",
+            "--topic",
+            "career",
+            "--date",
+            "2026-07-28T12:00:00+05:30",
+        ],
+    )
+
+    for command in commands:
+        result = subprocess.run(
+            command,
+            cwd=tmp_path,
+            env=environment,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+        assert result.returncode == 2
+        assert "persons/Ada" in result.stderr

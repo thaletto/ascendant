@@ -42,7 +42,19 @@ class Ashtakavarga:
     _result: AshtakavargaResult | None
 
     def __init__(self, horoscope: HoroscopeData):
-        self._chart = horoscope.generate_chart()
+        self._initialize(horoscope.generate_chart())
+
+    @classmethod
+    def from_ephemeris(
+        cls,
+        ephemeris: EphemerisChart,
+    ) -> Ashtakavarga:
+        ashtakavarga = cls.__new__(cls)
+        ashtakavarga._initialize(ephemeris)
+        return ashtakavarga
+
+    def _initialize(self, ephemeris: EphemerisChart) -> None:
+        self._chart = ephemeris
         self._positions = self._get_positions()
         self._result = None
 

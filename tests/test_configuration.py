@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import cast
 
 import pytest
 
@@ -121,7 +122,7 @@ def test_existing_instance_keeps_its_configuration_snapshot() -> None:
 
 def test_invalid_constructor_house_system_is_rejected() -> None:
     with pytest.raises(ValueError, match='Unsupported house system "Porphry"'):
-        Ascendant(
+        _ = Ascendant(
             year=1990,
             month=1,
             day=1,
@@ -137,7 +138,7 @@ def test_invalid_constructor_house_system_is_rejected() -> None:
 
 def test_invalid_constructor_ayanamsa_is_rejected() -> None:
     with pytest.raises(ValueError, match='Unsupported ayanamsa "Lahri"'):
-        Ascendant(
+        _ = Ascendant(
             year=1990,
             month=1,
             day=1,
@@ -155,10 +156,15 @@ def test_configuration_requires_the_typed_immutable_value() -> None:
     config = AscendantConfig()
 
     with pytest.raises(TypeError, match="AscendantConfig"):
-        configure({"house_system": "Whole Sign"})  # type: ignore[arg-type]
+        configure(
+            cast(
+                AscendantConfig,
+                cast(object, {"house_system": "Whole Sign"}),
+            )
+        )
 
     with pytest.raises(AttributeError):
-        setattr(config, "house_system", HouseSystem.PORPHYRY)
+        config.__setattr__("house_system", HouseSystem.PORPHYRY)
 
 
 def test_porphyry_configuration_calculates_porphyry_house_cusps() -> None:

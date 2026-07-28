@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astro-ascendant"
-version = "1.0.1"
+version = "1.1.0"
 description = "Vedic Astrology Calculation Library"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,3 +26,6 @@ Homepage = "https://github.com/thaletto/ascendant"
 
 [tool.setuptools.packages.find]
 include = ["ascendant*"]
+
+[tool.ruff.lint.per-file-ignores]
+"ascendant/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]

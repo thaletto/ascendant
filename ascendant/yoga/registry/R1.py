@@ -5,9 +5,9 @@ from ascendant.types import (
     HOUSES,
     PLANETS,
     PLANETS_LAGNA,
-    PlanetType,
     RASHI_LORDS,
     RASHIS,
+    PlanetType,
     YogaType,
 )
 from ascendant.yoga.base import Yoga, register_yoga, register_yogas
@@ -1188,7 +1188,7 @@ def gauri(yoga: Yoga) -> YogaType:
     D9 = yoga.__chart__.get_varga_chakra_chart(9)
 
     navamsa_sign_lord: RASHI_LORDS | None = None
-    for _, data in D9.items():
+    for data in D9.values():
         for planet in data["planets"]:
             if planet["name"] == tenth_lord:
                 sign = planet["sign"]["name"]
@@ -1260,7 +1260,7 @@ def bharathi(yoga: Yoga) -> YogaType:
 
     navamsa_sign_lords: list[RASHI_LORDS] = []
     # STEP 1: Find Navamsa Sign Lords occupied by 2L, 5L, 11L
-    for _, data in D9.items():
+    for data in D9.values():
         for planet in data["planets"]:
             if planet["name"] in key_lords:
                 sign = planet["sign"]["name"]
@@ -1483,7 +1483,7 @@ def malika(yoga: Yoga) -> dict[str, YogaType]:
     if len(occupied_houses) != 7:
         for name in results.values():
             name["details"] = (
-                f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(list(occupied_houses))}"
+                f"The 7 classical planets do not occupy exactly 7 unique houses. They occupy {len(occupied_houses)} houses: {sorted(occupied_houses)}"
             )
         return results
 
@@ -1502,7 +1502,7 @@ def malika(yoga: Yoga) -> dict[str, YogaType]:
                 planets_by_house[h].append(p)
 
             details_list: list[str] = []
-            for h in sorted(list(malika_houses)):
+            for h in sorted(malika_houses):
                 planets_str = ", ".join(planets_by_house.get(h, []))
                 details_list.append(
                     f"House {h}: {planets_str if planets_str else 'Empty'}"
@@ -2110,7 +2110,7 @@ def parijatha(yoga: Yoga) -> YogaType:
     D9 = yoga.__chart__.get_varga_chakra_chart(9)
 
     navamasa_lord_of_lagnesh_name: RASHI_LORDS | None = None
-    for _, data in D9.items():
+    for data in D9.values():
         for planet in data["planets"]:
             if planet["name"] == lagna_lord_name:
                 sign = planet["sign"]

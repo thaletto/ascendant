@@ -7,19 +7,22 @@ import argparse
 import json
 import sys
 from dataclasses import asdict, dataclass
-from datetime import UTC, date, datetime
-from pathlib import Path
-from typing import Literal, TypedDict, cast
+from datetime import UTC, datetime
+from typing import Literal, cast
 
 from ascendant import Ascendant
-from ascendant.sav import AshtakavargaResult
+from ascendant.dasha import DashaTimeline
+from ascendant.person_record import (
+    PersonRecord,
+    PersonRecordError,
+    PersonRecordStore,
+)
 from ascendant.types import (
     HOUSES,
     PLANETS,
     RASHI_LORDS,
     RASHIS,
     ChartType,
-    DashasType,
     HouseType,
     PlanetType,
 )
@@ -96,29 +99,6 @@ class Reading:
     sources: dict[str, str]
 
 
-class Provenance(TypedDict):
-    """Saved calculation metadata for a personal chart record."""
-
-    schema_version: int
-    rule_pack: str
-    ayanamsa: str
-    house_system: str
-
-
-@dataclass(frozen=True)
-class PersonRecord:
-    """Typed persisted inputs for one named personal-chart reading."""
-
-    name: str
-    directory: Path
-    d1: ChartType
-    dasha: DashasType
-    sav: AshtakavargaResult
-    provenance: Provenance | None
-    context: dict[str, str]
-    varga: ChartType | None = None
-
-
 @dataclass
 class Arguments:
     """Typed command-line values populated by argparse."""
@@ -135,123 +115,16 @@ class ReadingError(ValueError):
     """An input record cannot support the requested deterministic reading."""
 
 
-def _safe_person_name(name: str) -> str:
-    if not name or name in {".", ".."} or Path(name).name != name:
-        raise ReadingError(
-            "name must identify one direct persons/<name> record")
-    return name
-
-
-def _read_json(path: Path) -> object:
-    if not path.is_file():
-        raise ReadingError(f"Missing required data: {path}")
-    try:
-        return cast(object, json.loads(path.read_text(encoding="utf-8")))
-    except json.JSONDecodeError as error:
-        raise ReadingError(f"Invalid JSON: {path}") from error
-
-
-def _optional_json(path: Path) -> object | None:
-    if not path.is_file():
-        return None
-    return _read_json(path)
-
-
-def _mapping(value: object, path: Path) -> dict[str, object]:
-    if not isinstance(value, dict):
-        raise ReadingError(f"Expected an object in {path}")
-    mapping = cast(dict[object, object], value)
-    if not all(isinstance(key, str) for key in mapping):
-        raise ReadingError(f"Expected string keys in {path}")
-    return cast(dict[str, object], mapping)
-
-
-def _chart_from_json(value: object, path: Path) -> ChartType:
-    raw_chart = _mapping(value, path)
-    chart: ChartType = {}
-    for number in range(1, 13):
-        raw_house = _mapping(raw_chart.get(str(number)), path)
-        sign = raw_house.get("sign")
-        if not isinstance(sign, str) or sign not in SIGNS:
-            raise ReadingError(f"Chart has no valid house {number} in {path}")
-        chart[cast(HOUSES, number)] = cast(
-            HouseType, cast(object, raw_house)
-        )
-    return chart
-
-
-def _dashas_from_json(value: object, path: Path) -> DashasType:
-    if not isinstance(value, list):
-        raise ReadingError(f"Expected a dasha timeline list in {path}")
-    items = cast(list[object], value)
-    if not all(isinstance(item, dict) for item in items):
-        raise ReadingError(f"Expected dasha timeline entries in {path}")
-    return cast(DashasType, cast(object, items))
-
-
-def _sav_from_json(value: object, path: Path) -> AshtakavargaResult:
-    raw_sav = _mapping(value, path)
-    if not isinstance(raw_sav.get("sarva"), dict):
-        raise ReadingError(f"Expected SAV scores in {path}")
-    return cast(AshtakavargaResult, cast(object, raw_sav))
-
-
-def _provenance_from_json(
-    value: object | None, path: Path
-) -> Provenance | None:
-    if value is None:
-        return None
-    provenance = _mapping(value, path)
-    if not isinstance(provenance.get("schema_version"), int):
-        raise ReadingError(f"Expected a provenance schema version in {path}")
-    for field in ("rule_pack", "ayanamsa", "house_system"):
-        if not isinstance(provenance.get(field), str):
-            raise ReadingError(f"Expected provenance field {field} in {path}")
-    return cast(Provenance, cast(object, provenance))
-
-
 def _load_record(name: str, required_varga: int | None) -> PersonRecord:
-    safe_name = _safe_person_name(name)
-    directory = Path("persons") / safe_name
-    context = directory / "CONTEXT.md"
-    if not context.is_file():
-        raise ReadingError(f"Missing required data: {context}")
-    charts = directory / "charts"
-    d1_path = charts / "D1.json"
-    dasha_path = directory / "dasha.json"
-    sav_path = directory / "sav.json"
-    provenance_path = directory / "provenance.json"
-    varga = None
+    record = PersonRecordStore().open(name)
+    _ = record.context
+    _ = record.d1
+    _ = record.dasha
+    _ = record.sav
+    _ = record.provenance
     if required_varga is not None:
-        varga_path = charts / f"D{required_varga}.json"
-        varga = _chart_from_json(_read_json(varga_path), varga_path)
-    return PersonRecord(
-        name=safe_name,
-        directory=directory,
-        d1=_chart_from_json(_read_json(d1_path), d1_path),
-        dasha=_dashas_from_json(_read_json(dasha_path), dasha_path),
-        sav=_sav_from_json(_read_json(sav_path), sav_path),
-        provenance=_provenance_from_json(
-            _optional_json(provenance_path), provenance_path
-        ),
-        context=_context_fields(context),
-        varga=varga,
-    )
-
-
-def _context_fields(path: Path) -> dict[str, str]:
-    fields: dict[str, str] = {}
-    in_frontmatter = False
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if line.strip() == "---":
-            if in_frontmatter:
-                break
-            in_frontmatter = True
-            continue
-        if in_frontmatter and ":" in line:
-            key, _, value = line.partition(":")
-            fields[key.strip()] = value.strip()
-    return fields
+        _ = record.chart(required_varga)
+    return record
 
 
 def _house(chart: ChartType, number: int) -> HouseType:
@@ -356,44 +229,21 @@ def _provenance_evidence(
     )
 
 
-def _active_dasha(
-    dasha: DashasType, as_of: date
-) -> tuple[PLANETS, PLANETS] | None:
-    for maha in dasha:
-        start = _dasha_date(maha["start"])
-        end = _dasha_date(maha["end"])
-        if start is None or end is None or not start <= as_of <= end:
-            continue
-        for antar in maha["antardashas"]:
-            antar_start = _dasha_date(antar["start"])
-            antar_end = _dasha_date(antar["end"])
-            if antar_start and antar_end and antar_start <= as_of <= antar_end:
-                return maha["mahadasha"], antar["antardasha"]
-    return None
-
-
-def _dasha_date(value: str) -> date | None:
-    try:
-        return datetime.strptime(value, "%d-%m-%Y").replace(
-            tzinfo=UTC
-        ).date()
-    except ValueError:
-        return None
-
-
 def _dasha_evidence(
     record: PersonRecord,
     primary_houses: tuple[int, ...],
     topic_prefix: str,
-    as_of: date,
+    as_of: datetime,
 ) -> Evidence:
-    active = _active_dasha(record.dasha, as_of)
+    current = DashaTimeline(record.dasha).current(as_of)
+    mahadasha = current["mahadasha"]
+    antardasha = current["antardasha"]
     citations = _citation(
         record.name, "dasha.json", f"PR-{topic_prefix}-DASHA")
-    if active is None:
+    if mahadasha is None or antardasha is None:
         statement = (
             "No active Vimshottari period is available for "
-            + f"{as_of.isoformat()}."
+            + f"{as_of.astimezone(UTC).date().isoformat()}."
         )
         return Evidence(
             statement,
@@ -404,11 +254,17 @@ def _dasha_evidence(
         SIGN_LORDS[_house(record.d1, house)["sign"]]
         for house in primary_houses
     }
-    activated = active[0] in relevant_planets and active[1] in relevant_planets
+    maha_planet = mahadasha["mahadasha"]
+    antar_planet = antardasha["antardasha"]
+    activated = (
+        maha_planet in relevant_planets
+        and antar_planet in relevant_planets
+    )
     result = "activates" if activated else "does not jointly activate"
     statement = (
-        f"Vimshottari {active[0]}–{active[1]} is active on "
-        + f"{as_of.isoformat()} and {result} the selected house lords; "
+        f"Vimshottari {maha_planet}–{antar_planet} is active on "
+        + f"{as_of.astimezone(UTC).date().isoformat()} and {result} "
+        + "the selected house lords; "
         + "timing requires both period lords to activate them."
     )
     return Evidence(
@@ -442,12 +298,7 @@ def _sav_evidence(
 
 
 def _transit_chart(record: PersonRecord, as_of: datetime) -> ChartType:
-    fields = record.context
-    try:
-        latitude = float(fields["latitude"])
-        longitude = float(fields["longitude"])
-    except KeyError as error:
-        raise ReadingError(f"CONTEXT.md is missing {error.args[0]}") from error
+    latitude, longitude = record.coordinates
     offset = as_of.utcoffset()
     if offset is None:
         raise ReadingError("date must include a timezone")
@@ -531,18 +382,19 @@ def _topic_reading(
         )
         for house in primary_houses
     ]
-    if required_varga is not None and record.varga is not None:
+    if required_varga is not None:
+        varga = record.chart(required_varga)
         evidence.extend(
             _house_evidence(
                 record.name,
-                record.varga,
+                varga,
                 f"charts/D{required_varga}.json",
                 prefix, house,
             )
             for house in primary_houses
         )
     evidence.append(
-        _dasha_evidence(record, primary_houses, prefix, as_of.date())
+        _dasha_evidence(record, primary_houses, prefix, as_of)
     )
     evidence.append(
         _topic_transit_evidence(record, primary_houses, prefix, as_of)
@@ -629,9 +481,7 @@ def _compatibility_reading(
             _citation(record.name, "charts/D1.json", "PR-REL-MOON"),
             "neutral",
         ))
-        if record.varga is None:
-            raise ReadingError(f"Missing D9 chart for {record.name}")
-        d9_moon = _planet(record.varga, "Moon")
+        d9_moon = _planet(record.chart(9), "Moon")
         if d9_moon is None:
             raise ReadingError(
                 f"Missing Moon placement in {record.name}'s D9 chart")
@@ -647,7 +497,7 @@ def _compatibility_reading(
             "neutral",
         ))
         evidence.append(
-            _dasha_evidence(record, (5, 7, 8), "REL", as_of.date())
+            _dasha_evidence(record, (5, 7, 8), "REL", as_of)
         )
         evidence.append(
             _topic_transit_evidence(record, (5, 7, 8), "REL", as_of)
@@ -750,7 +600,7 @@ def parse_args(argv: list[str] | None = None) -> Arguments:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
-        name = _safe_person_name(args.name)
+        name = args.name
         topic = args.topic
         as_of = _parse_datetime(args.date)
         if topic == "daily-transit":
@@ -763,7 +613,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             reading = _topic_reading(
                 name, topic, as_of, args.family_role)
-    except ReadingError as error:
+    except (PersonRecordError, ReadingError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
     if args.output_format == "json":

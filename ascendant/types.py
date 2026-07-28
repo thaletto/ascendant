@@ -138,6 +138,11 @@ class MahaDashaType(TypedDict):
 DashasType = list[MahaDashaType]
 
 
+class CurrentDashaType(TypedDict):
+    mahadasha: MahaDashaType | None
+    antardasha: AntarDashaType | None
+
+
 class AspectType(TypedDict):
     planet: PLANETS
     from_house: HOUSES

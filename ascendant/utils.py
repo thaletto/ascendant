@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
 import re
+from datetime import UTC, datetime
 
+from ascendant.const import RASHIS as RASHI_MAP
 from ascendant.horoscope import normalize_house_system
 from ascendant.types import HOUSES, PLANET_SIGN_RELATION, PLANETS, RASHIS
-from ascendant.const import RASHIS as RASHI_MAP
 
 
 def is_sign_odd(n: HOUSES) -> bool:
@@ -28,10 +28,9 @@ def parse_date(s: str | datetime) -> datetime | None:
         return None
     if isinstance(s, datetime):
         if s.tzinfo is None:
-            return s.replace(tzinfo=timezone.utc)
-        return s.astimezone(timezone.utc)
-    dt = datetime.strptime(s, "%d-%m-%Y")
-    return dt.replace(tzinfo=timezone.utc)
+            return s.replace(tzinfo=UTC)
+        return s.astimezone(UTC)
+    return datetime.strptime(s, "%d-%m-%Y").replace(tzinfo=UTC)
 
 
 def planet_sign_relation(

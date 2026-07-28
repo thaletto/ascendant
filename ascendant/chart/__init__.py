@@ -4,13 +4,13 @@ from ascendant.chart.utils import aspect_offsets_for_planet, get_divisional_targ
 from ascendant.const import (
     ALLOWED_DIVISIONS as DIVISIONS,
 )
-from ascendant.ephemeris import EphemerisChart
-from ascendant.horoscope import HoroscopeData
 from ascendant.const import (
     NODE_MAP,
     RASHIS,
     SELECTED_PLANETS,
 )
+from ascendant.ephemeris import EphemerisChart
+from ascendant.horoscope import HoroscopeData
 from ascendant.types import (
     ALLOWED_DIVISIONS,
     HOUSES,
@@ -33,8 +33,25 @@ class Chart:
     """
 
     def __init__(self, horoscope: HoroscopeData):
+        self._initialize(horoscope, horoscope.generate_chart())
+
+    @classmethod
+    def from_ephemeris(
+        cls,
+        horoscope: HoroscopeData,
+        ephemeris: EphemerisChart,
+    ) -> "Chart":
+        chart = cls.__new__(cls)
+        chart._initialize(horoscope, ephemeris)
+        return chart
+
+    def _initialize(
+        self,
+        horoscope: HoroscopeData,
+        ephemeris: EphemerisChart,
+    ) -> None:
         self.__horoscope__: HoroscopeData = horoscope
-        self.__chart__: EphemerisChart = horoscope.generate_chart()
+        self.__chart__: EphemerisChart = ephemeris
 
         self.planets: PlanetsType = self.get_planets()
         self.lagna: LagnaType = self.get_lagna()
