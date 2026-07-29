@@ -1,13 +1,13 @@
 ---
-title: "Property and vehicle guidance"
-description: "Guide questions about homes, land, vehicles, property purchases, repairs, and related financial timing from a birth chart."
+title: "Property guidance"
+description: "Guide questions about homes, land, vehicles, relocation, and property timing from a birth chart."
 ---
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/property/SKILL.md). Edit the source specification, not this page.
 
-Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement).
+Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md),
+[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement), and
+[`../parashari-judgement/references/topics/property.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics/property.md).
 
-For an explicit saved name, run the shared evaluator with `--topic property`.
-Present its cited D1/D4 evidence and practical planning guidance; inspections,
-written agreements, legal review, and budgets remain necessary.
+Apply the shared process to the user's natural property question. Answer with
+the material D1/D4, timing, and contextual factors in question-shaped prose.
