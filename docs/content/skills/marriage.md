@@ -1,13 +1,14 @@
 ---
-title: "Marriage and partnership guidance"
-description: "Guide questions about partnership, marriage, emotional connection, relationship challenges, and relationship timing."
+title: "Marriage guidance"
+description: "Guide questions about partnership patterns, marriage, commitment, and relationship timing from a birth chart."
 ---
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/SKILL.md). Edit the source specification, not this page.
 
-Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement).
+Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md),
+[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement), and
+[`../parashari-judgement/references/topics/marriage.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics/marriage.md).
 
-For an explicit saved name, run the shared evaluator with `--topic marriage`.
-Present its cited D1/D9 evidence and practical guidance. A chart does not
-establish another person's feelings, consent, availability, or commitment.
+Apply the shared process to the user's natural partnership question. Use the
+compatibility skill when the question asks about another named person's chart
+or feelings.
