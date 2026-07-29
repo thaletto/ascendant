@@ -1,14 +1,14 @@
 ---
 name: property
-description: Guide questions about homes, land, vehicles, property purchases, repairs, and related financial timing from a birth chart.
+description: Guide questions about homes, land, vehicles, relocation, and property timing from a birth chart.
 license: MIT
 ---
 
-# Property and vehicle guidance
+# Property guidance
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md),
+[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
+[`../parashari-judgement/references/topics/property.md`](../parashari-judgement/references/topics/property.md).
 
-For an explicit saved name, run the shared evaluator with `--topic property`.
-Present its cited D1/D4 evidence and practical planning guidance; inspections,
-written agreements, legal review, and budgets remain necessary.
+Apply the shared process to the user's natural property question. Answer with
+the material D1/D4, timing, and contextual factors in question-shaped prose.

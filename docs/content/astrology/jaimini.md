@@ -67,7 +67,7 @@ not enough to reproduce the sequence.
 ## Ascendant support boundary
 
 Ascendant can calculate D1 and D9 chart data that a Jaimini implementation
-would need. The current public skill evaluator does **not** calculate chara
+would need. The current public skill hierarchy does **not** define chara
 karakas, rashi drishti, arudhas, argala, Karakamsha, or Chara dasha. Its
 educational description here must not be mistaken for implemented output.
 

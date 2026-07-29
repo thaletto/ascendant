@@ -73,9 +73,10 @@ The Python library calculates sidereal charts, divisional charts, Vimshottari
 periods, yogas, Ashtakavarga, and Swiss Ephemeris cusps for its supported
 house-system codes. The current public chart result remains sign-based and does
 not expose cusp membership. The packaged agent skills use the
-`parashari_raman_v1` catalogue: D1 first, then the topic-specific varga when
+`parashari_raman_v2` hierarchy: D1 first, then the topic-specific varga when
 required, Vimshottari Mahadasha and Antardasha, dated transits, and
-Sarvashtakavarga corroboration.
+Sarvashtakavarga corroboration. The agent interprets saved artifacts directly;
+developer-authored topic rubrics control the relative weight.
 
 The skills do **not** currently implement a general Jaimini or KP interpreter.
 Those pages are educational comparisons, not promises of library output. The

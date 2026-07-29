@@ -6,9 +6,9 @@ license: MIT
 
 # Finance guidance
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md),
+[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
+[`../parashari-judgement/references/topics/finance.md`](../parashari-judgement/references/topics/finance.md).
 
-For an explicit saved name, run the shared evaluator with `--topic finance`.
-Present its cited D1/D2 evidence and planning guidance; do not add investment,
-debt, or profit claims.
+Apply the shared process to the user's natural finance question. Answer with
+the material D1/D2, timing, and contextual factors in question-shaped prose.

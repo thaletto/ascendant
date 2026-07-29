@@ -37,46 +37,48 @@ house-by-house discipline of B. V. Raman:
 5. Check the active Vimshottari Mahadasha and Antardasha.
 6. Add dated transits.
 7. Add saved Sarvashtakavarga scores as supporting context.
-8. State missing evidence and keep every claim traceable to its rule.
+8. Apply the developer-owned factor rank within each evidence layer.
+9. State missing evidence and keep every material claim traceable.
 
 This sequence keeps natal structure separate from timing and prevents a single
 transit from becoming the whole reading.
 
-## What `parashari_raman_v1` means
+## What `parashari_raman_v2` means
 
-The agent evaluator is a **curated software rule catalogue**, not a complete
-digital edition of BPHS. For each selected house it:
+The agent workflow is a **curated interpretive hierarchy**, not a complete
+digital edition of BPHS. It separates two kinds of precedence:
 
-- identifies the sign lord,
-- locates that lord by house,
-- treats `Exalted`, `Moola Trikona`, `Own`, and `Friend` as support,
-- treats `Debilitated`, `Enemy`, or lord placement in 6, 8, or 12 as a
-  constraint,
-- and treats other available results as neutral.
+- Evidence layers run from natal promise through the relevant varga,
+  Vimshottari activation, transit triggers, and SAV corroboration.
+- Within a layer, factors are primary, corroborating, modifying, or
+  background.
 
-Topic rules declare the D1 houses and required varga. Timing is marked as
-jointly active only when both current period lords are selected house lords.
-Transits and SAV remain supplementary.
+Higher factors control. Repeated lower factors cannot outvote them, and
+equally ranked contradictions remain mixed unless a topic rubric supplies an
+explicit tie-breaker. The agent inspects saved artifacts directly, applies the
+hierarchy, and explains the result in natural prose. Calculation scripts
+create chart or transit data; they do not decide meaning.
 
-Every emitted sentence cites the saved artifact, a `PR-*` rule identifier, and
-the catalogue's source identifiers. The exact operational rules live in the
-packaged
-[`rule-catalogue.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md).
+Each material conclusion cites its saved artifact and its exact external source
+locator. Developer-authored rules without an external locator are labeled
+`Ascendant methodology`. The shared hierarchy lives in
+[`hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md);
+topic-specific rubrics live under
+[`references/topics/`](https://github.com/thaletto/ascendant/tree/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics).
 
 ## What it does not yet encode
 
-The current catalogue does not claim to implement every:
+The current hierarchy does not claim to define every:
 
 - planetary aspect and special aspect,
 - yoga and cancellation rule,
 - avastha or strength system,
 - varga dignity synthesis,
 - dasha eligibility exception,
-- Ashtakavarga threshold,
 - or remedial tradition.
 
-That boundary is intentional. A deterministic, cited subset can be audited and
-expanded rule by rule; an unnamed mixture of remembered rules cannot.
+That boundary is intentional. Developer-owned, cited rules can be audited and
+expanded one topic at a time while the agent retains natural synthesis.
 
 ## Primary reading
 
@@ -85,4 +87,3 @@ Shastra* for bhava, lord, varga, Vimshottari, and Ashtakavarga material, and
 B. V. Raman's *How to Judge a Horoscope*, Volumes I and II, for a disciplined
 house-by-house organization. See [Sources](/docs/astrology/sources) for the
 full bibliography and scope notes.
-

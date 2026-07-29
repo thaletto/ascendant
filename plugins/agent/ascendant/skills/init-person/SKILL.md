@@ -26,8 +26,10 @@ The command creates `persons/<name>/`, saves the original details, and prepares:
 - the complete Ashtakavarga/Sarvashtakavarga result in `sav.json`
 
 Running it again with the same details reuses the existing record. If an older record is missing `sav.json`, the command backfills it in place. If the same name is used with different birth details, a numeric suffix is appended to the directory name.
+Matching records with `parashari_raman_v1` provenance are upgraded to v2
+without rewriting `CONTEXT.md` or chart artifacts.
 
 After it completes, read `provenance.json` and the generated files before
 answering the user's astrology question. Cite the resulting record and
 provenance for every factual statement about the saved chart; use the shared
-`parashari-judgement` evaluator for interpretation.
+`parashari-judgement` process and topic hierarchy for interpretation.

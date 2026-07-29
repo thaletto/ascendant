@@ -1,0 +1,155 @@
+"""Public contract tests for the bundled Ascendant agent plugin."""
+
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPOSITORY = Path(__file__).resolve().parents[1]
+SKILLS = REPOSITORY / "plugins/agent/ascendant/skills"
+EVALUATOR = SKILLS.joinpath(
+    "parashari-judgement",
+    "scripts",
+    "evaluate_reading.py",
+)
+GET_TRANSIT = SKILLS / "get-transit/scripts/get-transit.py"
+INIT_PERSON = SKILLS / "init-person/scripts/init-person.py"
+TOPICS = (
+    "career",
+    "daily-transit",
+    "education",
+    "family",
+    "finance",
+    "health",
+    "marriage",
+    "property",
+    "relationship-compatibility",
+)
+
+
+def _run_tool(
+    command: list[str],
+    cwd: Path,
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        command,
+        cwd=cwd,
+        env=os.environ | {"PYTHONPATH": str(REPOSITORY)},
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_reading_plugin_does_not_ship_a_python_evaluator() -> None:
+    assert not EVALUATOR.exists()
+    assert not any(
+        "evaluate_reading.py" in path.read_text(encoding="utf-8")
+        for path in SKILLS.rglob("*.md")
+    )
+
+
+def test_specialist_skills_route_to_shared_and_topic_judgement() -> None:
+    topic_references = SKILLS / "parashari-judgement/references/topics"
+
+    for topic in TOPICS:
+        skill = (SKILLS / topic / "SKILL.md").read_text(encoding="utf-8")
+        assert "../parashari-judgement/SKILL.md" in skill
+        assert f"../parashari-judgement/references/topics/{topic}.md" in skill
+        assert (topic_references / f"{topic}.md").is_file()
+
+
+def test_init_person_backfills_v2_provenance_without_rewriting_context(
+    tmp_path: Path,
+) -> None:
+    command = [
+        sys.executable,
+        str(INIT_PERSON),
+        "--name",
+        "Ada",
+        "--dob",
+        "1990-01-01T12:00:00+05:30",
+        "--latitude",
+        "28.6139",
+        "--longitude",
+        "77.2090",
+    ]
+
+    first = _run_tool(command, tmp_path)
+    assert first.returncode == 0, first.stderr
+    context = tmp_path / "persons/Ada/CONTEXT.md"
+    original_context = context.read_text(encoding="utf-8")
+    d1 = tmp_path / "persons/Ada/charts/D1.json"
+    original_d1 = d1.read_bytes()
+    provenance = tmp_path / "persons/Ada/provenance.json"
+    provenance_data = json.loads(
+        provenance.read_text(encoding="utf-8")
+    )
+    assert provenance_data["rule_pack"] == "parashari_raman_v2"
+
+    provenance_data["rule_pack"] = "parashari_raman_v1"
+    _ = provenance.write_text(
+        json.dumps(provenance_data, indent=2),
+        encoding="utf-8",
+    )
+    second = _run_tool(command, tmp_path)
+
+    assert second.returncode == 0, second.stderr
+    assert context.read_text(encoding="utf-8") == original_context
+    assert d1.read_bytes() == original_d1
+    migrated = json.loads(provenance.read_text(encoding="utf-8"))
+    assert migrated["rule_pack"] == "parashari_raman_v2"
+
+
+def test_person_tools_reject_paths_outside_persons_directory(
+    tmp_path: Path,
+) -> None:
+    commands = (
+        [
+            sys.executable,
+            str(INIT_PERSON),
+            "--name",
+            "../Ada",
+            "--dob",
+            "1990-01-01T12:00:00+05:30",
+            "--latitude",
+            "28.6139",
+            "--longitude",
+            "77.2090",
+        ],
+        [
+            sys.executable,
+            str(GET_TRANSIT),
+            "--name",
+            "../Ada",
+            "--date",
+            "2026-07-28T12:00:00+05:30",
+        ],
+    )
+
+    for command in commands:
+        result = _run_tool(command, tmp_path)
+        assert result.returncode == 2
+        assert "one direct persons/<name> record" in result.stderr
+
+
+def test_transit_tool_reports_missing_records_as_user_errors(
+    tmp_path: Path,
+) -> None:
+    result = _run_tool(
+        [
+            sys.executable,
+            str(GET_TRANSIT),
+            "--name",
+            "Ada",
+            "--date",
+            "2026-07-28T12:00:00+05:30",
+        ],
+        tmp_path,
+    )
+
+    assert result.returncode == 2
+    assert "persons/Ada" in result.stderr

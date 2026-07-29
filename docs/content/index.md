@@ -28,17 +28,18 @@ The skill pack includes executable setup and transit flows plus guidance for car
 ## What system the Ascendant skills use
 
 Ascendant's interpretation skills use a versioned **Parashari–Raman** workflow
-named `parashari_raman_v1`. The calculator uses the **sidereal zodiac**, with
+named `parashari_raman_v2`. The calculator uses the **sidereal zodiac**, with
 **Lahiri ayanamsa** and **Whole Sign houses** as its defaults. A reading begins
 with the D1 natal chart, adds the relevant divisional chart when the topic
 requires one, checks Vimshottari Mahadasha and Antardasha, and then uses dated
 transits and Sarvashtakavarga as corroborating evidence.
 
 The workflow is deliberately narrower than the whole Parashari tradition. It
-does not silently switch to Jaimini or KP rules, and every statement emitted by
-the shared evaluator carries the saved chart artifact, rule identifier, and
-source identifiers used for that statement. Choosing a Krishnamurti ayanamsa in
-the Python configuration changes the sidereal reference point; it does not turn
+does not silently switch to Jaimini or KP rules. The agent reads saved
+artifacts directly, applies developer-owned evidence and factor hierarchies,
+and cites each material conclusion with its artifact pointer and governing
+source or Ascendant methodology rule. Choosing a Krishnamurti ayanamsa in the
+Python configuration changes the sidereal reference point; it does not turn
 the skills into a KP astrology engine.
 
 Learn how these traditions differ in [Learn astrology](/docs/astrology), or

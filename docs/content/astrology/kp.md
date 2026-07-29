@@ -68,7 +68,7 @@ KP astrology
 
 Setting `ayanamsa="Krishnamurti"` in Ascendant changes the sidereal longitude
 reference. Setting `house_system="Placidus"` changes house calculation. The
-current agent skills still apply `parashari_raman_v1`; they do not become a KP
+current agent skills still apply `parashari_raman_v2`; they do not become a KP
 interpreter.
 
 ## Ascendant support boundary
@@ -77,7 +77,7 @@ Ascendant currently supplies several ingredients—sidereal positions,
 Krishnamurti ayanamsa options, internal Placidus cusp calculations,
 nakshatra metadata, internal sub-lord metadata, and Vimshottari periods. Public
 planet records do not expose all of that metadata, and public `get_chart()`
-membership remains sign-based. The public skill evaluator does not calculate
+membership remains sign-based. The public skill hierarchy does not define
 cuspal sub-lord judgments, KP significator rankings, ruling planets, or KP
 event predicates.
 

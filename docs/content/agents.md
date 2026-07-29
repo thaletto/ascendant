@@ -41,9 +41,10 @@ python3 -m pip install astro-ascendant
 
 1. Use `init-person` when the user provides a name, complete birth time with timezone, latitude, and longitude.
 2. Let the skill save generated records under `persons/<name>/`.
-3. Read the stored chart and Dasha data before interpreting it.
-4. Use `get-transit` when the question depends on the current sky or a specific date.
-5. Apply the matching domain skill, cite the chart factors used, and keep advice within that skill's safety boundaries.
+3. Re-running matching v1 records upgrades their provenance to v2 while preserving `CONTEXT.md` and chart artifacts.
+4. Read the stored chart and Dasha data before interpreting it.
+5. Use `get-transit` when the question depends on the current sky or a specific date.
+6. Apply the matching domain skill, cite the chart factors used, and keep advice within that skill's safety boundaries.
 
 This keeps your calculations reproducible and your interpretation visible for review instead of hiding it inside a model prompt.
 

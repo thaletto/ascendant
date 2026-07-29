@@ -1,20 +1,28 @@
 # Ascendant astrology guidance
 
-These skills help explain a birth chart in clear, practical language. They support astrology readings; they do not replace medical, legal, financial, or relationship professionals.
+These skills explain saved birth charts in clear, practical language. They
+support reflection; they do not replace medical, legal, financial, or
+relationship professionals.
 
 ## Shared reading rules
 
-1. Use only the explicitly requested saved `persons/<name>` record.
-2. For every interpretive request, run the bundled `parashari-judgement`
-   evaluator before writing the reading.
-3. State only the evaluator's evidence and practical guidance, in its emitted
-   order.
-4. Retain every `[sources: ...]` marker on every factual or interpretive
-   sentence. Headings and direct questions are the only uncited text.
-5. State missing birth details, chart files, or unavailable factors exactly as
-   reported by the evaluator.
-6. Describe chart patterns as planning context, never certainty, a diagnosis,
-   financial advice, legal advice, proof of feelings, consent, availability, or
+1. Use only exact, explicitly named `persons/<name>` records.
+2. For every interpretation, follow the shared `parashari-judgement` process
+   and the selected topic hierarchy.
+3. Inspect saved chart artifacts directly. Python tools may calculate or save
+   chart data; they do not evaluate interpretive logic.
+4. Let the developer-defined evidence layers and factor ranks control every
+   conclusion. The model explains the result naturally but never changes the
+   weighting.
+5. Cite material claims at claim or paragraph level with both the saved
+   evidence pointer and the governing source or `Ascendant methodology` rule.
+6. Give partial readings from partial records, naming the omitted factors and
+   lowering confidence.
+7. Describe patterns as planning context, never certainty, diagnosis, or
+   medical, financial, or legal advice.
+8. With both saved charts, feelings may be described only as a confidence-
+   labeled astrological inference. Actual feelings require direct
+   confirmation; charts cannot establish consent, availability, or
    relationship status.
 
 ## Which skill to use
@@ -28,21 +36,13 @@ These skills help explain a birth chart in clear, practical language. They suppo
 | Parents, siblings, children, or family | `family` |
 | Marriage or a long-term relationship | `marriage` |
 | Home, land, vehicle, or property | `property` |
-| Comparing two people | `relationship-compatibility` |
+| Comparing two people or asking about another person's feelings | `relationship-compatibility` |
 | Today's or this week's planetary movements | `daily-transit` |
 | Saving birth details | `init-person` |
 | Showing current planetary positions | `get-transit` |
 
-## Reading order
-
-For a focused reading:
-
-1. Confirm the person, birth details, location, and question.
-2. Read the main birth chart and the relevant houses and planets.
-3. Check the current planetary period.
-4. Add current movements only when timing is requested.
-5. Summarize the evidence, uncertainty, and practical next step.
-
 ## Tone
 
-Be warm, direct, and respectful. Avoid fear, fatalism, unexplained abbreviations, and claims that a chart guarantees an event.
+Be warm, direct, and responsive to the actual question. Explain technical
+terms when they matter. Use grounded, non-fatalistic language and show only
+the chart factors that materially answer the question.

@@ -51,10 +51,10 @@ The public documentation should use this hierarchy:
 The introduction should not imply that Ascendant implements every system
 covered educationally. The repository currently supports a sidereal
 calculation layer with several ayanamshas and house-system codes, while the
-packaged judgement skills use one curated `parashari_raman_v1` ruleset.
+packaged judgement skills use one curated `parashari_raman_v2` hierarchy.
 ([configuration defaults and supported values](../../../ascendant/configuration.py#L10-L29),
 [Swiss Ephemeris mappings](../../../ascendant/horoscope.py#L18-L34),
-[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L41-L43))
+[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
 
 ## Tropical and sidereal astrology
 
@@ -214,54 +214,53 @@ modern rulebook.
 [Santhanam edition bibliographic record](https://books.google.com/books/about/Brihat_Parasara_hora_sastra_of_Maharshi.html?id=eb1-AAAAMAAJ))
 
 Ascendant's packaged reading system is narrower than the full source corpus.
-It calls itself `parashari_raman_v1` and cites R. Santhanam's BPHS translation,
-B. V. Raman's *How to Judge a Horoscope*, and Ascendant's own concise rule
-catalogue.
-([packaged source register](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md#L1-L16),
-[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L41-L43))
+It calls itself `parashari_raman_v2` and combines exact BPHS locators with
+Ascendant's developer-authored methodology.
+([packaged source register](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md),
+[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
 
-The rule catalogue classifies a selected house through its sign lord's house
-placement and saved dignity label. It treats Exalted, Moola Trikona, Own, and
-Friend as support; Debilitated, Enemy, or placement in houses 6, 8, or 12 as a
-constraint; and all other cases as neutral.
-([rule predicate](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L3-L10))
+The shared hierarchy orders evidence as natal promise, relevant varga,
+Vimshottari activation, transit trigger, and SAV corroboration. Within each
+layer, topic factors are primary, corroborating, modifying, or background.
+Higher factors control; lower factors do not win by accumulation; equal-rank
+conflicts remain mixed without a developer-authored tie-breaker.
+([shared hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
 
 The topic rules use D1 plus a selected varga where required: D10 for career,
 D24 for education, D2 for finance, D9 for marriage and compatibility, and D4
 for property. Health, family, and daily-transit rules do not require a varga.
-([topic matrix](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L12-L22))
+([topic rubrics](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
 
-For topic timing, the evaluator treats Vimshottari as supportive only when both
-the active Mahadasha and Antardasha lords are lords of selected houses.
-Transits report planets in selected natal houses without changing natal
-status, and SAV is supplementary context without a threshold.
-([timing and corroboration rules](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L24-L27),
-[evaluator dasha predicate](../../../plugins/agent/ascendant/skills/parashari-judgement/scripts/evaluate_reading.py#L384-L418),
-[evaluator transit and SAV](../../../plugins/agent/ascendant/skills/parashari-judgement/scripts/evaluate_reading.py#L421-L497))
+The agent reads saved artifacts directly and applies those rubrics. Python
+tools may create person records or dated transit data, but they do not evaluate
+interpretive logic. Transits remain dated triggers and SAV remains the lightest
+corroborating layer.
+([saved evidence contract](../../../plugins/agent/ascendant/skills/parashari-judgement/references/artifacts.md),
+[shared hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
 
 The specialist career, education, finance, health, marriage, property, family,
 daily-transit, and relationship-compatibility skills all route interpretation
-through the shared Parāśari judgement skill. The shared skill requires exact
-saved person records, an explicit timestamp, deterministic evaluator output,
-claim-level source markers, and no interpretive claim beyond the emitted
-ledger.
-([shared workflow](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L9-L39),
-[topic definitions in evaluator](../../../plugins/agent/ascendant/skills/parashari-judgement/scripts/evaluate_reading.py#L27-L50))
+through the shared Parāśari judgement skill and one topic reference. The shared
+skill requires exact saved records, claim-level evidence and method citations,
+qualitative confidence, partial readings for partial data, and natural
+question-focused prose.
+([shared workflow](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
+[specialist skill](../../../plugins/agent/ascendant/skills/career/SKILL.md))
 
 ### Suggested introduction disclosure
 
-> Ascendant's agent reading skills use a curated, deterministic
-> Parāśari–Raman ruleset. They read saved sidereal charts, judge selected house
-> lords and divisional charts, use Vimshottari Mahadasha and Antardasha for
-> timing, and treat transits and Sarvashtakavarga as supporting context. The
-> educational guides also introduce Western, Jaimini, and KP approaches, but
-> those are not interchangeable with the reading rules used by the skills.
+> Ascendant's agent reading skills use a curated Parāśari–Raman hierarchy.
+> They read saved sidereal charts directly, apply developer-owned topic
+> weights, use Vimshottari for activation, and treat transits and
+> Sarvashtakavarga as supporting context. The agent explains that evidence in
+> natural prose with claim-level citations. The educational guides also
+> introduce Western, Jaimini, and KP approaches, but those are not
+> interchangeable with the reading rules used by the skills.
 
-This wording is supported by the packaged workflow and its versioned rule
-catalogue.
-([skill declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L1-L9),
-[source sequence](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md#L1-L12),
-[rule matrix](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L12-L27))
+This wording is supported by the packaged workflow and its versioned hierarchy.
+([skill declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
+[source register](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md),
+[topic rubrics](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
 
 ## Jaimini
 
@@ -275,9 +274,9 @@ Arudha or Pada Lagna, Argala, sign-based aspects, and multiple sign dashas.
 No Jaimini judgement path, Jaimini rule catalogue, or Jaimini-specific public
 API appears in the inspected packaged skills. Jaimini should therefore be an
 educational page marked **not implemented by Ascendant's reading skills**, not
-described as part of `parashari_raman_v1`.
-([packaged judgement declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L41-L43),
-[complete packaged rule matrix](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L12-L27))
+described as part of `parashari_raman_v2`.
+([packaged judgement declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
+[complete topic set](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
 
 ## Krishnamurti Paddhati (KP)
 
@@ -292,12 +291,12 @@ summary websites.
 
 Ascendant exposes two Krishnamurti ayanamsha choices and calculates
 nakshatra-lord, sub-lord, and sub-sub-lord longitude metadata. Those are KP
-calculation ingredients, but the packaged evaluator neither judges cuspal
-sub-lords nor implements a KP significator or ruling-planet procedure.
+calculation ingredients, but the packaged hierarchy defines neither cuspal
+sub-lord judgment nor a KP significator or ruling-planet procedure.
 ([Krishnamurti ayanamsha values](../../../ascendant/configuration.py#L10-L19),
 [KP longitude metadata](../../../ascendant/horoscope.py#L37-L45),
 [sub-lord calculation](../../../ascendant/horoscope.py#L117-L152),
-[packaged evaluator topic and rule scope](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L12-L27))
+[packaged topic scope](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
 
 The KP page should consequently use three explicit labels:
 
@@ -309,9 +308,9 @@ The KP page should consequently use three explicit labels:
   event-prediction procedures.
 
 Those labels match the current split between the coordinate and metadata code
-and the Parāśari-only judgement catalogue.
+and the Parāśari-only judgement hierarchy.
 ([calculation support](../../../ascendant/horoscope.py#L18-L45),
-[judgement scope](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L41-L43))
+[judgement scope](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
 
 ## Implementation disclosure matrix
 
@@ -326,7 +325,7 @@ and the Parāśari-only judgement catalogue.
 | House systems | Yes | Codes and Swiss house cusps exist; public chart membership needs verification | Rules consume saved numbered houses |
 | Vimshottari Mahadasha/Antardasha | Yes | Yes | Yes |
 | Other dasha systems | Yes, as context | No | No |
-| Parāśari | Yes | Supporting chart data is calculated | Yes, curated `parashari_raman_v1` |
+| Parāśari | Yes | Supporting chart data is calculated | Yes, curated `parashari_raman_v2` |
 | Jaimini | Yes | No dedicated API found | No |
 | KP | Yes | Krishnamurti ayanamshas and KP-style longitude metadata only | No full KP judgement |
 
@@ -336,7 +335,7 @@ configuration, ephemeris, chart, dasha, and packaged-rule sources.
 [ephemeris objects](../../../ascendant/ephemeris.py#L20-L29),
 [chart metadata](../../../ascendant/chart/__init__.py#L59-L91),
 [Vimshottari implementation](../../../ascendant/dasha/__init__.py#L89-L138),
-[packaged rules](../../../plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md#L12-L27))
+[packaged hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
 
 ## Primary and high-trust bibliography
 
@@ -370,4 +369,3 @@ configuration, ephemeris, chart, dasha, and packaged-rule sources.
   1971.
 - K. S. Krishnamurti, [*Horary Astrology: Krishnamurti
   Padhdhati*](https://books.google.com/books/about/Horary_Astrology.html?id=Wt9BAQAAIAAJ).
-

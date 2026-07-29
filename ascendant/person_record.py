@@ -21,6 +21,8 @@ from ascendant.types import (
 )
 
 _SIGNS = frozenset(get_args(RASHIS))
+_CURRENT_RULE_PACK = "parashari_raman_v2"
+_LEGACY_RULE_PACKS = frozenset(("parashari_raman_v1",))
 
 
 class PersonRecordError(ValueError):
@@ -243,6 +245,7 @@ class PersonRecordStore:
                 and hash_file.read_text(encoding="utf-8").strip() == person_hash
             ):
                 if self._is_complete(directory):
+                    self._migrate_rule_pack(directory)
                     return PersonRecord(record_name, directory)
                 break
             suffix += 1
@@ -300,7 +303,7 @@ class PersonRecordStore:
             directory / "provenance.json",
             {
                 "schema_version": 1,
-                "rule_pack": "parashari_raman_v1",
+                "rule_pack": _CURRENT_RULE_PACK,
                 "ayanamsa": config.ayanamsa.value,
                 "house_system": config.house_system.value,
                 "input_hash": person_hash,
@@ -314,6 +317,15 @@ class PersonRecordStore:
             raise PersonRecordError(
                 "name must identify one direct persons/<name> record"
             )
+
+    @staticmethod
+    def _migrate_rule_pack(directory: Path) -> None:
+        path = directory / "provenance.json"
+        provenance = _mapping(_read_json(path), path)
+        if provenance.get("rule_pack") not in _LEGACY_RULE_PACKS:
+            return
+        provenance["rule_pack"] = _CURRENT_RULE_PACK
+        _write_json(path, provenance)
 
     @staticmethod
     def _is_complete(directory: Path) -> bool:

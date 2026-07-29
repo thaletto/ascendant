@@ -81,10 +81,13 @@ Krishnamurti ayanamsa.
   defines chart, planet, nakshatra, dasha, and division types.
 - [`parashari-judgement/SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/SKILL.md)
   defines the agent's required workflow.
-- [`rule-catalogue.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/rule-catalogue.md)
-  defines the exact `parashari_raman_v1` predicates.
+- [`hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md)
+  defines the shared `parashari_raman_v2` evidence layers, factor ranks, and
+  conflict rules.
+- [`references/topics/`](https://github.com/thaletto/ascendant/tree/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics)
+  contains the developer-owned topic rubrics.
 - [`sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/sources.md)
-  maps the skill's citation identifiers to its source editions.
+  maps citation identifiers to exact chapter and verse locators.
 
 When a learning page and the current source code differ about supported output,
 the checked-out source and released package version are authoritative for that

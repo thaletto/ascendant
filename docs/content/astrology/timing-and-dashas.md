@@ -57,10 +57,11 @@ the natal chart, including:
 - relevant varga placement,
 - and the relationship between major and sub-period lords.
 
-The current Ascendant skill catalogue uses a deliberately narrow activation
-rule: both Mahadasha and Antardasha lords must be among the selected topic-house
-lords before the ledger marks joint activation. This is an auditable software
-rule, not a summary of every classical dasha rule.
+The current Ascendant topic rubrics rank active Mahadasha and Antardasha lords
+according to the houses that govern the selected topic. Dasha is an activation
+layer below natal promise and the relevant varga, so it can time a pattern but
+cannot invent one. This is an auditable developer-authored method, not a
+summary of every classical dasha rule.
 
 ## Transits
 
@@ -97,4 +98,3 @@ Prefer language proportional to the evidence:
 
 Astrology should not be used as proof of another person's feelings, consent,
 medical diagnosis, legal outcome, or guaranteed financial result.
-

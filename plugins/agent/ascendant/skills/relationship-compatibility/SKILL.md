@@ -1,15 +1,14 @@
 ---
 name: relationship-compatibility
-description: Compare two birth charts to discuss emotional connection, communication, shared life, attraction, and relationship timing.
+description: Compare two birth charts to discuss emotional connection, communication, shared life, attraction, feelings, and relationship timing.
 license: MIT
 ---
 
 # Relationship compatibility
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md),
+[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
+[`../parashari-judgement/references/topics/relationship-compatibility.md`](../parashari-judgement/references/topics/relationship-compatibility.md).
 
-Require two explicit saved names. Run the shared evaluator with
-`--topic relationship-compatibility --other-name "<name>"`. Present its cited
-qualitative comparison without a score or claims about attraction, consent,
-availability, or relationship status.
+Require both exact saved names and apply the shared process to the user's
+natural comparison question. Keep feelings inferential and confidence-labeled.

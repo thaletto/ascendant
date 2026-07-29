@@ -6,9 +6,9 @@ license: MIT
 
 # Career guidance
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md),
+[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
+[`../parashari-judgement/references/topics/career.md`](../parashari-judgement/references/topics/career.md).
 
-For an explicit saved name, run the shared evaluator with `--topic career`.
-Present its cited status, D1/D10 evidence, active dasha, SAV context, and
-practical guidance in that order. Every statement retains its source markers.
+Apply the shared process to the user's natural career question. Answer with the
+material D1/D10, timing, and contextual factors in question-shaped prose.

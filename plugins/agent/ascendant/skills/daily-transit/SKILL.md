@@ -6,9 +6,9 @@ license: MIT
 
 # Daily planetary movements
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), then
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md),
+[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
+[`../parashari-judgement/references/topics/daily-transit.md`](../parashari-judgement/references/topics/daily-transit.md).
 
-For an explicit saved name, run the shared evaluator with `--topic daily-transit`.
-Use its resolved timestamp and cited transit facts. Do not add uncited mood,
-event, or timing claims.
+Resolve the dated moment, obtain transit data, and apply it to the natal factor
+that governs the user's natural question. Treat the result as temporary.

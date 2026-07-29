@@ -1,57 +1,58 @@
 ---
 name: parashari-judgement
-description: Use for a cited, deterministic Vedic astrology reading from a saved personal chart, including a temporary visual report requested with --html.
+description: Use for an evidence-grounded Vedic astrology reading from saved personal charts, including a temporary visual report requested with --html.
 license: MIT
 ---
 
-# Cited Parashari judgement
+# Evidence-grounded Parashari judgement
 
-Use this shared workflow for every interpretation of a saved chart.
+Use this shared process for every interpretation of a saved chart.
 
-1. Require one explicit saved name. For a comparison, require two explicit
-   saved names. For a family reading, require `mother`, `father`, `sibling`,
-   `child`, or `household`.
-   **Complete when:** every requested record is an exact `persons/<name>`
-   directory name.
-2. Resolve the requested date. Use the supplied ISO 8601 moment with timezone;
-   when absent, use the current UTC moment and retain the resolved timestamp.
-   **Complete when:** the exact `as_of` moment is known.
-3. Resolve the output mode. When the user's skill invocation contains the exact
-   `--html` flag, select HTML. Otherwise, select Markdown. Do not infer HTML
-   from words such as "pretty", "web", or "formatted".
-   **Complete when:** the output mode is exactly `html` or `markdown`.
-4. For HTML mode, read
-   [`references/html-report.md`](references/html-report.md) completely and
-   follow it line by line. Then continue with the evaluator command below. For
-   Markdown mode, continue without loading that reference.
-   **Complete when:** HTML instructions are loaded when required.
-5. Run the evaluator from the user's project directory.
-
-   ```bash
-   python3 <path-to-parashari-judgement-skill>/scripts/evaluate_reading.py \
-     --name "<name>" --topic "<topic>" --date "<ISO-8601 date>"
-   ```
-
-   Add `--other-name "<name>"` for `relationship-compatibility`; add
-   `--family-role "<role>"` for `family`. In HTML mode, remove the user's
-   `--html` flag and add `--format json`; the evaluator never receives
-   `--html`.
-   **Complete when:** the command exits successfully and returns its evidence
-   ledger.
-6. Return the result without changing the ledger order: status, evidence,
-   practical guidance, then sources. For HTML, create, open, and report the
-   temporary file exactly as `references/html-report.md` specifies. For
-   Markdown, copy the citations supplied for every factual or interpretive
-   sentence exactly as emitted. Add only a direct restatement of a cited ledger
-   item, retaining all of its citations.
-   **Complete when:** every statement has one or more `[sources: ...]` markers;
-   headings, source bibliography entries, and direct questions are the only
-   uncited text.
-7. State any missing file, unavailable rule, or `insufficient evidence` result
-   exactly as reported. Keep relationship, health, financial, and legal
-   guidance within the cited practical boundary.
-   **Complete when:** the response makes no claim beyond the ledger.
-
-The evaluator applies the versioned `parashari_raman_v1` rule catalogue. Read
-[`references/rule-catalogue.md`](references/rule-catalogue.md) for each rule's
-predicate and [`references/sources.md`](references/sources.md) for its sources.
+1. Resolve the request. Require one exact `persons/<name>` directory; require
+   two for compatibility. Infer the topic and desired depth from the user's
+   natural question. Ask one clarifying question only when the person,
+   timeframe, or decision cannot be determined.
+   **Complete when:** every record and the question being answered are clear.
+2. Resolve timing and presentation. Use transit data only for a time-bound
+   question. Retain a supplied ISO 8601 moment; otherwise use the current
+   moment in the user's timezone and state it. Select HTML only for the exact
+   `--html` flag.
+   **Complete when:** the timeframe and output mode are explicit.
+3. Read [`references/hierarchy.md`](references/hierarchy.md),
+   [`references/artifacts.md`](references/artifacts.md),
+   [`references/sources.md`](references/sources.md), and the selected file
+   under [`references/topics/`](references/topics/) completely. For HTML,
+   also read [`references/html-report.md`](references/html-report.md).
+   **Complete when:** the shared hierarchy and exactly one topic rubric are
+   loaded.
+4. Inspect the saved artifacts directly. Load the record metadata, D1, the
+   topic's varga when required, dasha, present yogas, SAV, and provenance as
+   directed by the artifact contract. For a time-bound request, obtain dated
+   transit positions with the bundled `get-transit` data tool. Never delegate
+   interpretive judgement to a script.
+   **Complete when:** every available required factor has an artifact pointer,
+   and every missing factor is listed.
+5. Apply every applicable rule in the topic rubric using the two-axis
+   hierarchy. Higher layers and ranks control; repeated lower factors never
+   outvote them. Keep equal-rank contradictions mixed unless the rubric names
+   a tie-breaker. No model-authored exception may alter the hierarchy.
+   **Complete when:** each material conclusion has governing evidence,
+   modifiers, conflicts, and one qualitative confidence label.
+6. Answer the user's actual question in natural prose. Present only factors
+   that determine or materially qualify the answer. Attach compact claim-level
+   citations to each conclusion or tightly related group of claims. Use
+   `Ascendant methodology` for developer rules without an external locator.
+   Personal context may shape practical guidance but never masquerades as
+   chart evidence.
+   **Complete when:** the response is selective, traceable, and contains no
+   unsupported conclusion.
+7. When data is missing, provide a bounded partial reading: name the missing
+   artifact, omit dependent factors, lower confidence, and state what remains
+   unresolved. Generate missing data only when the user asks.
+   **Complete when:** every limitation changes the scope or confidence of the
+   answer.
+8. For HTML mode, render the completed reading without changing its reasoning
+   or hierarchy, then create, open, and report the temporary file exactly as
+   the HTML reference specifies.
+   **Complete when:** Markdown is returned naturally or the HTML file is
+   opened and its absolute path is returned.
