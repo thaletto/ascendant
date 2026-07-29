@@ -29,8 +29,16 @@ export const Route = createRootRoute({
         content: 'Guided astrology workflows for AI agents, backed by local typed Python calculations and inspectable evidence.',
       },
       {
+        property: 'og:image',
+        content: 'https://ascendant-docs.vercel.app/og.png',
+      },
+      {
         name: 'twitter:card',
         content: 'summary_large_image',
+      },
+      {
+        name: 'twitter:image',
+        content: 'https://ascendant-docs.vercel.app/og.png',
       },
     ],
     links: [
