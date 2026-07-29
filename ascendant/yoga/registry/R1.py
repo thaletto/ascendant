@@ -497,13 +497,15 @@ def sakata(yoga: Yoga) -> YogaType:
         "type": "Negative",
     }
 
-    relative_house = yoga.relative_house("Jupiter", "Moon")
-    result["present"] = relative_house in [6, 8, 12]
+    moon_from_jupiter = yoga.relative_house("Jupiter", "Moon")
+    result["present"] = moon_from_jupiter in (6, 8, 12)
 
-    if relative_house:
-        result["details"] = f"Moon is {relative_house} houses away from Jupiter."
+    if moon_from_jupiter:
+        result["details"] = (
+            f"Moon is {moon_from_jupiter} houses away from Jupiter."
+        )
         strength_map = {12: 1.0, 8: 0.8, 6: 0.6}
-        result["strength"] = strength_map.get(relative_house, 0.0)
+        result["strength"] = strength_map.get(moon_from_jupiter, 0.0)
     else:
         result["details"] = (
             "Unable to determine relative house between Moon and Jupiter."

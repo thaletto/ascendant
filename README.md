@@ -1,106 +1,96 @@
 # Ascendant
 
-Ascendant is a Python library for Vedic Astrology calculations, providing functionalities for charts, dashas, and yogas.
+Ascendant is a Python package for calculating Vedic astrology charts,
+Vimshottari Dashas, Yoga combinations, and Ashtakavarga values.
+
+It uses Swiss Ephemeris through `pyswisseph` and supports typed configuration
+for ayanamsa and house-system defaults.
 
 ## Installation
 
-Install via pip:
+Ascendant requires Python 3.11 or later.
 
 ```bash
-pip install astro-ascendant
+python -m pip install astro-ascendant
 ```
 
-Ascendant calculates sidereal positions directly with the bundled
-`pyswisseph` dependency; no `flatlib` installation is required.
+`pyswisseph` is installed as a package dependency. No separate `flatlib`
+installation is required.
 
-## Documentation
+## Quick start
 
-The documentation is a separate Fumadocs app in [`docs/`](docs), backed by Markdown files in [`docs/content/`](docs/content/index.md).
-
-```bash
-cd docs
-bun install
-bun run dev
-```
-
-Open [http://localhost:3000/docs](http://localhost:3000/docs), or browse the source pages directly:
-
-- [Divisional Charts (Vargas)](docs/content/library/charts.md)
-- [Dasha Systems](docs/content/library/dasha.md)
-- [Yoga Combinations](docs/content/library/yoga.md)
-
-The docs app is independent: create or configure its Vercel project with `docs/` as the project root.
-
-## Codex and Agent Skills
-
-This repository is also the canonical source for the Ascendant agent skills. The plugin bundle lives
-under [`plugins/agent/`](plugins/agent/), and the same `plugins/{scope}/skills` layout is discoverable
-by the `skills` CLI.
-
-Install the skills with:
-
-```bash
-npx skills add thaletto/ascendant
-```
-
-Add the Codex marketplace from Git and install the plugin with:
-
-```bash
-codex plugin marketplace add https://github.com/thaletto/ascendant.git --ref main
-codex plugin add agent@ascendant
-```
-
-## Core Functionalities:
-
-- **Chart Calculations**: Compute and analyze divisional astrological charts (Varga chakras).
-- **Dasha System**: Implementation of the Vimshottari Dasha system for planetary periods.
-- **Yoga Combinations**: Identification and interpretation of various Yoga (planetary combinations).
-- **Ashtakavarga**: Classical Bhinnashtakavarga, Sarvashtakavarga, Shodhana, and Shodhya Pinda calculations.
-
-## Usage
+Create an `Ascendant` instance with the local birth time, UTC offset, and
+geographic coordinates:
 
 ```python
 from ascendant import Ascendant
 
-# Initialize with birth details
 astro = Ascendant(
-    year=1990, month=1, day=1,
-    hour=12, minute=0, second=0,
-    latitude=28.6139, longitude=77.2090,
-    utc="+5:30"
+    year=1990,
+    month=1,
+    day=1,
+    hour=12,
+    minute=0,
+    second=0,
+    utc="+5:30",
+    latitude=28.6139,
+    longitude=77.2090,
 )
 
-# Get Rasi Chart (D1)
+# Rasi chart (D1)
 chart = astro.get_chart(division=1)
 
-# Get Yogas
-yogas = astro.get_yogas()
+# Detected Yoga combinations
+present_yogas = [
+    yoga for yoga in astro.get_yogas() if yoga["present"]
+]
 
-# Get Dasha Timeline
-dasha = astro.get_dasha_timeline()
+# Vimshottari Dasha
+dasha_timeline = astro.get_dasha_timeline()
+current_dasha = astro.get_current_dasha()
 
-# Get Ashtakavarga / Sarvashtakavarga
+# Ashtakavarga and Sarvashtakavarga
 ashtakavarga = astro.get_sav()
-sarva = ashtakavarga["sarva"]
+sarvashtakavarga = ashtakavarga["sarva"]
 ```
 
-# Advanced Usage
+By default, Ascendant uses the Lahiri ayanamsa and Whole Sign houses.
 
-Override the built-in Lahiri and Whole Sign defaults for one chart:
+## Features
+
+- Sidereal planetary and house calculations using Swiss Ephemeris
+- Divisional charts, including D1, D9, D10, and other supported Vargas
+- Vimshottari Mahadasha and Antardasha timelines
+- Current Dasha lookup for a supplied date
+- Registered Vedic Yoga evaluation with structured results
+- Bhinnashtakavarga, Sarvashtakavarga, Shodhana, and Shodhya Pinda
+- Typed, immutable calculation configuration
+
+## Configuration
+
+Override the defaults for an individual chart:
 
 ```python
 astro = Ascendant(
-    ...,
+    year=1990,
+    month=1,
+    day=1,
+    hour=12,
+    minute=0,
+    second=0,
+    utc="+5:30",
+    latitude=28.6139,
+    longitude=77.2090,
     ayanamsa="Krishnamurti",
-    house_system="Equal",
+    house_system="Porphyry",
 )
 ```
 
-Configure typed application-wide defaults once when most charts use the same
-calculation settings:
+Or configure application-wide defaults:
 
 ```python
 from ascendant import (
+    Ascendant,
     AscendantConfig,
     Ayanamsa,
     HouseSystem,
@@ -114,44 +104,100 @@ configure(
     )
 )
 
-astro = Ascendant(...)  # Uses Lahiri and Porphyry.
+astro = Ascendant(
+    year=1990,
+    month=1,
+    day=1,
+    hour=12,
+    minute=0,
+    second=0,
+    utc="+5:30",
+    latitude=28.6139,
+    longitude=77.2090,
+)
 ```
 
-Explicit `Ascendant` arguments take precedence over the configured defaults.
-Configuration is immutable and is captured when each instance is created.
-Use `get_config()` to inspect the current defaults and `reset_config()` to
+Explicit `Ascendant` arguments take precedence over configured defaults, which
+take precedence over the package defaults. Each instance captures an immutable
+configuration snapshot when it is created.
+
+Use `get_config()` to inspect the configured defaults and `reset_config()` to
 restore Lahiri and Whole Sign. Unsupported constructor values raise
 `ValueError`.
 
-## Available Ayanamsa
+### Supported ayanamsas
 
-- Lahiri (default)
-- Lahiri_1940
-- Lahiri_VP285
-- Lahiri_ICRC
-- Raman
-- Krishnamurti
-- Krishnamurti_Senthilathiban
+- `Lahiri`
+- `Lahiri_1940`
+- `Lahiri_VP285`
+- `Lahiri_ICRC`
+- `Raman`
+- `Krishnamurti`
+- `Krishnamurti_Senthilathiban`
 
-## Available House System
+### Supported house systems
 
-- Whole Sign (default)
-- Placidus
-- Equal
-- Equal 2
-- Porphyry
+- `Whole Sign`
+- `Placidus`
+- `Equal`
+- `Equal 2`
+- `Porphyry`
 
-## Accuracy Verification
+## Result shape
 
-Run the Swiss Ephemeris reference cases independently:
+Ascendant returns regular Python dictionaries and lists. For example, every
+Yoga result contains:
 
-```bash
-.venv/bin/python -m pytest tests/test_swiss_ephemeris_accuracy.py -vv
+```python
+{
+    "id": "gajakesari",
+    "name": "GajaKesari",
+    "present": True,
+    "strength": 0.9,
+    "details": "Jupiter in house 4 and Moon is in 1",
+    "type": "Positive",
+}
 ```
 
-The cases compare sidereal Sun, Moon, ascendant, and house cusp positions
-against fixed reference values with a maximum angular error of `0.1°`. They
-cover Whole Sign, Placidus, Equal, and Porphyry house systems across multiple
-ayanamsas and dates. The Porphyry case also checks House 2 so the test
-distinguishes its cusps from systems that share the same ascendant and first
-house cusp.
+Use `present` to select detected combinations and retain `details` when
+presenting or interpreting a result.
+
+## Documentation
+
+The repository includes guides for:
+
+- [Divisional charts](https://github.com/thaletto/ascendant/blob/main/docs/content/library/charts.md)
+- [Dasha systems](https://github.com/thaletto/ascendant/blob/main/docs/content/library/dasha.md)
+- [Yoga combinations](https://github.com/thaletto/ascendant/blob/main/docs/content/library/yoga.md)
+- [Configuration](https://github.com/thaletto/ascendant/blob/main/docs/content/configuration.md)
+
+## Development
+
+Clone the repository, create the local environment, and use the documented
+Make targets:
+
+```bash
+make help
+make test
+make typecheck
+make lint
+```
+
+Swiss Ephemeris accuracy cases live in
+[`tests/test_swiss_ephemeris_accuracy.py`](https://github.com/thaletto/ascendant/blob/main/tests/test_swiss_ephemeris_accuracy.py).
+
+## Agent skills
+
+The repository also contains an optional Ascendant agent plugin. It is not
+required to use the Python package.
+
+```bash
+npx skills add thaletto/ascendant
+```
+
+Codex users can install the bundled plugin from the repository marketplace:
+
+```bash
+codex plugin marketplace add https://github.com/thaletto/ascendant.git --ref main
+codex plugin add agent@ascendant
+```

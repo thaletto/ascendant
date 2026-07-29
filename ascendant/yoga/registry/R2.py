@@ -4066,17 +4066,8 @@ def sumukha(yoga: Yoga) -> YogaType:
 
     kendras = [1, 4, 7, 10]
 
-    def has_benefic_aspect(house: HOUSES) -> bool:
-        aspects: list[AspectType] = yoga.__chart__.graha_drishti(n=1)
-        for aspect in aspects:
-            if aspect.get("planet") in BENEFIC_PLANETS:
-                for house_data in aspect.get("aspect_houses", []):
-                    if house in house_data:
-                        return True
-        return False
-
     # Cond 1A: L2 in Kendra aspected by benefics
-    if h_l2 in kendras and has_benefic_aspect(h_l2):
+    if h_l2 in kendras and yoga.is_house_aspected_by(h_l2, BENEFIC_PLANETS):
         result["present"] = True
         result["strength"] = 1.0
         result["details"] = f"L2 ({l2}) in Kendra ({h_l2}) aspected by Benefics."
