@@ -1,6 +1,6 @@
 ---
 name: parashari-judgement
-description: Use for an evidence-grounded Vedic astrology reading from saved personal charts, including a temporary visual report requested with --html.
+description: Use for an evidence-grounded Vedic astrology reading from saved personal charts, including a temporary visual report requested with `--html`.
 license: MIT
 ---
 
