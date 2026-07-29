@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Collection
 from typing import TYPE_CHECKING, cast
 
 from ascendant.const import BENEFIC_PLANETS, MALEFIC_PLANETS, RASHI_LORD_MAP
@@ -6,6 +6,7 @@ from ascendant.horoscope import HoroscopeData
 from ascendant.types import (
     HOUSES,
     PLANET_SIGN_RELATION,
+    PLANETS,
     PLANETS_LAGNA,
     RASHI_LORDS,
     RASHIS,
@@ -91,6 +92,11 @@ class Yoga:
         self.__chart__: Chart = chart
         self.chart: ChartType = self.__chart__.get_rasi_chart()
 
+    @staticmethod
+    def _normalize_house(house: int) -> HOUSES:
+        """Normalize a house number to the inclusive range 1 through 12."""
+        return cast(HOUSES, (house - 1) % 12 + 1)
+
     def get_house_of_planet(self, planet: PLANETS_LAGNA) -> HOUSES:
         """Return house number where planet is located in the chart"""
         if planet == "Lagna":
@@ -118,7 +124,10 @@ class Yoga:
     ) -> bool:
         """Check if a planet is in Kendra (1, 4, 7, 10) from a reference house"""
         target_house = self.get_house_of_planet(target_planet)
-        kendra_houses = [(base_house + i - 1) % 12 for i in [1, 4, 7, 10]]
+        kendra_houses = [
+            self._normalize_house(base_house + relative_house - 1)
+            for relative_house in (1, 4, 7, 10)
+        ]
         return target_house in kendra_houses
 
     def planet_in_trikona_from(
@@ -126,16 +135,18 @@ class Yoga:
     ) -> bool:
         """Check if a planet is in Trikona (1, 5, 9) from a reference house"""
         target_house = self.get_house_of_planet(target_planet)
-        kendra_houses = [(base_house + i - 1) % 12 for i in [1, 5, 9]]
-        return target_house in kendra_houses
+        trikona_houses = [
+            self._normalize_house(base_house + relative_house - 1)
+            for relative_house in (1, 5, 9)
+        ]
+        return target_house in trikona_houses
 
     def planets_in_relative_house(
         self, base_planet: PLANETS_LAGNA, relative_pos: HOUSES
     ) -> PlanetsType:
         """Return list of planets in the nth house from a base planet"""
         base_house = self.get_house_of_planet(base_planet)
-        target_house = (base_house + relative_pos - 1) % 12
-        target_house = cast(HOUSES, 12 if target_house == 0 else target_house)
+        target_house = self._normalize_house(base_house + relative_pos - 1)
         return list(self.chart[target_house]["planets"])
 
     def get_lord_of_house(self, house_number: HOUSES) -> RASHI_LORDS:
@@ -164,9 +175,37 @@ class Yoga:
         """Return the relative house number of planet2 from planet1"""
         house1 = self.get_house_of_planet(planet1)
         house2 = self.get_house_of_planet(planet2)
-        relative_pos = (house2 - house1) % 12 + 1
-        pos = cast(HOUSES, relative_pos if relative_pos != 0 else 12)
-        return pos
+        return self._normalize_house(house2 - house1 + 1)
+
+    def is_house_aspected_by(
+        self,
+        house: HOUSES,
+        planets: Collection[PLANETS],
+    ) -> bool:
+        """Return whether any selected planet aspects a D1 house."""
+        selected_planets = set(planets)
+        return any(
+            aspect["planet"] in selected_planets
+            and any(
+                house in aspect_house
+                for aspect_house in aspect["aspect_houses"]
+            )
+            for aspect in self.__chart__.graha_drishti(n=1)
+        )
+
+    def is_house_influenced_by(
+        self,
+        house: HOUSES,
+        planets: Collection[PLANETS],
+        *,
+        excluding: Collection[PLANETS] = (),
+    ) -> bool:
+        """Return whether selected planets join or aspect a D1 house."""
+        selected_planets = set(planets).difference(excluding)
+        occupants = self.chart[house]["planets"]
+        if any(planet["name"] in selected_planets for planet in occupants):
+            return True
+        return self.is_house_aspected_by(house, selected_planets)
 
     def get_planet_by_name(
         self, planet: PLANETS_LAGNA
@@ -228,22 +267,7 @@ class Yoga:
         if any(status in planet["inSign"] for status in ["Debilitated", "Enemy"]):
             return False
 
-        # Check if aspected by malefics
-        chart = self.__chart__
-        for malefic in MALEFIC_PLANETS:
-            try:
-                malefic_aspects = chart.graha_drishti(n=1, planet=malefic)
-                if malefic_aspects:
-                    aspect_data = malefic_aspects[0]
-                    aspect_houses = aspect_data.get("aspect_houses", [])
-
-                    for house_dict in aspect_houses:
-                        if planet_house in house_dict:
-                            return False
-            except (KeyError, IndexError, TypeError):
-                continue
-
-        return True
+        return not self.is_house_aspected_by(planet_house, MALEFIC_PLANETS)
 
     def is_house_benefic_aspected(self, house: HOUSES) -> bool:
         """
@@ -265,15 +289,7 @@ class Yoga:
                         else:
                             return True
 
-        aspects = self.__chart__.graha_drishti(n=1)
-        for aspect in aspects:
-            if aspect["planet"] in BENEFIC_PLANETS:
-                for aspect_house in aspect["aspect_houses"]:
-                    for house_, data in aspect_house.items():
-                        if house_ == house:
-                            return True
-
-        return False
+        return self.is_house_aspected_by(house, BENEFIC_PLANETS)
 
     def compute_all(self) -> list[YogaType]:
         """Compute all registered yogas"""
