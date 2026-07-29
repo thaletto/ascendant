@@ -7,7 +7,7 @@ from ascendant.const import (
     MOVABLE_SIGNS,
     RASHI_LORD_MAP,
 )
-from ascendant.types import HOUSES, PLANETS, RASHIS, YogaType
+from ascendant.types import PLANETS, RASHIS, YogaType
 from ascendant.yoga.base import Yoga, register_yoga
 
 
@@ -141,18 +141,11 @@ def sodaranasa(yoga: Yoga) -> YogaType:
         result["details"] = f"Mars ({mars_house}) or 3rd Lord ({third_lord_house}) not in 3, 5, 7, 8."
         return result
 
-    def is_aspected_by_malefic(house: HOUSES) -> bool:
-        for malefic in MALEFIC_PLANETS:
-            aspects = yoga.__chart__.graha_drishti(n=1, planet=malefic)
-            if aspects:
-                for aspect in aspects:
-                    for aspect_house in aspect["aspect_houses"]:
-                        if house in aspect_house:
-                            return True
-        return False
-
-    mars_aspected = is_aspected_by_malefic(mars_house)
-    third_lord_aspected = is_aspected_by_malefic(third_lord_house)
+    mars_aspected = yoga.is_house_aspected_by(mars_house, MALEFIC_PLANETS)
+    third_lord_aspected = yoga.is_house_aspected_by(
+        third_lord_house,
+        MALEFIC_PLANETS,
+    )
 
     if mars_aspected and third_lord_aspected:
         result["present"] = True
@@ -320,23 +313,11 @@ def parakrama(yoga: Yoga) -> YogaType:
 
     third_lord_house = yoga.get_house_of_planet(third_lord)
 
-    joined_benefics = [
-        p["name"]
-        for p in yoga.planets_in_relative_house("Lagna", third_lord_house)
-        if p["name"] in BENEFIC_PLANETS and p["name"] != third_lord
-    ]
-    aspected_by_benefic = False
-    for benefic_planet in BENEFIC_PLANETS:
-        if benefic_planet == third_lord:
-            continue
-        aspects = yoga.__chart__.graha_drishti(n=1, planet=benefic_planet)
-        if aspects:
-            for aspect in aspects[0]["aspect_houses"]:
-                if third_lord_house in aspect:
-                    aspected_by_benefic = True
-                    break
-
-    if not (joined_benefics or aspected_by_benefic):
+    if not yoga.is_house_influenced_by(
+        third_lord_house,
+        BENEFIC_PLANETS,
+        excluding=(third_lord,),
+    ):
         result["details"] = "3rd Lord not aspected/conjoined by benefics."
         return result
 

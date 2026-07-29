@@ -62,7 +62,7 @@ const clientLoader = browserCollections.docs.createClientLoader({
           <MarkdownCopyButton markdownUrl={markdownUrl} />
           <ViewOptionsPopover
             markdownUrl={markdownUrl}
-            githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/docs/content/${path}`}
+            githubUrl={getGitHubUrl(path)}
           />
         </div>
         <DocsBody>
@@ -72,6 +72,17 @@ const clientLoader = browserCollections.docs.createClientLoader({
     );
   },
 });
+
+function getGitHubUrl(path: string) {
+  const skill = /^skills\/([^/]+)\.md$/.exec(path)?.[1];
+  const repositoryUrl = `https://github.com/${gitConfig.user}/${gitConfig.repo}`;
+  const revisionUrl = `${repositoryUrl}/blob/${gitConfig.branch}`;
+
+  if (skill) {
+    return `${revisionUrl}/plugins/agent/ascendant/skills/${skill}/SKILL.md`;
+  }
+  return `${revisionUrl}/docs/content/${path}`;
+}
 
 function Page() {
   const { path, pageTree, markdownUrl } = useFumadocsLoader(Route.useLoaderData());
