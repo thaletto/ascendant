@@ -4,12 +4,13 @@
   "type": "module",
   "sideEffects": false,
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
+    "generate:skills": "bun scripts/generate-skill-docs.ts",
+    "dev": "bun scripts/generate-skill-docs.ts && vite dev",
+    "build": "bun scripts/generate-skill-docs.ts && vite build",
     "start": "vite preview",
     "preview": "vite preview",
-    "types:check": "fumadocs-mdx && tsc --noEmit",
-    "postinstall": "fumadocs-mdx",
+    "types:check": "bun scripts/generate-skill-docs.ts && fumadocs-mdx && tsc --noEmit",
+    "postinstall": "bun scripts/generate-skill-docs.ts && fumadocs-mdx",
     "lint": "oxlint"
   },
   "dependencies": {

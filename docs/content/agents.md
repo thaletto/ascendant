@@ -1,5 +1,5 @@
 ---
-title: Agent Workflows
+title: Agent workflows
 description: Install Ascendant skills and give coding agents reliable astrology workflows backed by local calculations.
 ---
 
@@ -21,21 +21,13 @@ Also install the calculation package when you need a workflow to generate charts
 python3 -m pip install astro-ascendant
 ```
 
-## Available skills
+## Browse the skill specifications
 
-| Skill | Use it for |
-|---|---|
-| `init-person` | Save birth details and prepare reusable chart and timing records |
-| `get-transit` | Compare current or dated planetary positions with a saved birth chart |
-| `daily-transit` | Explain short-term planetary movement in practical language |
-| `career` | Work direction, recognition, professional changes, and timing |
-| `finance` | Income, savings, risk, and money-related timing |
-| `health` | Careful, non-diagnostic guidance about vitality and routines |
-| `education` | Learning style, exams, higher education, and study timing |
-| `family` | Parents, siblings, children, and family relationships |
-| `marriage` | Partnership patterns, pressure points, and timing |
-| `property` | Homes, land, vehicles, costs, and purchase timing |
-| `relationship-compatibility` | Compare two complete charts without reducing them to one score |
+The skill specifications are available under **Skill specifications** in the
+left sidebar. They are published directly from the plugin's canonical
+`SKILL.md` files. The website regenerates those pages during development and
+production builds, so the documentation cannot drift into a second maintained
+copy.
 
 ## Give your agent a reliable flow
 
