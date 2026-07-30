@@ -62,6 +62,25 @@ def test_specialist_skills_route_to_shared_and_topic_judgement() -> None:
         assert (topic_references / f"{topic}.md").is_file()
 
 
+def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays() -> None:
+    compatibility = (
+        SKILLS / "relationship-compatibility/SKILL.md"
+    ).read_text(encoding="utf-8")
+    compatibility_topic = (
+        SKILLS
+        / "parashari-judgement/references/topics/relationship-compatibility.md"
+    ).read_text(encoding="utf-8")
+    marriage = (SKILLS / "marriage/SKILL.md").read_text(encoding="utf-8")
+    marriage_topic = (
+        SKILLS / "parashari-judgement/references/topics/marriage.md"
+    ).read_text(encoding="utf-8")
+
+    assert "bidirectional cross-chart\nhouse-lord overlays" in compatibility
+    assert "PR-REL-CROSS-D9" in compatibility_topic
+    assert "H7, H5, and H8" in marriage
+    assert "bidirectional cross-chart overlay" in marriage_topic
+
+
 def test_init_person_backfills_v2_provenance_without_rewriting_context(
     tmp_path: Path,
 ) -> None:

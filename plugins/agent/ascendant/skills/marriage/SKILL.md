@@ -12,4 +12,6 @@ Read [`../../../AGENTS.md`](../../../AGENTS.md),
 
 Apply the shared process to the user's natural partnership question. Use the
 compatibility skill when the question asks about another named person's chart
-or feelings.
+or feelings. When two charts are compared, apply the compatibility skill's
+bidirectional cross-chart overlays for H7, H5, and H8 lords in both D1 and the
+required D9 comparison.
