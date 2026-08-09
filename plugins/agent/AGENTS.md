@@ -7,8 +7,8 @@ relationship professionals.
 ## Shared reading rules
 
 1. Use only exact, explicitly named `persons/<name>` records.
-2. For every interpretation, follow the shared judgement process in
-   `ascendant/shared/process.md` and the selected skill's topic rubric.
+2. For every interpretation, follow the selected skill's own judgement
+   process in its `references/process.md` and its topic rubric.
 3. Inspect saved chart artifacts directly. Python tools may calculate or save
    chart data; they do not evaluate interpretive logic.
 4. Let the `Ascendant` custom evidence layers and factor ranks control every

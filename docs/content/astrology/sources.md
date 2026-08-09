@@ -79,17 +79,12 @@ Krishnamurti ayanamsa.
   defines supported ayanamsas, house systems, and immutable defaults.
 - [`ascendant/types.py`](https://github.com/thaletto/ascendant/blob/main/ascendant/types.py)
   defines chart, planet, nakshatra, dasha, and division types.
-- [`parashari-judgement/SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/SKILL.md)
-  defines the general reading skill.
-- [`shared/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/process.md)
-  defines the agent's required workflow for every reading.
-- [`shared/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/hierarchy.md)
-  defines the shared `parashari_raman_v2` evidence layers, factor ranks, and
-  conflict rules.
-- [`shared/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/sources.md)
-  maps citation identifiers to exact chapter and verse locators.
-- Each specialist skill directory (for example `skills/career/`) holds its own
-  topic rubric under `references/topic.md`.
+- Each specialist skill directory (for example `skills/career/`) ships the
+  whole reading contract under its own `references/`: a judgement
+  `process.md`, the `hierarchy.md` evidence layers and factor ranks,
+  `artifacts.md` saved-evidence contract, `sources.md` citation locators, and
+  the topic-specific `topic.md` rubric. Skills carry these copies so a
+  skills.sh install of one skill folder always includes its knowledge.
 
 When a learning page and the current source code differ about supported output,
 the checked-out source and released package version are authoritative for that

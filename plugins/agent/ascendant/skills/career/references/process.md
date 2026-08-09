@@ -1,7 +1,9 @@
 # Evidence-grounded judgement process
 
-Use this shared process for every interpretation of a saved chart. Each skill
-selects the process, its topic rubric, and the saved evidence that applies.
+Use this skill's own process for every interpretation of a saved chart. Each
+skill selects the process, its topic rubric, and the saved evidence that
+applies. This copy lives inside the skill so a skills.sh install always
+includes it.
 
 1. Resolve the request. Require one exact `persons/<name>` directory; require
    two for compatibility. Infer the topic and desired depth from the user's
@@ -10,14 +12,11 @@ selects the process, its topic rubric, and the saved evidence that applies.
    **Complete when:** every record and the question being answered are clear.
 2. Resolve timing and presentation. Use transit data only for a time-bound
    question. Retain a supplied ISO 8601 moment; otherwise use the current
-   moment in the user's timezone and state it. Select HTML only for the exact
-   `--html` flag.
+   moment in the user's timezone and state it.
    **Complete when:** the timeframe and output mode are explicit.
 3. Read [`hierarchy.md`](hierarchy.md), [`artifacts.md`](artifacts.md),
-   [`sources.md`](sources.md), and the selected topic rubric completely. For
-   HTML, also read [`html-report.md`](html-report.md).
-   **Complete when:** the shared hierarchy and exactly one topic rubric are
-   loaded.
+   [`sources.md`](sources.md), and `topic.md` completely.
+   **Complete when:** the hierarchy and exactly one topic rubric are loaded.
 4. Inspect the saved artifacts directly. Load the record metadata, D1, the
    topic's varga when required, dasha, present yogas, SAV, and provenance as
    directed by the artifact contract. For a time-bound request, obtain dated
@@ -44,8 +43,3 @@ selects the process, its topic rubric, and the saved evidence that applies.
    unresolved. Generate missing data only when the user asks.
    **Complete when:** every limitation changes the scope or confidence of the
    answer.
-8. For HTML mode, render the completed reading without changing its reasoning
-   or hierarchy, then create, open, and report the temporary file exactly as
-   the HTML reference specifies.
-   **Complete when:** Markdown is returned naturally or the HTML file is
-   opened and its absolute path is returned.

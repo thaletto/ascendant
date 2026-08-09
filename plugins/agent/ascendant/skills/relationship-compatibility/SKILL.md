@@ -6,14 +6,14 @@ license: MIT
 
 # Relationship compatibility
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md), the shared
-[`../../shared/process.md`](../../shared/process.md),
-[`../../shared/hierarchy.md`](../../shared/hierarchy.md),
-[`../../shared/artifacts.md`](../../shared/artifacts.md),
-[`../../shared/sources.md`](../../shared/sources.md), and your topic rubric
+Read [`../../../AGENTS.md`](../../../AGENTS.md), then this skill's own
+[`references/process.md`](references/process.md),
+[`references/hierarchy.md`](references/hierarchy.md),
+[`references/artifacts.md`](references/artifacts.md),
+[`references/sources.md`](references/sources.md), and topic rubric
 [`references/topic.md`](references/topic.md).
 
-Require both exact saved names and apply the shared process to the user's
+Require both exact saved names and apply this skill's process to the user's
 natural comparison question. Keep feelings inferential and confidence-labeled.
 
 For every two-chart comparison, apply the rubric's bidirectional cross-chart

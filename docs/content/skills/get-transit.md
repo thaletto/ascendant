@@ -26,9 +26,9 @@ Leave out `--date` for the current moment. Use the requested chart division when
 ## Result
 
 Return the script's factual report with its saved-chart and computed-moment
-citations. Interpret the dated transit positions only after reading the shared
-[`../../shared/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/process.md) and the matching skill's
-topic rubric.
+citations. Route interpretation to the matching specialist skill for the
+question, which carries its own process and topic rubric; this tool only
+supplies dated positions.
 
 The report shows:
 

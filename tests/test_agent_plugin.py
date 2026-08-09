@@ -10,11 +10,6 @@ from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SKILLS = REPOSITORY / "plugins/agent/ascendant/skills"
-EVALUATOR = SKILLS.joinpath(
-    "parashari-judgement",
-    "scripts",
-    "evaluate_reading.py",
-)
 GET_TRANSIT = SKILLS / "get-transit/scripts/get-transit.py"
 INIT_PERSON = SKILLS / "init-person/scripts/init-person.py"
 TOPICS = (
@@ -45,32 +40,42 @@ def _run_tool(
 
 
 def test_reading_plugin_does_not_ship_a_python_evaluator() -> None:
-    assert not EVALUATOR.exists()
+    assert not any(
+        path.name == "evaluate_reading.py" for path in SKILLS.rglob("*")
+    )
     assert not any(
         "evaluate_reading.py" in path.read_text(encoding="utf-8")
         for path in SKILLS.rglob("*.md")
     )
 
 
-def test_specialist_skills_route_to_shared_framework_and_own_rubric() -> None:
+def test_each_specialist_skill_carries_its_own_framework() -> None:
     for topic in TOPICS:
+        references = SKILLS / topic / "references"
         skill = (SKILLS / topic / "SKILL.md").read_text(encoding="utf-8")
-        assert "../../shared/process.md" in skill
-        assert "../../shared/hierarchy.md" in skill
-        assert "../../shared/artifacts.md" in skill
-        assert "../../shared/sources.md" in skill
+        assert "references/process.md" in skill
+        assert "references/hierarchy.md" in skill
+        assert "references/artifacts.md" in skill
+        assert "references/sources.md" in skill
         assert "references/topic.md" in skill
-        assert "../parashari-judgement" not in skill
-        assert (SKILLS / topic / "references" / "topic.md").is_file()
+        assert "../../shared/" not in skill
+        assert (references / "process.md").is_file()
+        assert (references / "hierarchy.md").is_file()
+        assert (references / "artifacts.md").is_file()
+        assert (references / "sources.md").is_file()
+        assert (references / "topic.md").is_file()
 
 
-def test_specialist_skills_do_not_reference_another_skill() -> None:
+def test_no_plugin_skill_references_a_shared_folder() -> None:
+    assert not (REPOSITORY / "plugins/agent/ascendant" / "shared").exists()
     for directory in SKILLS.iterdir():
         if not directory.is_dir():
             continue
         if not (directory / "SKILL.md").is_file():
             continue
         skill = (directory / "SKILL.md").read_text(encoding="utf-8")
+        assert "../../shared/" not in skill
+        assert "parashari-judgement" not in skill
         for other in SKILLS.iterdir():
             if other == directory or not (other / "SKILL.md").is_file():
                 continue
