@@ -5,9 +5,12 @@ description: "Offer careful astrology-based guidance about energy, stress, recov
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/SKILL.md). Edit the source specification, not this page.
 
-Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md),
-[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement), and
-[`../parashari-judgement/references/topics/health.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics/health.md).
+Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md), then this skill's own
+[`references/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/process.md),
+[`references/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/hierarchy.md),
+[`references/artifacts.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/artifacts.md),
+[`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/sources.md), and topic rubric
+[`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/topic.md).
 
 Apply the shared process to the user's natural health question. Answer with
 material chart patterns and timing while keeping the result non-diagnostic.

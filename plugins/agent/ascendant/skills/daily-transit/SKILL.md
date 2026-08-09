@@ -6,9 +6,12 @@ license: MIT
 
 # Daily planetary movements
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md),
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
-[`../parashari-judgement/references/topics/daily-transit.md`](../parashari-judgement/references/topics/daily-transit.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md), then this skill's own
+[`references/process.md`](references/process.md),
+[`references/hierarchy.md`](references/hierarchy.md),
+[`references/artifacts.md`](references/artifacts.md),
+[`references/sources.md`](references/sources.md), and topic rubric
+[`references/topic.md`](references/topic.md).
 
 Resolve the dated moment, obtain transit data, and apply it to the natal factor
 that governs the user's natural question. Treat the result as temporary.

@@ -54,7 +54,7 @@ calculation layer with several ayanamshas and house-system codes, while the
 packaged judgement skills use one curated `parashari_raman_v2` hierarchy.
 ([configuration defaults and supported values](../../../ascendant/configuration.py#L10-L29),
 [Swiss Ephemeris mappings](../../../ascendant/horoscope.py#L18-L34),
-[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
+[career skill](../../../plugins/agent/ascendant/skills/career/SKILL.md))
 
 ## Tropical and sidereal astrology
 
@@ -88,7 +88,7 @@ option; it does not by itself mean that the reading engine implements
 Krishnamurti Paddhati judgement.
 ([supported ayanamshas](../../../ascendant/configuration.py#L10-L19),
 [Swiss Ephemeris mode mapping](../../../ascendant/horoscope.py#L18-L26),
-[packaged judgement ruleset](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md#L41-L43))
+[packaged hierarchy in each skill](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md))
 
 ### Suggested public wording
 
@@ -215,37 +215,41 @@ modern rulebook.
 
 Ascendant's packaged reading system is narrower than the full source corpus.
 It calls itself `parashari_raman_v2` and combines exact BPHS locators with
-Ascendant's developer-authored methodology.
-([packaged source register](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md),
-[judgement skill](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
+Ascendant's developer-authored methodology. Every specialist skill carries its
+own copy of the source register under
+`references/sources.md`.
+([packaged source register](../../../plugins/agent/ascendant/skills/career/references/sources.md),
+[career skill](../../../plugins/agent/ascendant/skills/career/SKILL.md))
 
-The shared hierarchy orders evidence as natal promise, relevant varga,
+The hierarchy orders evidence as natal promise, relevant varga,
 Vimshottari activation, transit trigger, and SAV corroboration. Within each
 layer, topic factors are primary, corroborating, modifying, or background.
 Higher factors control; lower factors do not win by accumulation; equal-rank
 conflicts remain mixed without a developer-authored tie-breaker.
-([shared hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
+([hierarchy, copied into each skill](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md))
 
 The topic rules use D1 plus a selected varga where required: D10 for career,
 D24 for education, D2 for finance, D9 for marriage and compatibility, and D4
 for property. Health, family, and daily-transit rules do not require a varga.
-([topic rubrics](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
+([career rubric](../../../plugins/agent/ascendant/skills/career/references/topic.md))
 
 The agent reads saved artifacts directly and applies those rubrics. Python
 tools may create person records or dated transit data, but they do not evaluate
 interpretive logic. Transits remain dated triggers and SAV remains the lightest
 corroborating layer.
-([saved evidence contract](../../../plugins/agent/ascendant/skills/parashari-judgement/references/artifacts.md),
-[shared hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
+([saved evidence contract](../../../plugins/agent/ascendant/skills/career/references/artifacts.md),
+[hierarchy, copied into each skill](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md))
 
 The specialist career, education, finance, health, marriage, property, family,
-daily-transit, and relationship-compatibility skills all route interpretation
-through the shared Parāśari judgement skill and one topic reference. The shared
-skill requires exact saved records, claim-level evidence and method citations,
-qualitative confidence, partial readings for partial data, and natural
-question-focused prose.
-([shared workflow](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
-[specialist skill](../../../plugins/agent/ascendant/skills/career/SKILL.md))
+daily-transit, and relationship-compatibility skills are self-contained: each
+carries its own `process.md`, `hierarchy.md`, `artifacts.md`, and `sources.md`
+under `references/` plus its topic-specific `references/topic.md` rubric, so a
+skills.sh install of one skill folder always includes its knowledge. No skill
+depends on another skill. The process requires exact saved records,
+claim-level evidence and method citations, qualitative confidence, partial
+readings for partial data, and natural question-focused prose.
+([process, copied into each skill](../../../plugins/agent/ascendant/skills/career/references/process.md),
+[career skill](../../../plugins/agent/ascendant/skills/career/SKILL.md))
 
 ### Suggested introduction disclosure
 
@@ -258,9 +262,9 @@ question-focused prose.
 > interchangeable with the reading rules used by the skills.
 
 This wording is supported by the packaged workflow and its versioned hierarchy.
-([skill declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
-[source register](../../../plugins/agent/ascendant/skills/parashari-judgement/references/sources.md),
-[topic rubrics](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
+([skill declaration](../../../plugins/agent/ascendant/skills/career/SKILL.md),
+[source register](../../../plugins/agent/ascendant/skills/career/references/sources.md),
+[specialist rubric](../../../plugins/agent/ascendant/skills/career/references/topic.md))
 
 ## Jaimini
 
@@ -275,8 +279,8 @@ No Jaimini judgement path, Jaimini rule catalogue, or Jaimini-specific public
 API appears in the inspected packaged skills. Jaimini should therefore be an
 educational page marked **not implemented by Ascendant's reading skills**, not
 described as part of `parashari_raman_v2`.
-([packaged judgement declaration](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md),
-[complete topic set](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
+([packaged hierarchy in each skill](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md),
+[specialist rubric](../../../plugins/agent/ascendant/skills/career/references/topic.md))
 
 ## Krishnamurti Paddhati (KP)
 
@@ -296,7 +300,7 @@ sub-lord judgment nor a KP significator or ruling-planet procedure.
 ([Krishnamurti ayanamsha values](../../../ascendant/configuration.py#L10-L19),
 [KP longitude metadata](../../../ascendant/horoscope.py#L37-L45),
 [sub-lord calculation](../../../ascendant/horoscope.py#L117-L152),
-[packaged topic scope](../../../plugins/agent/ascendant/skills/parashari-judgement/references/topics/))
+[packaged topic scope](../../../plugins/agent/ascendant/skills/career/references/topic.md))
 
 The KP page should consequently use three explicit labels:
 
@@ -310,7 +314,7 @@ The KP page should consequently use three explicit labels:
 Those labels match the current split between the coordinate and metadata code
 and the Parāśari-only judgement hierarchy.
 ([calculation support](../../../ascendant/horoscope.py#L18-L45),
-[judgement scope](../../../plugins/agent/ascendant/skills/parashari-judgement/SKILL.md))
+[career hierarchy](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md))
 
 ## Implementation disclosure matrix
 
@@ -335,7 +339,7 @@ configuration, ephemeris, chart, dasha, and packaged-rule sources.
 [ephemeris objects](../../../ascendant/ephemeris.py#L20-L29),
 [chart metadata](../../../ascendant/chart/__init__.py#L59-L91),
 [Vimshottari implementation](../../../ascendant/dasha/__init__.py#L89-L138),
-[packaged hierarchy](../../../plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md))
+[packaged hierarchy in each skill](../../../plugins/agent/ascendant/skills/career/references/hierarchy.md))
 
 ## Primary and high-trust bibliography
 

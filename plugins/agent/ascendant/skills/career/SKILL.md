@@ -6,9 +6,12 @@ license: MIT
 
 # Career guidance
 
-Read [`../../../AGENTS.md`](../../../AGENTS.md),
-[`../parashari-judgement/SKILL.md`](../parashari-judgement/SKILL.md), and
-[`../parashari-judgement/references/topics/career.md`](../parashari-judgement/references/topics/career.md).
+Read [`../../../AGENTS.md`](../../../AGENTS.md), then this skill's own
+[`references/process.md`](references/process.md),
+[`references/hierarchy.md`](references/hierarchy.md),
+[`references/artifacts.md`](references/artifacts.md),
+[`references/sources.md`](references/sources.md), and topic rubric
+[`references/topic.md`](references/topic.md).
 
-Apply the shared process to the user's natural career question. Answer with the
+Apply this skill's process to the user's natural career question. Answer with the
 material D1/D10, timing, and contextual factors in question-shaped prose.

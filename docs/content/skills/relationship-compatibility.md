@@ -5,9 +5,12 @@ description: "Compare two birth charts to discuss emotional connection, communic
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/SKILL.md). Edit the source specification, not this page.
 
-Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md),
-[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement), and
-[`../parashari-judgement/references/topics/relationship-compatibility.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics/relationship-compatibility.md).
+Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md), then this skill's own
+[`references/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/process.md),
+[`references/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/hierarchy.md),
+[`references/artifacts.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/artifacts.md),
+[`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/sources.md), and topic rubric
+[`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/topic.md).
 
 Require both exact saved names and apply the shared process to the user's
 natural comparison question. Keep feelings inferential and confidence-labeled.

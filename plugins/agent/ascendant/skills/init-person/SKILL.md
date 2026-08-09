@@ -29,7 +29,15 @@ Running it again with the same details reuses the existing record. If an older r
 Matching records with `parashari_raman_v1` provenance are upgraded to v2
 without rewriting `CONTEXT.md` or chart artifacts.
 
+The output is structured (TOON): an `init-person:` block with the record name,
+`status` (`created` or `reused`), directory, chart count, and rule pack, plus a
+trailing `help[N]` block. Running with no arguments lists the saved persons;
+`--version` prints the tool version. Exit codes: `0` on success, `1` on
+internal errors, `2` on unknown flags or invalid values. Errors are structured
+on stdout, never on stderr.
+
 After it completes, read `provenance.json` and the generated files before
 answering the user's astrology question. Cite the resulting record and
-provenance for every factual statement about the saved chart; use the shared
-`parashari-judgement` process and topic hierarchy for interpretation.
+provenance for every factual statement about the saved chart; route
+interpretation to the matching specialist skill for the question, which
+carries its own process and topic rubric.

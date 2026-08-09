@@ -5,9 +5,12 @@ description: "Guide questions about partnership patterns, marriage, commitment, 
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/SKILL.md). Edit the source specification, not this page.
 
-Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md),
-[`../parashari-judgement/SKILL.md`](/docs/skills/parashari-judgement), and
-[`../parashari-judgement/references/topics/marriage.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics/marriage.md).
+Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/AGENTS.md), then this skill's own
+[`references/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/process.md),
+[`references/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/hierarchy.md),
+[`references/artifacts.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/artifacts.md),
+[`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/sources.md), and topic rubric
+[`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/topic.md).
 
 Apply the shared process to the user's natural partnership question. Use the
 compatibility skill when the question asks about another named person's chart

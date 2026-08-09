@@ -21,20 +21,19 @@ From the user's project directory, run the bundled script using its installed sk
 python3 <path-to-get-transit-skill>/scripts/get-transit.py --name "<name>" --date "<date>" --division 1
 ```
 
-Leave out `--date` for the current moment. Use the requested chart division when one is provided.
+Leave out `--date` for the current moment. Use the requested chart division when one is provided. Running with no arguments lists the saved persons; `--version` prints the tool version. Exit codes: `0` on success, `1` on missing records or internal errors, `2` on unknown flags or invalid values.
 
 ## Result
 
-Return the script's factual report with its saved-chart and computed-moment
-citations. Interpret it only after reading the shared `parashari-judgement`
-process and the selected topic hierarchy.
-
-The report shows:
-
-- each house and its sign;
-- planets currently in each house;
-- each planet's sign, degree, direction, birth-star, and quarter;
-- the birth-chart house affected by each moving planet.
+Return the script's structured (TOON) report as dated evidence. The output
+starts with a `get-transit:` block carrying the name, moment, division,
+location, natal lagna, and aggregate counts; the `planets[N]` block lists each
+planet's sign, degree, direction (`R`/`D`), birth-star, quarter, and the
+birth-chart house affected; the `houses[N]` block lists each house, sign, lord,
+and contained planets; a trailing `help[N]` block shows the next commands.
+Errors are structured on stdout, never on stderr. Route interpretation to the
+matching specialist skill for the question, which carries its own process and
+topic rubric; this tool only supplies dated positions.
 
 Use this report as dated evidence. The script calculates planetary positions;
 it does not decide their meaning or weight.
