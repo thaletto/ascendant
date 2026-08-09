@@ -171,7 +171,38 @@ def test_person_tools_reject_paths_outside_persons_directory(
     for command in commands:
         result = _run_tool(command, tmp_path)
         assert result.returncode == 2
-        assert "one direct persons/<name> record" in result.stderr
+        assert "error:" in result.stdout
+        assert "one direct persons/<name> record" in result.stdout
+
+
+def test_person_tools_report_unknown_flags_as_usage_errors(
+    tmp_path: Path,
+) -> None:
+    commands = (
+        [sys.executable, str(INIT_PERSON), "--bogus"],
+        [sys.executable, str(GET_TRANSIT), "--bogus"],
+    )
+
+    for command in commands:
+        result = _run_tool(command, tmp_path)
+        assert result.returncode == 2
+        assert "error:" in result.stdout
+        assert "help[1]:" in result.stdout
+
+
+def test_person_tools_home_views_are_content_first(tmp_path: Path) -> None:
+    for tool in (INIT_PERSON, GET_TRANSIT):
+        result = _run_tool([sys.executable, str(tool)], tmp_path)
+        assert result.returncode == 0
+        assert "persons[0]{name}:" in result.stdout
+        assert "help[2]:" in result.stdout
+
+
+def test_person_tools_report_versions(tmp_path: Path) -> None:
+    for tool in (INIT_PERSON, GET_TRANSIT):
+        result = _run_tool([sys.executable, str(tool), "--version"], tmp_path)
+        assert result.returncode == 0
+        assert "get-transit" in result.stdout or "init-person" in result.stdout
 
 
 def test_transit_tool_reports_missing_records_as_user_errors(
@@ -189,5 +220,66 @@ def test_transit_tool_reports_missing_records_as_user_errors(
         tmp_path,
     )
 
-    assert result.returncode == 2
-    assert "persons/Ada" in result.stderr
+    assert result.returncode == 1
+    assert "error:" in result.stdout
+    assert "persons/Ada" in result.stdout
+
+
+def test_transit_tool_renders_aggregates_and_planets(tmp_path: Path) -> None:
+    created = _run_tool(
+        [
+            sys.executable,
+            str(INIT_PERSON),
+            "--name",
+            "Ada",
+            "--dob",
+            "1990-01-01T12:00:00+05:30",
+            "--latitude",
+            "28.6139",
+            "--longitude",
+            "77.2090",
+        ],
+        tmp_path,
+    )
+    assert created.returncode == 0, created.stdout
+    assert "status: created" in created.stdout
+
+    transit = _run_tool(
+        [
+            sys.executable,
+            str(GET_TRANSIT),
+            "--name",
+            "Ada",
+            "--date",
+            "2026-07-28T12:00:00+05:30",
+        ],
+        tmp_path,
+    )
+    assert transit.returncode == 0, transit.stdout
+    assert "planets: 9" in transit.stdout
+    assert "retrograde:" in transit.stdout
+    header = "planets[9]{planet,house,sign,degree,dir,nakshatra,pada,natal}:"
+    assert header in transit.stdout
+    assert "houses[12]{house,sign,lord,planets}:" in transit.stdout
+    assert "help[2]:" in transit.stdout
+
+
+def test_init_person_reports_reuse_on_second_identical_run(
+    tmp_path: Path,
+) -> None:
+    command = [
+        sys.executable,
+        str(INIT_PERSON),
+        "--name",
+        "Ada",
+        "--dob",
+        "1990-01-01T12:00:00+05:30",
+        "--latitude",
+        "28.6139",
+        "--longitude",
+        "77.2090",
+    ]
+    first = _run_tool(command, tmp_path)
+    assert first.returncode == 0 and "status: created" in first.stdout
+    second = _run_tool(command, tmp_path)
+    assert second.returncode == 0 and "status: reused" in second.stdout
