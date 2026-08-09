@@ -52,14 +52,29 @@ def test_reading_plugin_does_not_ship_a_python_evaluator() -> None:
     )
 
 
-def test_specialist_skills_route_to_shared_and_topic_judgement() -> None:
-    topic_references = SKILLS / "parashari-judgement/references/topics"
-
+def test_specialist_skills_route_to_shared_framework_and_own_rubric() -> None:
     for topic in TOPICS:
         skill = (SKILLS / topic / "SKILL.md").read_text(encoding="utf-8")
-        assert "../parashari-judgement/SKILL.md" in skill
-        assert f"../parashari-judgement/references/topics/{topic}.md" in skill
-        assert (topic_references / f"{topic}.md").is_file()
+        assert "../../shared/process.md" in skill
+        assert "../../shared/hierarchy.md" in skill
+        assert "../../shared/artifacts.md" in skill
+        assert "../../shared/sources.md" in skill
+        assert "references/topic.md" in skill
+        assert "../parashari-judgement" not in skill
+        assert (SKILLS / topic / "references" / "topic.md").is_file()
+
+
+def test_specialist_skills_do_not_reference_another_skill() -> None:
+    for directory in SKILLS.iterdir():
+        if not directory.is_dir():
+            continue
+        if not (directory / "SKILL.md").is_file():
+            continue
+        skill = (directory / "SKILL.md").read_text(encoding="utf-8")
+        for other in SKILLS.iterdir():
+            if other == directory or not (other / "SKILL.md").is_file():
+                continue
+            assert f"../{other.name}/" not in skill
 
 
 def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays() -> None:
@@ -67,12 +82,11 @@ def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays() -
         SKILLS / "relationship-compatibility/SKILL.md"
     ).read_text(encoding="utf-8")
     compatibility_topic = (
-        SKILLS
-        / "parashari-judgement/references/topics/relationship-compatibility.md"
+        SKILLS / "relationship-compatibility/references/topic.md"
     ).read_text(encoding="utf-8")
     marriage = (SKILLS / "marriage/SKILL.md").read_text(encoding="utf-8")
     marriage_topic = (
-        SKILLS / "parashari-judgement/references/topics/marriage.md"
+        SKILLS / "marriage/references/topic.md"
     ).read_text(encoding="utf-8")
 
     assert "bidirectional cross-chart\nhouse-lord overlays" in compatibility

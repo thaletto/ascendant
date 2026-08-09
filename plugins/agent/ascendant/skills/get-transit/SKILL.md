@@ -27,8 +27,9 @@ Leave out `--date` for the current moment. Use the requested chart division when
 ## Result
 
 Return the script's factual report with its saved-chart and computed-moment
-citations. Interpret it only after reading the shared `parashari-judgement`
-process and the selected topic hierarchy.
+citations. Interpret the dated transit positions only after reading the shared
+[`../../shared/process.md`](../../shared/process.md) and the matching skill's
+topic rubric.
 
 The report shows:
 

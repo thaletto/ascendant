@@ -62,9 +62,9 @@ create chart or transit data; they do not decide meaning.
 Each material conclusion cites its saved artifact and its exact external source
 locator. Developer-authored rules without an external locator are labeled
 `Ascendant methodology`. The shared hierarchy lives in
-[`hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md);
-topic-specific rubrics live under
-[`references/topics/`](https://github.com/thaletto/ascendant/tree/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics).
+[`shared/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/hierarchy.md);
+each specialist skill carries its own topic-specific rubric under
+`references/topic.md` in its skill directory.
 
 ## What it does not yet encode
 

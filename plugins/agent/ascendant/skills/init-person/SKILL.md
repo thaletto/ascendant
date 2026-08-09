@@ -32,4 +32,5 @@ without rewriting `CONTEXT.md` or chart artifacts.
 After it completes, read `provenance.json` and the generated files before
 answering the user's astrology question. Cite the resulting record and
 provenance for every factual statement about the saved chart; use the shared
-`parashari-judgement` process and topic hierarchy for interpretation.
+[`../../shared/process.md`](../../shared/process.md) and the matching skill's
+topic rubric for interpretation.

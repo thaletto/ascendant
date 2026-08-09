@@ -80,14 +80,16 @@ Krishnamurti ayanamsa.
 - [`ascendant/types.py`](https://github.com/thaletto/ascendant/blob/main/ascendant/types.py)
   defines chart, planet, nakshatra, dasha, and division types.
 - [`parashari-judgement/SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/SKILL.md)
-  defines the agent's required workflow.
-- [`hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/hierarchy.md)
+  defines the general reading skill.
+- [`shared/process.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/process.md)
+  defines the agent's required workflow for every reading.
+- [`shared/hierarchy.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/hierarchy.md)
   defines the shared `parashari_raman_v2` evidence layers, factor ranks, and
   conflict rules.
-- [`references/topics/`](https://github.com/thaletto/ascendant/tree/main/plugins/agent/ascendant/skills/parashari-judgement/references/topics)
-  contains the developer-owned topic rubrics.
-- [`sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/parashari-judgement/references/sources.md)
+- [`shared/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/shared/sources.md)
   maps citation identifiers to exact chapter and verse locators.
+- Each specialist skill directory (for example `skills/career/`) holds its own
+  topic rubric under `references/topic.md`.
 
 When a learning page and the current source code differ about supported output,
 the checked-out source and released package version are authoritative for that
