@@ -13,11 +13,13 @@ If these locations do not exist, proceed silently. Do not suggest creating them 
 
 This is a single-context repository:
 
+```
 /
 ├── CONTEXT.md
 ├── docs/
 │   └── adr/
 └── src/
+```
 
 ## Use the glossary's vocabulary
 
