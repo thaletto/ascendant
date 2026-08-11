@@ -19,8 +19,9 @@ This is a single-context repository:
 ```
 /
 ├── CONTEXT.md
-└── docs/
-    └── adr/
+├── docs/
+│   └── adr/
+└── src/
 ```
 
 ## Use the glossary's vocabulary
