@@ -1,6 +1,6 @@
 ---
 title: "Save birth details"
-description: "Save a person's birth details and prepare reusable charts, timing, yoga, and SAV information used by the astrology skills."
+description: "Save a person's birth details and prepare reusable chart, Jaimini, timing, yoga, and SAV information used by the astrology skills."
 ---
 
 > Generated from the canonical [`SKILL.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/init-person/SKILL.md). Edit the source specification, not this page.
@@ -20,13 +20,16 @@ python3 <path-to-init-person-skill>/scripts/init-person.py \
 The command creates `persons/<name>/`, saves the original details, and prepares:
 
 - divisional charts under `charts/`
+- the named seven-karaka Jaimini core in `jaimini.json`
 - planetary periods in `dasha.json`
 - yoga results in `yogas.json`
 - the complete Ashtakavarga/Sarvashtakavarga result in `sav.json`
 
-Running it again with the same details reuses the existing record. If an older record is missing `sav.json`, the command backfills it in place. If the same name is used with different birth details, a numeric suffix is appended to the directory name.
-Matching records with `parashari_raman_v1` provenance are upgraded to v2
-without rewriting `CONTEXT.md` or chart artifacts.
+Running it again with the same details reuses the existing record. Matching
+v1 or v2 records derive `jaimini.json` from their saved D1/D9 data and upgrade
+to `parashari_raman_jaimini_v3` without rewriting their context or existing
+calculation artifacts. If the same name is used with different birth details,
+a numeric suffix is appended to the directory name.
 
 The output is structured (TOON): an `init-person:` block with the record name,
 `status` (`created` or `reused`), directory, chart count, and rule pack, plus a

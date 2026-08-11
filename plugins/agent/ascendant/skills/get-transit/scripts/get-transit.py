@@ -6,10 +6,11 @@ import logging
 import sys
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import TypeAlias, cast, get_args
-
 from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
+from typing import NoReturn, TypeAlias, cast, get_args
+
+from typing_extensions import override
 
 from ascendant import Ascendant
 from ascendant.person_record import PersonRecordError, PersonRecordStore
@@ -38,7 +39,8 @@ class UsageError(Exception):
 
 
 class ArgumentParser(argparse.ArgumentParser):
-    def error(self, message: str) -> None:
+    @override
+    def error(self, message: str) -> NoReturn:
         raise UsageError(message)
 
 
@@ -46,14 +48,14 @@ class ArgumentParser(argparse.ArgumentParser):
 class TransitQuery:
     name: str
     date: datetime
-    division: int
+    division: ALLOWED_DIVISIONS
 
 
 @dataclass
 class Arguments:
-    name: object = None
-    date: object = None
-    division: object = None
+    name: str | None = None
+    date: str | None = None
+    division: int | str | None = None
 
 
 def _display_path() -> str:
@@ -130,8 +132,10 @@ def _toon_blocks() -> str:
     lines = [
         "get-transit:",
         f"  bin: {_display_path()}",
-        "  description: Show where the planets are now, or at a requested date, "
-        "compared with a person's birth chart",
+        (
+            "  description: Show where the planets are now, or at a requested "
+            + "date, compared with a person's birth chart"
+        ),
         f"  persons: {len(persons)}",
         f"persons[{len(persons)}]{{name}}:",
     ]
@@ -231,33 +235,38 @@ def _error(message: str, exit_code: int, help_lines: list[str]) -> str:
 def build_query(args: Arguments) -> TransitQuery:
     if args.name is None:
         raise UsageError("missing required flag --name")
-    name = str(args.name)
+    name = args.name
     if not name or name in {".", ".."} or Path(name).name != name:
         raise UsageError("name must identify one direct persons/<name> record")
-    if args.division is not None:
-        division = int(args.division)
-        if division not in DIVISIONS:
-            raise UsageError(f"division must be one of {DIVISIONS}, got {division}")
-    else:
-        division = 1
+    division = int(args.division) if args.division is not None else 1
+    if division not in DIVISIONS:
+        raise UsageError(f"division must be one of {DIVISIONS}, got {division}")
     if args.date is None:
         date = datetime.now(UTC)
     else:
         try:
-            date = datetime.fromisoformat(str(args.date))
+            date = datetime.fromisoformat(args.date)
         except ValueError as error:
             raise UsageError(str(error)) from error
         if date.tzinfo is None:
             date = date.replace(tzinfo=UTC)
-    return TransitQuery(name=name, date=date, division=division)
+    return TransitQuery(
+        name=name,
+        date=date,
+        division=cast(ALLOWED_DIVISIONS, division),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = ArgumentParser(description="Show current or dated transit positions.")
     _ = parser.add_argument("--name", help="Native's display name")
     _ = parser.add_argument("--date", help="ISO 8601 moment; defaults to now (UTC)")
-    _ = parser.add_argument("--division", type=int, help=f"Divisional chart number; allowed: {DIVISIONS}")
-    _ = parser.add_argument("--version", action="version", version=f"get-transit {tool_version()}")
+    _ = parser.add_argument(
+        "--division", type=int, help=f"Divisional chart number; allowed: {DIVISIONS}"
+    )
+    _ = parser.add_argument(
+        "--version", action="version", version=f"get-transit {tool_version()}"
+    )
 
     try:
         args = parser.parse_args(argv, namespace=Arguments())
@@ -294,9 +303,13 @@ def main(argv: list[str] | None = None) -> int:
     except (ValueError, TypeError) as error:
         print(_error(str(error), 1, ["Run `get-transit.py --help` for usage"]))
         return 1
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         LOGGER.exception("Failed to render transit")
-        print(_error(f"internal error: {error}", 1, ["Run `get-transit.py --help` for usage"]))
+        print(
+            _error(
+                f"internal error: {error}", 1, ["Run `get-transit.py --help` for usage"]
+            )
+        )
         return 1
     return 0
 

@@ -27,15 +27,16 @@ The skill pack includes executable setup and transit flows plus guidance for car
 
 ## What system the Ascendant skills use
 
-Ascendant's interpretation skills use a versioned **Parashari–Raman** workflow
-named `parashari_raman_v2`. The calculator uses the **sidereal zodiac**, with
+Ascendant's interpretation skills use a versioned **Parashari–Jaimini** workflow
+named `parashari_raman_jaimini_v3`. The calculator uses the **sidereal zodiac**, with
 **Lahiri ayanamsa** and **Whole Sign houses** as its defaults. A reading begins
-with the D1 natal chart, adds the relevant divisional chart when the topic
-requires one, checks Vimshottari Mahadasha and Antardasha, and then uses dated
-transits and Sarvashtakavarga as corroborating evidence.
+with separate Parashari and named seven-karaka Jaimini natal judgments. The two
+are compared as co-primary evidence before the relevant divisional chart,
+Vimshottari periods, dated transits, and Sarvashtakavarga are considered.
 
-The workflow is deliberately narrower than the whole Parashari tradition. It
-does not silently switch to Jaimini or KP rules. The agent reads saved
+The workflow is deliberately narrower than either complete tradition. It uses
+the declared `jaimini_srao_7_core_v1` method and does not silently switch
+variants or add Chara Dasha or KP rules. The agent reads saved
 artifacts directly, applies developer-owned evidence and factor hierarchies,
 and cites each material conclusion with its artifact pointer and governing
 source or Ascendant methodology rule. Choosing a Krishnamurti ayanamsa in the
@@ -67,6 +68,7 @@ navamsa = astro.get_chart(division=9)
 current_dasha = astro.get_current_dasha()
 yogas = astro.get_yogas()
 ashtakavarga = astro.get_sav()
+jaimini = astro.get_jaimini()
 ```
 
 Provide the complete birth details explicitly. The results are ordinary Python dictionaries and typed structures that you can inspect, validate, store, or cite in a response.
@@ -80,6 +82,7 @@ Provide the complete birth details explicitly. The results are ordinary Python d
 | `get_current_dasha(date=None)` | The Mahadasha and Antardasha active on a date |
 | `get_yogas()` | Structured yoga presence, strength, type, and details |
 | `get_sav()` | Bhinna, Sarva, reduced scores, and Shodhya Pinda |
+| `get_jaimini()` | Seven Chara Karakas, Rashi Drishti, Karakamsha, Arudha Padas, Upapada, and raw Argala |
 
 ## Configure the calculation model
 
@@ -91,4 +94,5 @@ values, validation, and reproducible examples.
 Continue with [Agent workflows](/docs/agents), [Learn astrology](/docs/astrology),
 or the Python library guides for [charts](/docs/library/charts),
 [dashas](/docs/library/dasha), [yogas](/docs/library/yoga), and
-[Ashtakavarga](/docs/library/ashtakavarga).
+[Ashtakavarga](/docs/library/ashtakavarga), or
+[Jaimini core](/docs/library/jaimini).

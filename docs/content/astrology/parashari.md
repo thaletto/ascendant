@@ -43,7 +43,7 @@ house-by-house discipline of B. V. Raman:
 This sequence keeps natal structure separate from timing and prevents a single
 transit from becoming the whole reading.
 
-## What `parashari_raman_v2` means
+## How Parashari participates in `parashari_raman_jaimini_v3`
 
 The agent workflow is a **curated interpretive hierarchy**, not a complete
 digital edition of BPHS. It separates two kinds of precedence:
@@ -59,9 +59,14 @@ explicit tie-breaker. The agent inspects saved artifacts directly, applies the
 hierarchy, and explains the result in natural prose. Calculation scripts
 create chart or transit data; they do not decide meaning.
 
-Each material conclusion cites its saved artifact and its exact external source
-locator. Developer-authored rules without an external locator are labeled
-`Ascendant methodology`. Each specialist skill carries the `parashari_raman_v2`
+The current v3 workflow retains this Parashari sequence and judges it before
+the topic's declared Jaimini factor. The two natal results are co-primary:
+agreement strengthens confidence and disagreement remains mixed. Jaimini sign
+aspects never replace Parashari planetary aspects inside this sequence.
+
+Each material conclusion remains traceable to its saved artifact and exact
+source locator. Developer-authored rules without an external locator are
+labeled `Ascendant methodology`. Each specialist skill carries the v3
 hierarchy and process under its own `references/hierarchy.md` and
 `references/process.md`, so a skills.sh install of that skill always includes
 its knowledge; the topic-specific rubric lives at `references/topic.md`.

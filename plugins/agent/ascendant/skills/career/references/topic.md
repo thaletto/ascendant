@@ -16,3 +16,14 @@ Load transit positions only for a time-bound question.
 
 An active period or transit may time a career promise but cannot create one
 that the natal and D10 layers do not support.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-CAR-AMK` | Amatyakaraka's D1 sign, its Rashi Drishti, and its relationship to Atmakaraka | Primary | `JS-1.1.2-4`, `JS-1.1.11-18` |
+| `JM-CAR-KK10` | Tenth sign from Karakamsha, its occupants, and Rashi Drishti | Primary | `JS-1.2`; `AJV3` |
+| `JM-CAR-AL` | Arudha Lagna and its supporting or obstructing Argala | Corroborating | `JS-1.1.5-10`, `JS-1.1.29-31` |
+
+Compare the Jaimini career result with the Parashari D1 result before adding
+D10 or timing. Use Amatyakaraka as the work-role significator, not as a job title.

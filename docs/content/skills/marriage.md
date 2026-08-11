@@ -12,7 +12,7 @@ Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plug
 [`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/sources.md), and topic rubric
 [`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/marriage/references/topic.md).
 
-Apply the shared process to the user's natural partnership question. Use the
+Apply this skill's process to the user's natural partnership question. Use the
 compatibility skill when the question asks about another named person's chart
 or feelings. When two charts are compared, apply the compatibility skill's
 bidirectional cross-chart overlays for H7, H5, and H8 lords in both D1 and the

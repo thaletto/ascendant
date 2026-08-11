@@ -39,3 +39,15 @@ in D9 when the topic requires D9. For a marriage comparison, the selected
 houses are H7, H5, and H8. These overlays corroborate the individual natal
 house/lord judgments; they do not replace them or establish feelings, consent,
 availability, or relationship status.
+
+## Jaimini co-primary comparison
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-REL-AKDK` | Each person's Atmakaraka and Darakaraka signs, compared in both directions through Rashi Drishti | Primary | `JS-1.1.2-4`, `JS-1.1.11-18`; `AJV3` |
+| `JM-REL-UL` | Both Upapadas and their second and seventh signs, compared without collapsing the two charts | Primary | `JS-1.4.1-4`; `AJV3` |
+| `JM-REL-ARG` | Argala supporting or obstructing each selected sign in its own chart | Corroborating | `JS-1.1.5-10` |
+
+Keep every comparison bidirectional: A's factor influencing B is not evidence
+for the reverse. Agreement can describe symbolic ease; disagreement remains
+mixed. The result remains an astrological inference, never proof of feelings.

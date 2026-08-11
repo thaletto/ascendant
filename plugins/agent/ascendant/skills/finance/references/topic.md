@@ -16,3 +16,13 @@ Load transit positions only for a time-bound question.
 
 Describe financial patterns and planning context. Do not turn the hierarchy
 into investment, debt, tax, or profit advice.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-FIN-AL` | Arudha Lagna plus its second and eleventh signs, occupants, and Rashi Drishti | Primary | `JS-1.1.2-4`, `JS-1.1.29-31`; `AJV3` |
+| `JM-FIN-ARG` | Supporting and obstructing Argala to Arudha Lagna and those selected signs | Corroborating | `JS-1.1.5-10` |
+
+Use this layer for visible resource patterns and pressures. It does not supply
+a balance, return estimate, or recommendation.

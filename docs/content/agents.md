@@ -33,10 +33,10 @@ copy.
 
 1. Use `init-person` when the user provides a name, complete birth time with timezone, latitude, and longitude.
 2. Let the skill save generated records under `persons/<name>/`.
-3. Re-running matching v1 records upgrades their provenance to v2 while preserving `CONTEXT.md` and chart artifacts.
-4. Read the stored chart and Dasha data before interpreting it.
+3. Re-running matching v1 or v2 records derives `jaimini.json`, upgrades their provenance to v3, and preserves existing context and calculation artifacts.
+4. Read the stored chart, Jaimini core, and Dasha data before interpreting it.
 5. Use `get-transit` when the question depends on the current sky or a specific date.
-6. Apply the matching domain skill, cite the chart factors used, and keep advice within that skill's safety boundaries.
+6. Apply the matching domain skill, answer plainly, and keep its compact Evidence note and safety boundaries.
 
 This keeps your calculations reproducible and your interpretation visible for review instead of hiding it inside a model prompt.
 

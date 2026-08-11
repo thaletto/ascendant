@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import NotRequired, TypedDict, cast, get_args
 
 from ascendant.configuration import get_config
+from ascendant.jaimini import JAIMINI_METHOD, JaiminiResult, calculate_jaimini
 from ascendant.sav import AshtakavargaResult
 from ascendant.types import (
     ALLOWED_DIVISIONS,
@@ -21,8 +22,11 @@ from ascendant.types import (
 )
 
 _SIGNS = frozenset(get_args(RASHIS))
-_CURRENT_RULE_PACK = "parashari_raman_v2"
-_LEGACY_RULE_PACKS = frozenset(("parashari_raman_v1",))
+_CURRENT_SCHEMA_VERSION = 2
+_CURRENT_RULE_PACK = "parashari_raman_jaimini_v3"
+_LEGACY_RULE_PACKS = frozenset(
+    ("parashari_raman_v1", "parashari_raman_v2")
+)
 
 
 class PersonRecordError(ValueError):
@@ -60,6 +64,7 @@ class Provenance(TypedDict):
     ayanamsa: str
     house_system: str
     input_hash: NotRequired[str]
+    jaimini_method: NotRequired[str]
 
 
 @dataclass(frozen=True)
@@ -93,7 +98,9 @@ class PersonRecord:
         try:
             return float(fields["latitude"]), float(fields["longitude"])
         except KeyError as error:
-            raise PersonRecordError(f"CONTEXT.md is missing {error.args[0]}") from error
+            raise PersonRecordError(
+                f"CONTEXT.md is missing {error.args[0]}"
+            ) from error
         except ValueError as error:
             raise PersonRecordError(
                 "CONTEXT.md latitude and longitude must be decimal numbers"
@@ -106,11 +113,15 @@ class PersonRecord:
         for number in range(1, 13):
             value = raw_chart.get(str(number))
             if not isinstance(value, dict):
-                raise PersonRecordError(f"Chart has no valid house {number} in {path}")
+                raise PersonRecordError(
+                    f"Chart has no valid house {number} in {path}"
+                )
             raw_house = _mapping(cast(object, value), path)
             sign = raw_house.get("sign")
             if not isinstance(sign, str) or sign not in _SIGNS:
-                raise PersonRecordError(f"Chart has no valid house {number} in {path}")
+                raise PersonRecordError(
+                    f"Chart has no valid house {number} in {path}"
+                )
             chart[cast(HOUSES, number)] = cast(
                 HouseType,
                 cast(object, raw_house),
@@ -128,7 +139,9 @@ class PersonRecord:
         path = self.directory / "dasha.json"
         value = _read_json(path)
         if not isinstance(value, list):
-            raise PersonRecordError(f"Expected a dasha timeline list in {path}")
+            raise PersonRecordError(
+                f"Expected a dasha timeline list in {path}"
+            )
         items = cast(list[object], value)
         for item in items:
             if not isinstance(item, dict) or not all(
@@ -154,7 +167,9 @@ class PersonRecord:
                         "end",
                     )
                 ):
-                    raise PersonRecordError(f"Invalid antardasha entry in {path}")
+                    raise PersonRecordError(
+                        f"Invalid antardasha entry in {path}"
+                    )
         timeline = cast(DashasType, cast(object, value))
         try:
             _ = DashaTimeline(timeline)
@@ -173,19 +188,40 @@ class PersonRecord:
         return cast(AshtakavargaResult, cast(object, value))
 
     @property
+    def jaimini(self) -> JaiminiResult:
+        path = self.directory / "jaimini.json"
+        value = _mapping(_read_json(path), path)
+        if value.get("method") != JAIMINI_METHOD:
+            raise PersonRecordError(f"Expected Jaimini method in {path}")
+        if not isinstance(value.get("chara_karakas"), list):
+            raise PersonRecordError(f"Expected Chara Karakas in {path}")
+        return cast(JaiminiResult, cast(object, value))
+
+    @property
     def provenance(self) -> Provenance | None:
         path = self.directory / "provenance.json"
         if not path.is_file():
             return None
         value = _mapping(_read_json(path), path)
         if not isinstance(value.get("schema_version"), int):
-            raise PersonRecordError(f"Expected a provenance schema version in {path}")
+            raise PersonRecordError(
+                f"Expected a provenance schema version in {path}"
+            )
         for field in ("rule_pack", "ayanamsa", "house_system"):
             if not isinstance(value.get(field), str):
-                raise PersonRecordError(f"Expected provenance field {field} in {path}")
+                raise PersonRecordError(
+                    f"Expected provenance field {field} in {path}"
+                )
         input_hash = value.get("input_hash")
         if input_hash is not None and not isinstance(input_hash, str):
-            raise PersonRecordError(f"Expected provenance field input_hash in {path}")
+            raise PersonRecordError(
+                f"Expected provenance field input_hash in {path}"
+            )
+        jaimini_method = value.get("jaimini_method")
+        if jaimini_method is not None and not isinstance(jaimini_method, str):
+            raise PersonRecordError(
+                f"Expected provenance field jaimini_method in {path}"
+            )
         return cast(Provenance, cast(object, value))
 
 
@@ -233,7 +269,9 @@ class PersonRecordStore:
         person_hash = person.input_hash
         suffix = 1
         while True:
-            record_name = person.name if suffix == 1 else f"{person.name}_{suffix}"
+            record_name = (
+                person.name if suffix == 1 else f"{person.name}_{suffix}"
+            )
             directory = self.root / record_name
             hash_file = directory / "hash.txt"
             if not directory.exists():
@@ -242,10 +280,13 @@ class PersonRecordStore:
                 break
             if (
                 hash_file.is_file()
-                and hash_file.read_text(encoding="utf-8").strip() == person_hash
+                and hash_file.read_text(encoding="utf-8").strip()
+                == person_hash
             ):
-                if self._is_complete(directory):
-                    self._migrate_rule_pack(directory)
+                if self._has_saved_calculations(directory):
+                    if self._has_known_rule_pack(directory):
+                        self._backfill_jaimini(directory)
+                        self._migrate_rule_pack(directory)
                     return PersonRecord(record_name, directory)
                 break
             suffix += 1
@@ -297,13 +338,15 @@ class PersonRecordStore:
         yogas = ascendant.get_yogas()
         _write_json(directory / "yogas.json", yogas)
         _write_json(directory / "sav.json", ascendant.get_sav())
+        _write_json(directory / "jaimini.json", ascendant.get_jaimini())
 
         config = get_config()
         _write_json(
             directory / "provenance.json",
             {
-                "schema_version": 1,
+                "schema_version": _CURRENT_SCHEMA_VERSION,
                 "rule_pack": _CURRENT_RULE_PACK,
+                "jaimini_method": JAIMINI_METHOD,
                 "ayanamsa": config.ayanamsa.value,
                 "house_system": config.house_system.value,
                 "input_hash": person_hash,
@@ -322,13 +365,38 @@ class PersonRecordStore:
     def _migrate_rule_pack(directory: Path) -> None:
         path = directory / "provenance.json"
         provenance = _mapping(_read_json(path), path)
-        if provenance.get("rule_pack") not in _LEGACY_RULE_PACKS:
+        known_rule_packs = _LEGACY_RULE_PACKS | {_CURRENT_RULE_PACK}
+        if provenance.get("rule_pack") not in known_rule_packs:
             return
+        if (
+            provenance.get("schema_version") == _CURRENT_SCHEMA_VERSION
+            and provenance.get("rule_pack") == _CURRENT_RULE_PACK
+            and provenance.get("jaimini_method") == JAIMINI_METHOD
+        ):
+            return
+        provenance["schema_version"] = _CURRENT_SCHEMA_VERSION
         provenance["rule_pack"] = _CURRENT_RULE_PACK
+        provenance["jaimini_method"] = JAIMINI_METHOD
         _write_json(path, provenance)
 
     @staticmethod
-    def _is_complete(directory: Path) -> bool:
+    def _backfill_jaimini(directory: Path) -> None:
+        path = directory / "jaimini.json"
+        if path.is_file():
+            return
+        record = PersonRecord(directory.name, directory)
+        _write_json(path, calculate_jaimini(record.d1, record.chart(9)))
+
+    @staticmethod
+    def _has_known_rule_pack(directory: Path) -> bool:
+        path = directory / "provenance.json"
+        provenance = _mapping(_read_json(path), path)
+        return provenance.get("rule_pack") in (
+            _LEGACY_RULE_PACKS | {_CURRENT_RULE_PACK}
+        )
+
+    @staticmethod
+    def _has_saved_calculations(directory: Path) -> bool:
         divisions = cast(
             tuple[ALLOWED_DIVISIONS, ...],
             get_args(ALLOWED_DIVISIONS),
@@ -339,7 +407,10 @@ class PersonRecordStore:
             directory / "yogas.json",
             directory / "sav.json",
             directory / "provenance.json",
-            *(directory / "charts" / f"D{division}.json" for division in divisions),
+            *(
+                directory / "charts" / f"D{division}.json"
+                for division in divisions
+            ),
         )
         return all(path.is_file() for path in required)
 

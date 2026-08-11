@@ -23,3 +23,14 @@ bidirectional cross-chart overlay: locate each person's H7, H5, and H8 lords
 in the other person's D1, recording the other-person house, sign, dignity, and
 occupants, and repeat the overlay in D9. Treat these overlays as corroborating
 evidence for the individual H7/H5/H8 judgments.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-MAR-DK` | Darakaraka's D1 sign, condition, and Rashi Drishti | Primary | `JS-1.1.2-4`, `JS-1.1.18` |
+| `JM-MAR-UL` | Upapada, its second and seventh signs, their occupants, and qualifying Rashi Drishti | Primary | `JS-1.4.1-4` |
+| `JM-MAR-AKDK` | Rashi Drishti between the Atmakaraka and Darakaraka signs | Corroborating | `JS-1.1.2-4`, `JS-1.1.11-18`; `AJV3` |
+
+Judge Darakaraka and Upapada together. Neither factor alone establishes a
+marriage, another person's feelings, consent, availability, or commitment.

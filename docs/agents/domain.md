@@ -4,10 +4,13 @@ How the engineering skills should consume this repository's domain documentation
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repository root.
-- **`docs/adr/`** — read ADRs that affect the area about to be changed.
+- **`CONTEXT.md`** at the repository root before naming domain concepts.
+- **`docs/adr/`** before proposing or implementing an architecture change; read
+  the ADRs that affect the area about to be changed.
 
-If these locations do not exist, proceed silently. Do not suggest creating them upfront. Domain-modeling and architecture workflows create them lazily when terms or decisions are resolved.
+When either location is absent, continue the current workflow. Create a
+`CONTEXT.md` only when domain-modeling resolves a term, and create an ADR only
+when an architecture decision meets the ADR criteria.
 
 ## File structure
 

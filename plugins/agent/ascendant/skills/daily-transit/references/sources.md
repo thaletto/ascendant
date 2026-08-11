@@ -1,4 +1,4 @@
-# Parashari-Raman v2 source register
+# Parashari-Jaimini v3 source register
 
 The topic rubrics cite exact chapter and verse locators when an external source
 governs a rule. A rule labeled `Ascendant methodology` is an intentional
@@ -33,6 +33,21 @@ listed in the plugin's bibliography.
 | `BPHS-46.3,14` | [Chapter 46, verses 3 and 14](https://sanskritdocuments.org/doc_z_misc_sociology_astrology/par4650.html) | Vimshottari as the principal nakshatra dasha |
 | `BPHS-72.1-7` | [Chapter 72, verses 1-7](https://sanskritdocuments.org/doc_z_misc_sociology_astrology/par7180.html) | Sarvashtakavarga totals and interpretation |
 
+## Jaimini Sutras
+
+Use B. Suryanarain Rao's translation and commentary as the named basis for
+`jaimini_srao_7_core_v1`. A citation to commentary must say `Rao commentary`;
+do not present it as the sutra text.
+
+| ID | Locator | Use |
+| --- | --- | --- |
+| `JS-1.1.2-4` | [Adhyaya 1, Pada 1, sutras 2-4](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Rashi Drishti |
+| `JS-1.1.5-10` | [Adhyaya 1, Pada 1, sutras 5-10](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Argala and obstruction |
+| `JS-1.1.11-18` | [Adhyaya 1, Pada 1, sutras 11-18](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Seven Chara Karakas and degree order |
+| `JS-1.1.29-31` | [Adhyaya 1, Pada 1, sutras 29-31](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Arudha projection |
+| `JS-1.2` | [Adhyaya 1, Pada 2](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Karakamsha and topic indications |
+| `JS-1.4.1-4` | [Adhyaya 1, Pada 4, sutras 1-4](https://indian-vedic-astrology.com/classic/jaimini-sutras.pdf) | Upapada and qualifying influences |
+
 ## Bibliography
 
 - `BPHS-RS-1984`: *Brihat Parashara Hora Shastra*, translated by
@@ -41,3 +56,6 @@ listed in the plugin's bibliography.
   Motilal Banarsidass. Use this only where a topic rule supplies a volume and
   page locator.
 - `PRV2`: Ascendant's versioned hierarchy and topic rubrics.
+- `JS-BSR-1949`: Jaimini, *Sri Jaiminisutras*, translated and edited by
+  B. Suryanarain Rao, Raman Publications, 3rd edition, 1949.
+- `AJV3`: Ascendant's Parashari-Jaimini co-primary hierarchy and topic rubrics.

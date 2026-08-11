@@ -12,5 +12,5 @@ Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plug
 [`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/sources.md), and topic rubric
 [`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/health/references/topic.md).
 
-Apply the shared process to the user's natural health question. Answer with
+Apply this skill's process to the user's natural health question. Answer with
 material chart patterns and timing while keeping the result non-diagnostic.

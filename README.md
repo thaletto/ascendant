@@ -1,7 +1,8 @@
 # Ascendant
 
 Ascendant is a Python package for calculating Vedic astrology charts,
-Vimshottari Dashas, Yoga combinations, and Ashtakavarga values.
+Vimshottari Dashas, Yoga combinations, Ashtakavarga values, and a named
+seven-karaka Jaimini core.
 
 It uses Swiss Ephemeris through `pyswisseph` and supports typed configuration
 for ayanamsa and house-system defaults.
@@ -52,6 +53,9 @@ current_dasha = astro.get_current_dasha()
 # Ashtakavarga and Sarvashtakavarga
 ashtakavarga = astro.get_sav()
 sarvashtakavarga = ashtakavarga["sarva"]
+
+# Seven Chara Karakas, Rashi Drishti, Karakamsha, Arudhas, and Argala
+jaimini = astro.get_jaimini()
 ```
 
 By default, Ascendant uses the Lahiri ayanamsa and Whole Sign houses.
@@ -64,6 +68,7 @@ By default, Ascendant uses the Lahiri ayanamsa and Whole Sign houses.
 - Current Dasha lookup for a supplied date
 - Registered Vedic Yoga evaluation with structured results
 - Bhinnashtakavarga, Sarvashtakavarga, Shodhana, and Shodhya Pinda
+- Named seven-karaka Jaimini core derived from D1 and D9
 - Typed, immutable calculation configuration
 
 ## Configuration
@@ -168,6 +173,7 @@ The repository includes guides for:
 
 - [Divisional charts](https://github.com/thaletto/ascendant/blob/main/docs/content/library/charts.md)
 - [Dasha systems](https://github.com/thaletto/ascendant/blob/main/docs/content/library/dasha.md)
+- [Jaimini core](https://github.com/thaletto/ascendant/blob/main/docs/content/library/jaimini.md)
 - [Yoga combinations](https://github.com/thaletto/ascendant/blob/main/docs/content/library/yoga.md)
 - [Configuration](https://github.com/thaletto/ascendant/blob/main/docs/content/configuration.md)
 

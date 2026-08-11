@@ -25,3 +25,18 @@ Then apply the shared layers:
 
 Describe the saved person's family patterns. Do not infer a relative's private
 state from one person's chart.
+
+## Jaimini co-primary factors
+
+Select only the role the user asked about:
+
+| Role | Rule | Factor | Authority |
+| --- | --- | --- | --- |
+| Mother | `JM-FAM-MK` | Matrikaraka, its D1 sign, and Rashi Drishti | `JS-1.1.15` |
+| Sibling | `JM-FAM-BK` | Bhratrikaraka, its D1 sign, and Rashi Drishti | `JS-1.1.14` |
+| Child | `JM-FAM-PK` | Putrakaraka, its D1 sign, and Rashi Drishti | `JS-1.1.16` |
+| Household | `JM-FAM-A4` | Fourth-house Arudha and its Argala | `JS-1.1.5-10`, `JS-1.1.29-31`; `AJV3` |
+
+The selected seven-karaka method has no Pitrikaraka. For a father question,
+retain the Parashari H9 and its declared corroboration rather than inventing a
+Jaimini Chara Karaka.

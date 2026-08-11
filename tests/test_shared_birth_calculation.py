@@ -36,7 +36,7 @@ def test_ascendant_calculates_one_birth_chart(
     monkeypatch.setattr(swe, "calc_ut", counting_calc_ut)
     monkeypatch.setattr(swe, "houses_ex", counting_houses_ex)
 
-    _ = Ascendant(
+    astrology = Ascendant(
         year=1990,
         month=1,
         day=1,
@@ -49,5 +49,6 @@ def test_ascendant_calculates_one_birth_chart(
         ayanamsa="Lahiri",
         house_system="Whole Sign",
     )
+    _ = astrology.get_jaimini()
 
     assert calculations == {"planets": 8, "houses": 1}

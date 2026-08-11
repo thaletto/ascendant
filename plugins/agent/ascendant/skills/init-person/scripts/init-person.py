@@ -6,9 +6,11 @@ import json
 import sys
 from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
-
 from importlib.metadata import PackageNotFoundError, version
+from pathlib import Path
+from typing import NoReturn, cast
+
+from typing_extensions import override
 
 from ascendant.person_record import (
     PersonRecordError,
@@ -31,16 +33,17 @@ class UsageError(Exception):
 
 
 class ArgumentParser(argparse.ArgumentParser):
-    def error(self, message: str) -> None:
+    @override
+    def error(self, message: str) -> NoReturn:
         raise UsageError(message)
 
 
 @dataclass
 class Arguments:
-    name: object = None
-    dob: object = None
-    latitude: object = None
-    longitude: object = None
+    name: str | None = None
+    dob: str | None = None
+    latitude: float | str | None = None
+    longitude: float | str | None = None
 
 
 def _display_path() -> str:
@@ -63,8 +66,10 @@ def _toon_blocks() -> str:
     lines = [
         "init-person:",
         f"  bin: {_display_path()}",
-        "  description: Save a person's birth details and prepare reusable "
-        "charts, timing, yoga, and SAV information",
+        (
+            "  description: Save a person's birth details "
+            + "and prepare reusable chart, Jaimini, timing, yoga, and SAV information"
+        ),
         f"  persons: {len(persons)}",
         f"persons[{len(persons)}]{{name}}:",
     ]
@@ -76,8 +81,10 @@ def _toon_blocks() -> str:
         [
             "",
             "help[2]:",
-            "  Run `init-person.py --name <name> --dob <ISO8601> --latitude "
-            "<lat> --longitude <lon>`",
+            (
+                "  Run `init-person.py --name <name> --dob <ISO8601> "
+                + "--latitude <lat> --longitude <lon>`"
+            ),
             "  Run `get-transit.py --name <name>` once a person is saved",
         ]
     )
@@ -101,14 +108,17 @@ def _signature_from_provenance(record_directory: Path) -> str:
     if not provenance_path.is_file():
         return ""
     try:
-        data = json.loads(provenance_path.read_text(encoding="utf-8"))
+        data = json.loads(  # pyright: ignore[reportAny]
+            provenance_path.read_text(encoding="utf-8")
+        )
     except (json.JSONDecodeError, OSError):
         return ""
     if not isinstance(data, dict):
         return ""
-    rule_pack = data.get("rule_pack", "")
-    ayanamsa = data.get("ayanamsa", "")
-    house_system = data.get("house_system", "")
+    provenance = cast(dict[str, object], data)
+    rule_pack = provenance.get("rule_pack", "")
+    ayanamsa = provenance.get("ayanamsa", "")
+    house_system = provenance.get("house_system", "")
     if not isinstance(rule_pack, str) or not rule_pack:
         return ""
     parts = [f"rule-pack: {rule_pack}"]
@@ -121,16 +131,18 @@ def _signature_from_provenance(record_directory: Path) -> str:
 
 def render_init(person: PersonRecordInput) -> str:
     store = PersonRecordStore()
-    existed = {
-        directory.name
-        for directory in store.root.iterdir()
-        if directory.is_dir()
-    } if store.root.is_dir() else set()
+    existed = (  # pyright: ignore[reportUnknownVariableType]
+        {directory.name for directory in store.root.iterdir() if directory.is_dir()}
+        if store.root.is_dir()
+        else set()
+    )
     record = store.initialize(person)
     status = "reused" if record.name in existed else "created"
 
     charts_dir = record.directory / "charts"
-    chart_files = list(sorted(charts_dir.glob("D*.json"))) if charts_dir.is_dir() else []
+    chart_files = (
+        sorted(charts_dir.glob("D*.json")) if charts_dir.is_dir() else []
+    )
     provenance = _signature_from_provenance(record.directory)
 
     lines = [
@@ -146,9 +158,14 @@ def render_init(person: PersonRecordInput) -> str:
         [
             "",
             "help[2]:",
-            f"  Run `get-transit.py --name {record.name}` for current positions",
-            f"  Run `get-transit.py --name {record.name} --date <ISO8601>` for a "
-            "dated moment",
+            (
+                f"  Run `get-transit.py --name {record.name}` "
+                + "for current positions"
+            ),
+            (
+                f"  Run `get-transit.py --name {record.name} "
+                + "--date <ISO8601>` for a dated moment"
+            ),
         ]
     )
     return "\n".join(lines)
@@ -157,7 +174,7 @@ def render_init(person: PersonRecordInput) -> str:
 def build_person(args: Arguments) -> PersonRecordInput:
     if args.name is None:
         raise UsageError("missing required flag --name")
-    name = str(args.name)
+    name = args.name
     if not name or name in {".", ".."} or Path(name).name != name:
         raise UsageError("name must identify one direct persons/<name> record")
     if args.dob is None:
@@ -168,7 +185,7 @@ def build_person(args: Arguments) -> PersonRecordInput:
         raise UsageError("missing required flag --longitude")
 
     try:
-        dob = datetime.fromisoformat(str(args.dob))
+        dob = datetime.fromisoformat(args.dob)
     except ValueError as error:
         raise UsageError(str(error)) from error
     try:
@@ -186,12 +203,20 @@ def build_person(args: Arguments) -> PersonRecordInput:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = ArgumentParser(description="Initialize a native's astrological data directory.")
+    parser = ArgumentParser(
+        description="Initialize a native's astrological data directory."
+    )
     _ = parser.add_argument("--name", help="Native's display name")
     _ = parser.add_argument("--dob", help="ISO 8601 birth moment with timezone offset")
-    _ = parser.add_argument("--latitude", type=float, help="Latitude in decimal degrees")
-    _ = parser.add_argument("--longitude", type=float, help="Longitude in decimal degrees")
-    _ = parser.add_argument("--version", action="version", version=f"init-person {tool_version()}")
+    _ = parser.add_argument(
+        "--latitude", type=float, help="Latitude in decimal degrees"
+    )
+    _ = parser.add_argument(
+        "--longitude", type=float, help="Longitude in decimal degrees"
+    )
+    _ = parser.add_argument(
+        "--version", action="version", version=f"init-person {tool_version()}"
+    )
 
     try:
         args = parser.parse_args(argv, namespace=Arguments())
@@ -217,7 +242,11 @@ def main(argv: list[str] | None = None) -> int:
         print(_error(str(error), 1, ["Run `init-person.py --help` for usage"]))
         return 1
     except Exception as error:  # noqa: BLE001
-        print(_error(f"internal error: {error}", 1, ["Run `init-person.py --help` for usage"]))
+        print(
+            _error(
+                f"internal error: {error}", 1, ["Run `init-person.py --help` for usage"]
+            )
+        )
         return 1
     return 0
 
