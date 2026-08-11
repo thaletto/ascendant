@@ -10,6 +10,6 @@ The skills speak in terms of five canonical triage roles. This file maps those r
 | `ready-for-human`          | `ready-for-human`    | Requires human implementation            |
 | `wontfix`                  | `wontfix`            | Will not be actioned                     |
 
-When a skill mentions a triage role, use the corresponding label string from this table.
-
-Edit the right-hand column to match the vocabulary used in Linear.
+When a workflow mentions a canonical triage role, apply the corresponding
+Linear label from this table. Preserve these strings as the repository's
+triage vocabulary; update this mapping if Linear adopts different labels.
