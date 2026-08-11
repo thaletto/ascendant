@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from ascendant import Ascendant, calculate_jaimini
-from ascendant.types import ChartType, PLANETS, PlanetType
+from ascendant import Ascendant
+from ascendant.jaimini import calculate_jaimini
+from ascendant.types import PLANETS, ChartType, PlanetType
 
 
 def _planet(chart: ChartType, name: PLANETS) -> PlanetType:
@@ -87,15 +88,10 @@ def test_public_facade_exposes_argala_without_a_numeric_score(
     assert "score" not in pisces
     assert result["argala"]["ketu"]["reference_sign"] == "Cancer"
     assert [
-        relation["sign"]
-        for relation in result["argala"]["ketu"]["supporting"]
+        relation["sign"] for relation in result["argala"]["ketu"]["supporting"]
     ] == ["Gemini", "Aries", "Virgo"]
-    assert result["argala"]["ketu"]["secondary_supporting"]["sign"] == (
-        "Pisces"
-    )
-    assert result["argala"]["ketu"]["secondary_obstructing"]["sign"] == (
-        "Scorpio"
-    )
+    assert result["argala"]["ketu"]["secondary_supporting"]["sign"] == ("Pisces")
+    assert result["argala"]["ketu"]["secondary_obstructing"]["sign"] == ("Scorpio")
 
 
 def test_exact_degree_tie_shares_role_and_uses_reverse_rahu_boundary(

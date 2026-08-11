@@ -118,7 +118,7 @@ def _degree_in_sign(longitude: float) -> float:
 
 
 def _arcseconds_in_sign(longitude: float) -> int:
-    return int(round((longitude % 30.0) * 3600.0))
+    return round((longitude % 30.0) * 3600.0)
 
 
 def _chara_karakas(d1: ChartType) -> list[CharaKarakaAssignment]:
@@ -133,10 +133,7 @@ def _chara_karakas(d1: ChartType) -> list[CharaKarakaAssignment]:
     role_index = 0
     for arcseconds in sorted(grouped, reverse=True):
         holders = grouped[arcseconds]
-        longitudes = [
-            cast(float, planets[planet]["longitude"])
-            for planet in holders
-        ]
+        longitudes = [cast(float, planets[planet]["longitude"]) for planet in holders]
         assignments.append(
             {
                 "role": KARAKA_ROLES[role_index],
@@ -144,11 +141,7 @@ def _chara_karakas(d1: ChartType) -> list[CharaKarakaAssignment]:
                 "degrees_in_sign": [
                     _degree_in_sign(longitude) for longitude in longitudes
                 ],
-                "basis": (
-                    "shared_degree"
-                    if len(holders) > 1
-                    else "degree_order"
-                ),
+                "basis": ("shared_degree" if len(holders) > 1 else "degree_order"),
             }
         )
         role_index += 1
@@ -282,10 +275,7 @@ def calculate_jaimini(d1: ChartType, d9: ChartType) -> JaiminiResult:
         "arudha_padas": arudha_padas,
         "upapada": arudha_padas["A12"],
         "argala": {
-            "by_sign": {
-                sign: _argala_for_sign(sign, occupants)
-                for sign in RASHIS
-            },
+            "by_sign": {sign: _argala_for_sign(sign, occupants) for sign in RASHIS},
             "ketu": _argala_for_sign(ketu_sign, occupants, reverse=True),
         },
     }

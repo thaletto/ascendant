@@ -134,7 +134,7 @@ def test_init_person_backfills_v3_provenance_without_rewriting_charts(
     d1 = tmp_path / "persons/Ada/charts/D1.json"
     original_d1 = d1.read_bytes()
     provenance = tmp_path / "persons/Ada/provenance.json"
-    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))
+    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))  # pyright: ignore[reportAny]
     assert provenance_data["schema_version"] == 2
     assert provenance_data["rule_pack"] == "parashari_raman_jaimini_v3"
     assert provenance_data["jaimini_method"] == "jaimini_srao_7_core_v1"
@@ -142,7 +142,7 @@ def test_init_person_backfills_v3_provenance_without_rewriting_charts(
 
     provenance_data["schema_version"] = 1
     provenance_data["rule_pack"] = "parashari_raman_v2"
-    provenance_data.pop("jaimini_method")
+    provenance_data.pop("jaimini_method")  # pyright: ignore[reportAny]
     (tmp_path / "persons/Ada/jaimini.json").unlink()
     _ = provenance.write_text(
         json.dumps(provenance_data, indent=2),
@@ -153,7 +153,7 @@ def test_init_person_backfills_v3_provenance_without_rewriting_charts(
     assert second.returncode == 0, second.stderr
     assert context.read_text(encoding="utf-8") == original_context
     assert d1.read_bytes() == original_d1
-    migrated = json.loads(provenance.read_text(encoding="utf-8"))
+    migrated = json.loads(provenance.read_text(encoding="utf-8"))  # pyright: ignore[reportAny]
     assert migrated["schema_version"] == 2
     assert migrated["rule_pack"] == "parashari_raman_jaimini_v3"
     assert migrated["jaimini_method"] == "jaimini_srao_7_core_v1"
