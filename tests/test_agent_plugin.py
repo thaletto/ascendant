@@ -62,15 +62,20 @@ def test_each_specialist_skill_carries_its_own_framework() -> None:
         assert (references / "process.md").is_file()
         assert (references / "hierarchy.md").is_file()
         assert (references / "artifacts.md").is_file()
+        assert (references / "jaimini-core.md").is_file()
         assert (references / "sources.md").is_file()
         assert (references / "topic.md").is_file()
         process = (references / "process.md").read_text(encoding="utf-8")
         hierarchy = (references / "hierarchy.md").read_text(encoding="utf-8")
+        jaimini_core = (references / "jaimini-core.md").read_text(
+            encoding="utf-8"
+        )
         artifacts = (references / "artifacts.md").read_text(encoding="utf-8")
         sources = (references / "sources.md").read_text(encoding="utf-8")
         topic_rules = (references / "topic.md").read_text(encoding="utf-8")
         assert "Direct answer" in process
         assert "Jaimini and Parashari factors are co-primary" in hierarchy
+        assert "Chara Karakas" in jaimini_core
         assert "`jaimini.json`" in artifacts
         assert "Jaimini Sutras" in sources
         assert "`JM-" in topic_rules

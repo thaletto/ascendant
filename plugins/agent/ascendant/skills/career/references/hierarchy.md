@@ -59,15 +59,8 @@ rubric. A stored yoga never outranks the house or lord that governs the topic.
 
 ## Applying the Jaimini core
 
-- Chara Karakas select the planet carrying a topic role in this chart; they do
-  not prove a literal event or another person's private state.
-- Rashi Drishti is sign-to-sign influence. Use the saved sign-aspect map, not
-  Parashari planetary aspects or Western degree orbs.
-- Karakamsha is the D9 sign of the Atmakaraka. Arudha Padas describe projected
-  expression; Upapada is the twelfth-house Pada used for partnership themes.
-- Argala records support and obstruction around a selected sign or Pada. Read
-  the saved contributors and blockers directly; do not turn them into a score.
-- Use only factors selected by the topic rubric. An unrelated karaka is background.
+Read the [Jaimini core](jaimini-core.md), then apply only
+the factors selected by this topic rubric. An unrelated Karaka is background.
 
 For SAV, use the saved sign score with `BPHS-72.1-7`: above 30 corroborates,
 25 through 30 is neutral, and below 25 constrains. SAV remains the lightest
