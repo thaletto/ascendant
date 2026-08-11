@@ -12,5 +12,5 @@ Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plug
 [`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/career/references/sources.md), and topic rubric
 [`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/career/references/topic.md).
 
-Apply the shared process to the user's natural career question. Answer with the
+Apply this skill's process to the user's natural career question. Answer with the
 material D1/D10, timing, and contextual factors in question-shaped prose.

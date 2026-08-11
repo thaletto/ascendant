@@ -1,6 +1,6 @@
 ---
 title: Jaimini Astrology
-description: Understand sign aspects, variable significators, arudhas, and sign dashas without mixing them into Parashari rules.
+description: Understand Ascendant's named seven-karaka Jaimini core and how the skills keep it distinct inside a combined reading.
 ---
 
 Jaimini astrology is a distinct rule tradition associated with the *Jaimini
@@ -26,8 +26,9 @@ degrees within signs. A common scheme includes:
 - and Darakaraka.
 
 Some lineages use seven and others eight, affecting the inclusion and treatment
-of Rahu. A program must declare the scheme and tie-breaking behavior before
-producing a result.
+of Rahu. Ascendant declares `jaimini_srao_7_core_v1`: Sun through Saturn are
+ranked by degree within sign. An exact degree-minute-second tie is recorded as
+a shared role, with Rao's reverse-Rahu fallback identified rather than hidden.
 
 ## Rashi drishti
 
@@ -42,10 +43,11 @@ silently substitute Parashari graha drishti.
 
 ## Arudha padas
 
-An arudha represents a projected or manifest image of a house. Its calculation
-counts from a house to its lord and projects an equal distance from the lord,
-with special handling in defined same-sign or opposite-sign cases. The Arudha
-Lagna is the best-known example, but each house can have an arudha.
+An arudha represents a projected or manifest image of a house. Ascendant uses
+Rao's literal projection: count from a house to its lord, then project the same
+distance from the lord. It preserves the same and opposite results described
+in that source rather than adding an unnamed modern correction. The Arudha
+Lagna is the best-known example; Upapada is the projection of the twelfth.
 
 Because exception rules materially change the result, a chart output should
 identify the exact arudha algorithm rather than expose only a label.
@@ -66,10 +68,17 @@ not enough to reproduce the sequence.
 
 ## Ascendant support boundary
 
-Ascendant can calculate D1 and D9 chart data that a Jaimini implementation
-would need. The current public skill hierarchy does **not** define chara
-karakas, rashi drishti, arudhas, argala, Karakamsha, or Chara dasha. Its
-educational description here must not be mistaken for implemented output.
+`Ascendant.get_jaimini()` calculates the named seven-karaka core: Chara
+Karakas, Rashi Drishti, Karakamsha, all twelve Arudha Padas, Upapada, and raw
+Argala contributors and blockers. The raw Argala result keeps primary support
+from the second, fourth, and eleventh distinct from obstruction through the
+twelfth, tenth, and third; it also records secondary support from the fifth and
+its ninth-place obstruction. Ketu's calculation is stored separately in reverse
+order. The skill hierarchy applies only the factor named by each topic rubric
+and compares it with the Parashari natal result.
+
+Chara Dasha remains outside the implemented core because its starting sign,
+direction, duration, and exception rules require a separately named method.
 
 See [Sources](/docs/astrology/sources) for editions of the *Jaimini Sutras* and
 B. V. Raman's modern methodological study.

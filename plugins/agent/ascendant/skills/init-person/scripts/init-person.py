@@ -64,7 +64,7 @@ def _toon_blocks() -> str:
         "init-person:",
         f"  bin: {_display_path()}",
         "  description: Save a person's birth details and prepare reusable "
-        "charts, timing, yoga, and SAV information",
+        "chart, Jaimini, timing, yoga, and SAV information",
         f"  persons: {len(persons)}",
         f"persons[{len(persons)}]{{name}}:",
     ]

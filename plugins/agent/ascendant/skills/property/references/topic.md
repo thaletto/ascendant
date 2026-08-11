@@ -16,3 +16,14 @@ Load transit positions only for a time-bound question.
 
 Discuss home, land, vehicles, and relocation as planning context rather than
 legal, lending, or investment advice.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-PRO-A4` | Fourth-house Arudha, its occupants, Rashi Drishti, and lord | Primary | `JS-1.1.2-4`, `JS-1.1.29-31`; `AJV3` |
+| `JM-PRO-KK4` | Fourth sign from Karakamsha and its occupants | Primary | `JS-1.2`; `AJV3` |
+| `JM-PRO-ARG` | Supporting and obstructing Argala to the selected property signs | Corroborating | `JS-1.1.5-10` |
+
+Use these as home, stability, movement, and visible-property themes. They do
+not establish ownership, title, financing, or a profitable transaction.

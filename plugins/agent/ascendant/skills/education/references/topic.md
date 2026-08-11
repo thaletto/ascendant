@@ -16,3 +16,14 @@ Load transit positions only for a time-bound question.
 
 If H5 and H9 are equally ranked and disagree, retain a mixed conclusion; D24
 may clarify expression but cannot erase the conflict.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-EDU-PK` | Putrakaraka's D1 sign and Rashi Drishti | Primary | `JS-1.1.2-4`, `JS-1.1.16` |
+| `JM-EDU-KK` | Fifth and ninth signs from Karakamsha, including occupants and Rashi Drishti | Primary | `JS-1.2`; `AJV3` |
+| `JM-EDU-A5` | Fifth-house Arudha and its Argala | Corroborating | `JS-1.1.5-10`, `JS-1.1.29-31` |
+
+Translate these factors into learning style, focus, and expression. They do not
+guarantee an exam result, qualification, or admission.

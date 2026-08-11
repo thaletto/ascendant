@@ -64,6 +64,16 @@ def test_each_specialist_skill_carries_its_own_framework() -> None:
         assert (references / "artifacts.md").is_file()
         assert (references / "sources.md").is_file()
         assert (references / "topic.md").is_file()
+        process = (references / "process.md").read_text(encoding="utf-8")
+        hierarchy = (references / "hierarchy.md").read_text(encoding="utf-8")
+        artifacts = (references / "artifacts.md").read_text(encoding="utf-8")
+        sources = (references / "sources.md").read_text(encoding="utf-8")
+        topic_rules = (references / "topic.md").read_text(encoding="utf-8")
+        assert "Direct answer" in process
+        assert "Jaimini and Parashari factors are co-primary" in hierarchy
+        assert "`jaimini.json`" in artifacts
+        assert "Jaimini Sutras" in sources
+        assert "`JM-" in topic_rules
 
 
 def test_no_plugin_skill_references_a_shared_folder() -> None:
@@ -82,17 +92,18 @@ def test_no_plugin_skill_references_a_shared_folder() -> None:
             assert f"../{other.name}/" not in skill
 
 
-def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays() -> None:
-    compatibility = (
-        SKILLS / "relationship-compatibility/SKILL.md"
-    ).read_text(encoding="utf-8")
+def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays(
+) -> None:
+    compatibility = (SKILLS / "relationship-compatibility/SKILL.md").read_text(
+        encoding="utf-8"
+    )
     compatibility_topic = (
         SKILLS / "relationship-compatibility/references/topic.md"
     ).read_text(encoding="utf-8")
     marriage = (SKILLS / "marriage/SKILL.md").read_text(encoding="utf-8")
-    marriage_topic = (
-        SKILLS / "marriage/references/topic.md"
-    ).read_text(encoding="utf-8")
+    marriage_topic = (SKILLS / "marriage/references/topic.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "bidirectional cross-chart\nhouse-lord overlays" in compatibility
     assert "PR-REL-CROSS-D9" in compatibility_topic
@@ -100,7 +111,7 @@ def test_relationship_skills_require_bidirectional_cross_chart_lord_overlays() -
     assert "bidirectional cross-chart overlay" in marriage_topic
 
 
-def test_init_person_backfills_v2_provenance_without_rewriting_context(
+def test_init_person_backfills_v3_provenance_without_rewriting_charts(
     tmp_path: Path,
 ) -> None:
     command = [
@@ -123,12 +134,16 @@ def test_init_person_backfills_v2_provenance_without_rewriting_context(
     d1 = tmp_path / "persons/Ada/charts/D1.json"
     original_d1 = d1.read_bytes()
     provenance = tmp_path / "persons/Ada/provenance.json"
-    provenance_data = json.loads(
-        provenance.read_text(encoding="utf-8")
-    )
-    assert provenance_data["rule_pack"] == "parashari_raman_v2"
+    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))
+    assert provenance_data["schema_version"] == 2
+    assert provenance_data["rule_pack"] == "parashari_raman_jaimini_v3"
+    assert provenance_data["jaimini_method"] == "jaimini_srao_7_core_v1"
+    assert (tmp_path / "persons/Ada/jaimini.json").is_file()
 
-    provenance_data["rule_pack"] = "parashari_raman_v1"
+    provenance_data["schema_version"] = 1
+    provenance_data["rule_pack"] = "parashari_raman_v2"
+    provenance_data.pop("jaimini_method")
+    (tmp_path / "persons/Ada/jaimini.json").unlink()
     _ = provenance.write_text(
         json.dumps(provenance_data, indent=2),
         encoding="utf-8",
@@ -139,7 +154,10 @@ def test_init_person_backfills_v2_provenance_without_rewriting_context(
     assert context.read_text(encoding="utf-8") == original_context
     assert d1.read_bytes() == original_d1
     migrated = json.loads(provenance.read_text(encoding="utf-8"))
-    assert migrated["rule_pack"] == "parashari_raman_v2"
+    assert migrated["schema_version"] == 2
+    assert migrated["rule_pack"] == "parashari_raman_jaimini_v3"
+    assert migrated["jaimini_method"] == "jaimini_srao_7_core_v1"
+    assert (tmp_path / "persons/Ada/jaimini.json").is_file()
 
 
 def test_person_tools_reject_paths_outside_persons_directory(

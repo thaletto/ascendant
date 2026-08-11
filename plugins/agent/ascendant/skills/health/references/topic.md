@@ -16,3 +16,13 @@ question.
 
 Translate factors into themes such as energy, stress, routine, and recovery.
 Never infer a diagnosis, prognosis, treatment, or reason to delay care.
+
+## Jaimini co-primary factors
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-HEA-AK` | Atmakaraka's D1 sign, condition, and Rashi Drishti | Primary | `JS-1.1.2-4`, `JS-1.1.11-12` |
+| `JM-HEA-KK` | Karakamsha and its first, sixth, and eighth signs as broad resilience or strain context | Modifying | `JS-1.2`; `AJV3` |
+
+Use these only for reflective energy, stress, routine, and recovery language.
+Specific classical disease statements are outside this skill's safety boundary.

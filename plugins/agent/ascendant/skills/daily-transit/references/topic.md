@@ -13,3 +13,13 @@ their context.
 
 State the resolved timestamp and timezone. Describe the transit as a temporary
 activation of natal context, not a guaranteed mood or event.
+
+## Jaimini natal context
+
+| Rule | Factor | Rank | Authority |
+| --- | --- | --- | --- |
+| `JM-DAI-NATAL` | The topic-relevant Chara Karaka, Karakamsha sign, or Arudha Pada named by the matching topic rubric | Primary | Applicable `JS-1.1`, `JS-1.2`; `AJV3` |
+
+Compare this natal context with the Parashari natal factor. Apply transits only
+through the existing transit layer; this method defines no Jaimini transit or
+Chara Dasha rule.

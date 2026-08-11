@@ -12,5 +12,5 @@ Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plug
 [`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/education/references/sources.md), and topic rubric
 [`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/education/references/topic.md).
 
-Apply the shared process to the user's natural education question. Answer with
+Apply this skill's process to the user's natural education question. Answer with
 the material D1/D24, timing, and contextual factors in question-shaped prose.

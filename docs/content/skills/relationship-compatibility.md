@@ -12,7 +12,7 @@ Read [`../../../AGENTS.md`](https://github.com/thaletto/ascendant/blob/main/plug
 [`references/sources.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/sources.md), and topic rubric
 [`references/topic.md`](https://github.com/thaletto/ascendant/blob/main/plugins/agent/ascendant/skills/relationship-compatibility/references/topic.md).
 
-Require both exact saved names and apply the shared process to the user's
+Require both exact saved names and apply this skill's process to the user's
 natural comparison question. Keep feelings inferential and confidence-labeled.
 
 For every two-chart comparison, apply the rubric's bidirectional cross-chart

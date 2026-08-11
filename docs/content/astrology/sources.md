@@ -55,8 +55,8 @@ The public docs paraphrase concepts and do not reproduce book passages.
 - B. V. Raman, [*Studies in Jaimini Astrology*](https://books.google.com/books/about/Studies_in_Jaimini_Astrology.html?id=gW2DIFHrxfgC),
   Motilal Banarsidass. Used as a modern methodological study.
 
-The Jaimini page flags variant-sensitive calculations instead of presenting one
-lineage's choice as universal.
+Ascendant names its implemented choice `jaimini_srao_7_core_v1`. Sutra text,
+Rao commentary, and Ascendant-authored precedence remain separately labeled.
 
 ## Krishnamurti Paddhati
 
@@ -79,6 +79,8 @@ Krishnamurti ayanamsa.
   defines supported ayanamsas, house systems, and immutable defaults.
 - [`ascendant/types.py`](https://github.com/thaletto/ascendant/blob/main/ascendant/types.py)
   defines chart, planet, nakshatra, dasha, and division types.
+- [`ascendant/jaimini.py`](https://github.com/thaletto/ascendant/blob/main/ascendant/jaimini.py)
+  defines the named Jaimini result and deterministic D1/D9 derivations.
 - Each specialist skill directory (for example `skills/career/`) ships the
   whole reading contract under its own `references/`: a judgement
   `process.md`, the `hierarchy.md` evidence layers and factor ranks,

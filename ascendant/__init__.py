@@ -15,6 +15,7 @@ from ascendant.configuration import (
 )
 from ascendant.dasha import Dasha
 from ascendant.horoscope import HoroscopeData
+from ascendant.jaimini import JaiminiResult, calculate_jaimini
 from ascendant.sav import Ashtakavarga, AshtakavargaResult
 from ascendant.types import ALLOWED_DIVISIONS, ChartType
 from ascendant.yoga.base import Yoga
@@ -103,3 +104,7 @@ class Ascendant:
     def get_sav(self) -> AshtakavargaResult:
         """Return the complete Ashtakavarga result."""
         return self.ashtakavarga_module.calculate()
+
+    def get_jaimini(self) -> JaiminiResult:
+        """Return the named Jaimini core derived from D1 and D9 data."""
+        return calculate_jaimini(self.get_chart(1), self.get_chart(9))

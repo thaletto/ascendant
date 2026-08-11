@@ -68,7 +68,7 @@ KP astrology
 
 Setting `ayanamsa="Krishnamurti"` in Ascendant changes the sidereal longitude
 reference. Setting `house_system="Placidus"` changes house calculation. The
-current agent skills still apply `parashari_raman_v2`; they do not become a KP
+current agent skills still apply `parashari_raman_jaimini_v3`; they do not become a KP
 interpreter.
 
 ## Ascendant support boundary
