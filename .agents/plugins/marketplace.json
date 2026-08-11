@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "ascendant-agent",
+      "name": "agent",
       "source": {
         "source": "local",
         "path": "./plugins/agent/"
