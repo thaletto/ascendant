@@ -18,6 +18,7 @@
     "horoscope"
   ],
   "skills": "./ascendant/skills/",
+  "apps": "./.app.json",
   "interface": {
     "displayName": "Ascendant",
     "shortDescription": "Explore private charts and planetary transits.",

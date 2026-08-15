@@ -14,6 +14,7 @@ from ascendant_mcp.codec import integer_field, object_field, string_field
 REPOSITORY = Path(__file__).resolve().parents[1]
 SKILLS = REPOSITORY / "plugins/agent/ascendant/skills"
 PLUGIN_MANIFEST = REPOSITORY / "plugins/agent/.codex-plugin/plugin.json"
+APP_MANIFEST = REPOSITORY / "plugins/agent/.app.json"
 GET_TRANSIT = SKILLS / "get-transit/scripts/get-transit.py"
 INIT_PERSON = SKILLS / "init-person/scripts/init-person.py"
 TOPICS = (
@@ -63,6 +64,13 @@ def test_public_plugin_manifest_points_to_its_skills_and_legal_pages() -> None:
     interface = object_field(manifest, "interface")
 
     assert (PLUGIN_MANIFEST.parents[1] / skills_path) == SKILLS
+    assert string_field(manifest, "apps") == "./.app.json"
+    apps = object_field(_json_object(APP_MANIFEST), "apps")
+    ascendant_app = object_field(apps, "ascendant")
+    assert string_field(ascendant_app, "id") == (
+        "plugin_asdk_app_6a80be4dd0a48191a4ee0fd13005942f"
+    )
+    assert string_field(ascendant_app, "category") == "Astrology"
     assert string_field(interface, "privacyPolicyURL") == (
         "https://ascendant-docs.vercel.app/docs/privacy"
     )
