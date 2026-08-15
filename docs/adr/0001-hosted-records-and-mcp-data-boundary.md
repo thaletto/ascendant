@@ -1,0 +1,3 @@
+# Hosted records and an MCP data boundary
+
+The ChatGPT app will run FastMCP in the Python Ascendant service and expose its existing topic-specific skills as read-only resources; compact MCP data tools will create, retrieve, and delete account-scoped evidence without providing per-topic remote reading endpoints. Neon PostgreSQL is the canonical store for person records, consent attestations, versioned calculation artifacts, and reading-request history; Supabase Auth supplies account identity only. The service will use stateless Streamable HTTP on Vercel, because this retains Ascendant's explicit methodology while making account isolation, deletion, and reproducible evidence first-class responsibilities without a TypeScript-to-Python bridge.
