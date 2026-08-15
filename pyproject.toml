@@ -12,6 +12,9 @@ license = {file = "LICENSE"}
 dependencies = [
     "pyswisseph",
     "python-dateutil",
+    "fastapi==0.141.1",
+    "fastmcp==3.4.7",
+    "psycopg[binary]==3.3.4",
 ]
 
 [project.optional-dependencies]
@@ -20,7 +23,6 @@ test = [
     "pycodestyle",
     "prettytable",
 ]
-
 [project.urls]
 Homepage = "https://github.com/thaletto/ascendant"
 Website = "https://ascendant-docs.vercel.app"

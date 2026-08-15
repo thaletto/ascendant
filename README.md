@@ -176,6 +176,7 @@ The repository includes guides for:
 - [Jaimini core](https://github.com/thaletto/ascendant/blob/main/docs/content/library/jaimini.md)
 - [Yoga combinations](https://github.com/thaletto/ascendant/blob/main/docs/content/library/yoga.md)
 - [Configuration](https://github.com/thaletto/ascendant/blob/main/docs/content/configuration.md)
+- [Hosted FastMCP deployment](docs/mcp-deployment.md)
 
 ## Development
 
