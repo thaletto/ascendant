@@ -7,9 +7,13 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from typing import cast
+
+from ascendant_mcp.codec import integer_field, object_field, string_field
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 SKILLS = REPOSITORY / "plugins/agent/ascendant/skills"
+PLUGIN_MANIFEST = REPOSITORY / "plugins/agent/.codex-plugin/plugin.json"
 GET_TRANSIT = SKILLS / "get-transit/scripts/get-transit.py"
 INIT_PERSON = SKILLS / "init-person/scripts/init-person.py"
 TOPICS = (
@@ -39,9 +43,31 @@ def _run_tool(
     )
 
 
+def _json_object(path: Path) -> dict[str, object]:
+    decoded = cast(object, json.loads(path.read_text(encoding="utf-8")))
+    assert isinstance(decoded, dict)
+    return cast(dict[str, object], decoded)
+
+
 def test_reading_plugin_does_not_ship_a_python_evaluator() -> None:
     assert not any(
         path.name == "evaluate_reading.py" for path in SKILLS.rglob("*")
+    )
+
+
+def test_public_plugin_manifest_points_to_its_skills_and_legal_pages() -> None:
+    manifest = _json_object(PLUGIN_MANIFEST)
+    skills_path = (
+        string_field(manifest, "skills").removeprefix("./").rstrip("/")
+    )
+    interface = object_field(manifest, "interface")
+
+    assert (PLUGIN_MANIFEST.parents[1] / skills_path) == SKILLS
+    assert string_field(interface, "privacyPolicyURL") == (
+        "https://ascendant-docs.vercel.app/docs/privacy"
+    )
+    assert string_field(interface, "termsOfServiceURL") == (
+        "https://ascendant-docs.vercel.app/docs/terms"
     )
     assert not any(
         "evaluate_reading.py" in path.read_text(encoding="utf-8")
@@ -139,15 +165,19 @@ def test_init_person_backfills_v3_provenance_without_rewriting_charts(
     d1 = tmp_path / "persons/Ada/charts/D1.json"
     original_d1 = d1.read_bytes()
     provenance = tmp_path / "persons/Ada/provenance.json"
-    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))  # pyright: ignore[reportAny]
-    assert provenance_data["schema_version"] == 2
-    assert provenance_data["rule_pack"] == "parashari_raman_jaimini_v3"
-    assert provenance_data["jaimini_method"] == "jaimini_srao_7_core_v1"
+    provenance_data = _json_object(provenance)
+    assert integer_field(provenance_data, "schema_version") == 2
+    assert string_field(provenance_data, "rule_pack") == (
+        "parashari_raman_jaimini_v3"
+    )
+    assert string_field(provenance_data, "jaimini_method") == (
+        "jaimini_srao_7_core_v1"
+    )
     assert (tmp_path / "persons/Ada/jaimini.json").is_file()
 
     provenance_data["schema_version"] = 1
     provenance_data["rule_pack"] = "parashari_raman_v2"
-    provenance_data.pop("jaimini_method")  # pyright: ignore[reportAny]
+    _ = provenance_data.pop("jaimini_method")
     (tmp_path / "persons/Ada/jaimini.json").unlink()
     _ = provenance.write_text(
         json.dumps(provenance_data, indent=2),
@@ -158,10 +188,14 @@ def test_init_person_backfills_v3_provenance_without_rewriting_charts(
     assert second.returncode == 0, second.stderr
     assert context.read_text(encoding="utf-8") == original_context
     assert d1.read_bytes() == original_d1
-    migrated = json.loads(provenance.read_text(encoding="utf-8"))  # pyright: ignore[reportAny]
-    assert migrated["schema_version"] == 2
-    assert migrated["rule_pack"] == "parashari_raman_jaimini_v3"
-    assert migrated["jaimini_method"] == "jaimini_srao_7_core_v1"
+    migrated = _json_object(provenance)
+    assert integer_field(migrated, "schema_version") == 2
+    assert string_field(migrated, "rule_pack") == (
+        "parashari_raman_jaimini_v3"
+    )
+    assert string_field(migrated, "jaimini_method") == (
+        "jaimini_srao_7_core_v1"
+    )
     assert (tmp_path / "persons/Ada/jaimini.json").is_file()
 
 

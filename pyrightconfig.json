@@ -3,6 +3,7 @@
   "venv": ".venv",
   "pythonVersion": "3.11",
   "stubPath": "typings",
-  "include": ["ascendant", "tests"],
+  "include": ["ascendant", "mcp/src", "tests"],
+  "extraPaths": ["mcp/src"],
   "exclude": [".venv", "build"]
 }
