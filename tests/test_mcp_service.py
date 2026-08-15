@@ -227,6 +227,40 @@ def test_protected_asgi_route_accepts_a_valid_subject_token() -> None:
         asyncio.run(exercise(server_url))
 
 
+def test_stateless_asgi_route_returns_json_for_an_initialized_request() -> None:
+    """Avoid an SSE response that a serverless function closes after each call."""
+
+    server = create_mcp_server(
+        store=HostedRecordStore.in_memory(), auth=_test_remote_auth()
+    )
+
+    async def exercise(server_url: str) -> None:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{server_url}/api/mcp",
+                headers={
+                    "accept": "application/json",
+                    "authorization": "Bearer " + _test_access_token("alice"),
+                },
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "initialize",
+                    "params": {
+                        "protocolVersion": "2025-03-26",
+                        "capabilities": {},
+                        "clientInfo": {"name": "test-client", "version": "1.0"},
+                    },
+                },
+            )
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("application/json")
+        assert response.json()["result"]["serverInfo"]["name"] == "Ascendant"
+
+    with _serve_asgi(create_vercel_app(server)) as server_url:
+        asyncio.run(exercise(server_url))
+
+
 def test_protected_asgi_route_rejects_a_token_without_required_scope() -> None:
     server = create_mcp_server(
         store=HostedRecordStore.in_memory(), auth=_test_remote_auth()

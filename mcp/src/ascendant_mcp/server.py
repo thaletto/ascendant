@@ -257,7 +257,10 @@ def create_production_mcp_server() -> FastMCP:
 def create_vercel_app(mcp: FastMCP) -> FastAPI:
     """Wrap the MCP ASGI app with Vercel's `/api` route and lifespan."""
 
-    mcp_app = mcp.http_app(stateless_http=True)
+    # A Vercel function is request-scoped, so a stateless transport is required.
+    # Return the completed JSON-RPC payload directly instead of an SSE response:
+    # ChatGPT can then consume the result before the function closes its request.
+    mcp_app = mcp.http_app(stateless_http=True, json_response=True)
     app = FastAPI(title="Ascendant MCP", lifespan=mcp_app.lifespan)
     app.mount("/api", mcp_app)
     return app
