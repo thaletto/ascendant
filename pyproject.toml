@@ -12,9 +12,6 @@ license = {file = "LICENSE"}
 dependencies = [
     "pyswisseph",
     "python-dateutil",
-    "fastapi==0.141.1",
-    "fastmcp==3.4.7",
-    "psycopg[binary]==3.3.4",
 ]
 
 [project.optional-dependencies]
@@ -29,6 +26,9 @@ Website = "https://ascendant-docs.vercel.app"
 
 [tool.setuptools.packages.find]
 include = ["ascendant*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["mcp/src"]
 
 [tool.ruff.lint.per-file-ignores]
 "ascendant/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]
