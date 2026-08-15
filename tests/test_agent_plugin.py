@@ -15,6 +15,7 @@ REPOSITORY = Path(__file__).resolve().parents[1]
 SKILLS = REPOSITORY / "plugins/agent/ascendant/skills"
 PLUGIN_MANIFEST = REPOSITORY / "plugins/agent/.codex-plugin/plugin.json"
 APP_MANIFEST = REPOSITORY / "plugins/agent/.app.json"
+MARKETPLACE_MANIFEST = REPOSITORY / ".agents/plugins/marketplace.json"
 GET_TRANSIT = SKILLS / "get-transit/scripts/get-transit.py"
 INIT_PERSON = SKILLS / "init-person/scripts/init-person.py"
 TOPICS = (
@@ -81,6 +82,21 @@ def test_public_plugin_manifest_points_to_its_skills_and_legal_pages() -> None:
         "evaluate_reading.py" in path.read_text(encoding="utf-8")
         for path in SKILLS.rglob("*.md")
     )
+
+
+def test_marketplace_entry_matches_the_stable_plugin_identifier() -> None:
+    manifest = _json_object(PLUGIN_MANIFEST)
+    marketplace = _json_object(MARKETPLACE_MANIFEST)
+    entries = marketplace["plugins"]
+    assert isinstance(entries, list)
+    assert len(entries) == 1
+    entry = entries[0]
+    assert isinstance(entry, dict)
+    typed_entry = cast(dict[str, object], entry)
+
+    assert string_field(typed_entry, "name") == string_field(manifest, "name")
+    source = object_field(typed_entry, "source")
+    assert string_field(source, "path") == "./plugins/agent/"
 
 
 def test_each_specialist_skill_carries_its_own_framework() -> None:
