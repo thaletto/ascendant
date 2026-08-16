@@ -24,11 +24,15 @@ test = [
 Homepage = "https://github.com/thaletto/ascendant"
 Website = "https://ascendant-docs.vercel.app"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["ascendant*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["mcp/src"]
+pythonpath = ["src"]
 
 [tool.ruff.lint.per-file-ignores]
-"ascendant/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]
+"src/ascendant/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]

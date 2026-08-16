@@ -19,9 +19,11 @@ This is a single-context repository:
 ```
 /
 ├── CONTEXT.md
+├── src/
+│   └── ascendant/
 ├── docs/
-│   └── adr/
-└── src/
+│   └── agents/
+└── tests/
 ```
 
 ## Use the glossary's vocabulary

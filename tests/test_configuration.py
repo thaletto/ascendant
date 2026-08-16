@@ -168,9 +168,7 @@ def test_configuration_requires_the_typed_immutable_value() -> None:
 
 
 def test_porphyry_configuration_calculates_porphyry_house_cusps() -> None:
-    configure(
-        AscendantConfig(house_system=HouseSystem.PORPHYRY)
-    )
+    configure(AscendantConfig(house_system=HouseSystem.PORPHYRY))
     astrology = Ascendant(
         year=1990,
         month=1,

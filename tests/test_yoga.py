@@ -18,9 +18,7 @@ def test_yoga_results_have_a_consistent_public_contract(
     assert yogas
     assert len({yoga["id"] for yoga in yogas}) == len(yogas)
     for yoga in yogas:
-        assert set(yoga) == {
-            "id", "name", "present", "strength", "details", "type"
-        }
+        assert set(yoga) == {"id", "name", "present", "strength", "details", "type"}
         assert isinstance(yoga["present"], bool)
         assert yoga["strength"] >= 0
         assert yoga["type"] in {"Positive", "Neutral", "Negative"}
@@ -86,9 +84,7 @@ def test_representative_yoga_judgements_match_expected_outcomes(
         house_system="Whole Sign",
     )
 
-    result = next(
-        yoga for yoga in astrology.get_yogas() if yoga["name"] == name
-    )
+    result = next(yoga for yoga in astrology.get_yogas() if yoga["name"] == name)
 
     assert result["id"] == expected_id
     assert result["present"]

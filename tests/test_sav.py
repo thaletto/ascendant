@@ -16,7 +16,13 @@ def test_ashtakavarga_has_classical_checksums(astrology: Ascendant) -> None:
         "sarva": 337,
     }
     assert set(result["bhinna"]) == {
-        "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
+        "Sun",
+        "Moon",
+        "Mars",
+        "Mercury",
+        "Jupiter",
+        "Venus",
+        "Saturn",
         "Lagna",
     }
     assert len(result["sarva"]) == 12
@@ -32,9 +38,7 @@ def test_ashtakavarga_exposes_reduced_scores_and_pindas(
         assert len(result["reduced"][planet]) == 12
         assert all(score >= 0 for score in result["reduced"][planet].values())
         pinda = result["shodhya_pinda"][planet]
-        assert pinda["shodhya_pinda"] == (
-            pinda["rashi_pinda"] + pinda["graha_pinda"]
-        )
+        assert pinda["shodhya_pinda"] == (pinda["rashi_pinda"] + pinda["graha_pinda"])
 
 
 def test_ashtakavarga_supports_alternate_birth_settings() -> None:

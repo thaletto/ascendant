@@ -169,14 +169,16 @@ presenting or interpreting a result.
 
 ## Documentation
 
-The repository includes guides for:
+The documentation website includes guides for:
 
-- [Divisional charts](https://github.com/thaletto/ascendant/blob/main/docs/content/library/charts.md)
-- [Dasha systems](https://github.com/thaletto/ascendant/blob/main/docs/content/library/dasha.md)
-- [Jaimini core](https://github.com/thaletto/ascendant/blob/main/docs/content/library/jaimini.md)
-- [Yoga combinations](https://github.com/thaletto/ascendant/blob/main/docs/content/library/yoga.md)
-- [Configuration](https://github.com/thaletto/ascendant/blob/main/docs/content/configuration.md)
-- [Hosted FastMCP deployment](docs/mcp-deployment.md)
+- [Divisional charts](https://ascendant-docs.vercel.app/docs/library/charts)
+- [Dasha systems](https://ascendant-docs.vercel.app/docs/library/dasha)
+- [Jaimini core](https://ascendant-docs.vercel.app/docs/library/jaimini)
+- [Yoga combinations](https://ascendant-docs.vercel.app/docs/library/yoga)
+- [Configuration](https://ascendant-docs.vercel.app/docs/configuration)
+
+Its source lives in the separate
+[`ascendant-docs`](https://github.com/thaletto/ascendant-docs) repository.
 
 ## Development
 
@@ -193,18 +195,20 @@ make lint
 Swiss Ephemeris accuracy cases live in
 [`tests/test_swiss_ephemeris_accuracy.py`](https://github.com/thaletto/ascendant/blob/main/tests/test_swiss_ephemeris_accuracy.py).
 
-## Agent skills
+## Agent integrations
 
-The repository also contains an optional Ascendant agent plugin. It is not
-required to use the Python package.
+Agent workflows, the Codex plugin, and the hosted MCP service live in the
+separate
+[`ascendant-agents`](https://github.com/thaletto/ascendant-agents)
+repository. They are not required to use this Python package.
 
 ```bash
-npx skills add thaletto/ascendant
+npx skills add thaletto/ascendant-agents
 ```
 
-Codex users can install the bundled plugin from the repository marketplace:
+Codex users can add that repository as a marketplace:
 
 ```bash
-codex plugin marketplace add https://github.com/thaletto/ascendant.git --ref main
+codex plugin marketplace add https://github.com/thaletto/ascendant-agents.git --ref main
 codex plugin add agent@ascendant
 ```
