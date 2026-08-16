@@ -19,7 +19,7 @@ This is a single-context repository:
 ```
 /
 ├── CONTEXT.md
-├── ascendant/
+├── src/
 ├── docs/
 │   └── agents/
 └── tests/

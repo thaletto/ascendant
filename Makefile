@@ -14,9 +14,11 @@ test: ## Run the pytest suite.
 	$(PYTHON) -m pytest -q
 
 typecheck: ## Run Pyright for the library and tests.
-	$(PYRIGHT) ascendant tests --warnings
+	mkdir -p build/pyright
+	ln -sfn ../../src build/pyright/ascendant
+	$(PYRIGHT) src tests --warnings
 
 lint: ## Run PEP 8 checks for the library and test suite.
-	$(PYCODESTYLE) ascendant tests
+	$(PYCODESTYLE) src tests
 
 check: test typecheck lint ## Run all verification checks.

@@ -3,6 +3,7 @@
   "venv": ".venv",
   "pythonVersion": "3.11",
   "stubPath": "typings",
-  "include": ["ascendant", "tests"],
+  "extraPaths": ["build/pyright"],
+  "include": ["src", "tests"],
   "exclude": [".venv", "build"]
 }

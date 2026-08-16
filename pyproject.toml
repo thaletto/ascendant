@@ -24,8 +24,16 @@ test = [
 Homepage = "https://github.com/thaletto/ascendant"
 Website = "https://ascendant-docs.vercel.app"
 
-[tool.setuptools.packages.find]
-include = ["ascendant*"]
+[tool.setuptools]
+package-dir = {ascendant = "src"}
+packages = [
+    "ascendant",
+    "ascendant.chart",
+    "ascendant.dasha",
+    "ascendant.sav",
+    "ascendant.yoga",
+    "ascendant.yoga.registry",
+]
 
 [tool.ruff.lint.per-file-ignores]
-"ascendant/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]
+"src/yoga/registry/R*.py" = ["BLE001", "N999", "SIM102"]
