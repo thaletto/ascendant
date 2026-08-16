@@ -20,6 +20,7 @@ This is a single-context repository:
 /
 ├── CONTEXT.md
 ├── src/
+│   └── ascendant/
 ├── docs/
 │   └── agents/
 └── tests/

@@ -57,17 +57,13 @@ def test_timeline_current_is_inclusive_and_empty_outside() -> None:
     }
 
 
-def test_timeline_selects_relative_periods_without_crossing_boundaries(
-) -> None:
+def test_timeline_selects_relative_periods_without_crossing_boundaries() -> None:
     periods = _timeline()
     timeline = DashaTimeline(periods)
 
     assert timeline.mahadasha(1, "01-01-2025") == periods[1]
     assert timeline.mahadasha(-1, "01-01-2025") is None
-    assert (
-        timeline.antardasha(1, "01-01-2020")
-        == periods[0]["antardashas"][1]
-    )
+    assert timeline.antardasha(1, "01-01-2020") == periods[0]["antardashas"][1]
     assert timeline.antardasha(-1, "01-01-2020") is None
     assert timeline.antardasha(1, "01-01-2025") is None
 
@@ -78,10 +74,7 @@ def test_timeline_normalizes_supported_query_dates_to_utc() -> None:
     assert timeline.current(date(2020, 1, 1))["mahadasha"] is not None
     naive = datetime(2020, 1, 1, tzinfo=UTC).replace(tzinfo=None)
     assert timeline.current(naive)["mahadasha"] is not None
-    assert (
-        timeline.current(datetime(2020, 1, 1, tzinfo=UTC))["mahadasha"]
-        is not None
-    )
+    assert timeline.current(datetime(2020, 1, 1, tzinfo=UTC))["mahadasha"] is not None
     local_midnight = datetime(
         2020,
         1,
@@ -116,8 +109,15 @@ def test_vimshottari_timeline_has_nine_ordered_mahadashas(
     ]
     assert starts == sorted(starts)
     assert {period["mahadasha"] for period in timeline} == {
-        "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
-        "Rahu", "Ketu",
+        "Sun",
+        "Moon",
+        "Mars",
+        "Mercury",
+        "Jupiter",
+        "Venus",
+        "Saturn",
+        "Rahu",
+        "Ketu",
     }
 
 
@@ -128,8 +128,15 @@ def test_each_mahadasha_has_ordered_antardashas(astrology: Ascendant) -> None:
         antardashas = mahadasha["antardashas"]
         assert len(antardashas) == 9
         assert {period["antardasha"] for period in antardashas} == {
-            "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
-            "Rahu", "Ketu",
+            "Sun",
+            "Moon",
+            "Mars",
+            "Mercury",
+            "Jupiter",
+            "Venus",
+            "Saturn",
+            "Rahu",
+            "Ketu",
         }
         starts = [
             datetime.strptime(period["start"], "%d-%m-%Y").replace(tzinfo=UTC)

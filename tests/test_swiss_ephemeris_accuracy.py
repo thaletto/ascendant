@@ -125,17 +125,9 @@ def test_sidereal_positions_match_reference_within_tenth_of_degree(
 
     assert angular_error(chart.get_object("Sun").lon, reference.sun) <= 0.1
     assert angular_error(chart.get_object("Moon").lon, reference.moon) <= 0.1
-    assert (
-        angular_error(chart.get_angle("Asc").lon, reference.ascendant) <= 0.1
-    )
-    assert (
-        angular_error(chart.get_house("House1").lon, reference.first_house)
-        <= 0.1
-    )
+    assert angular_error(chart.get_angle("Asc").lon, reference.ascendant) <= 0.1
+    assert angular_error(chart.get_house("House1").lon, reference.first_house) <= 0.1
     if reference.second_house is not None:
         assert (
-            angular_error(
-                chart.get_house("House2").lon, reference.second_house
-            )
-            <= 0.1
+            angular_error(chart.get_house("House2").lon, reference.second_house) <= 0.1
         )

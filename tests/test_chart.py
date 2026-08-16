@@ -23,18 +23,31 @@ def test_supported_divisional_chart_has_complete_house_layout(
     assert chart[1]["lagna"] is not None
     assert chart[1]["lagna"]["name"] == "Lagna"
     assert {house["sign"] for house in chart.values()} == {
-        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces",
+        "Aries",
+        "Taurus",
+        "Gemini",
+        "Cancer",
+        "Leo",
+        "Virgo",
+        "Libra",
+        "Scorpio",
+        "Sagittarius",
+        "Capricorn",
+        "Aquarius",
+        "Pisces",
     }
 
-    planets = [
-        planet
-        for house in chart.values()
-        for planet in house["planets"]
-    ]
+    planets = [planet for house in chart.values() for planet in house["planets"]]
     assert {planet["name"] for planet in planets} == {
-        "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
-        "Rahu", "Ketu",
+        "Sun",
+        "Moon",
+        "Mars",
+        "Mercury",
+        "Jupiter",
+        "Venus",
+        "Saturn",
+        "Rahu",
+        "Ketu",
     }
     assert all(0 <= planet["longitude"] < 360 for planet in planets)
 

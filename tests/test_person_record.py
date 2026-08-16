@@ -155,9 +155,7 @@ def test_person_record_rejects_malformed_dasha_boundaries(
         list[dict[str, object]],
         cast(
             object,
-            json.loads(
-                (directory / "dasha.json").read_text(encoding="utf-8")
-            ),
+            json.loads((directory / "dasha.json").read_text(encoding="utf-8")),
         ),
     )
     timeline[0]["end"] = "2040-01-01"
@@ -200,9 +198,7 @@ def test_person_record_reports_missing_and_malformed_saved_data(
         dict[str, object],
         cast(
             object,
-            json.loads(
-                (directory / "charts/D1.json").read_text(encoding="utf-8")
-            ),
+            json.loads((directory / "charts/D1.json").read_text(encoding="utf-8")),
         ),
     )
     del chart["12"]
@@ -257,9 +253,7 @@ def test_repeated_initialization_does_not_rewrite_complete_record(
         longitude=77.2090,
     )
     record = store.initialize(person)
-    files = tuple(
-        path for path in record.directory.rglob("*") if path.is_file()
-    )
+    files = tuple(path for path in record.directory.rglob("*") if path.is_file())
     for path in files:
         os.utime(path, (1_000_000_000, 1_000_000_000))
     mtimes_before = {path: path.stat().st_mtime_ns for path in files}
@@ -284,10 +278,13 @@ def test_matching_v2_record_backfills_only_jaimini_and_provenance(
     jaimini = record.directory / "jaimini.json"
     jaimini.unlink()
     provenance = record.directory / "provenance.json"
-    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))
+    provenance_data = cast(
+        dict[str, object],
+        json.loads(provenance.read_text(encoding="utf-8")),
+    )
     provenance_data["schema_version"] = 1
     provenance_data["rule_pack"] = "parashari_raman_v2"
-    provenance_data.pop("jaimini_method")
+    _ = provenance_data.pop("jaimini_method")
     _ = provenance.write_text(json.dumps(provenance_data), encoding="utf-8")
     preserved = {
         path: path.read_bytes()
@@ -301,10 +298,7 @@ def test_matching_v2_record_backfills_only_jaimini_and_provenance(
     assert reused.provenance is not None
     assert reused.provenance["schema_version"] == 2
     assert reused.provenance["rule_pack"] == "parashari_raman_jaimini_v3"
-    assert {
-        path: path.read_bytes()
-        for path in preserved
-    } == preserved
+    assert {path: path.read_bytes() for path in preserved} == preserved
 
 
 def test_matching_custom_record_is_not_migrated_or_backfilled(
@@ -320,7 +314,10 @@ def test_matching_custom_record_is_not_migrated_or_backfilled(
     record = store.initialize(person)
     (record.directory / "jaimini.json").unlink()
     provenance = record.directory / "provenance.json"
-    provenance_data = json.loads(provenance.read_text(encoding="utf-8"))
+    provenance_data = cast(
+        dict[str, object],
+        json.loads(provenance.read_text(encoding="utf-8")),
+    )
     provenance_data["rule_pack"] = "custom_rule_pack"
     _ = provenance.write_text(json.dumps(provenance_data), encoding="utf-8")
     preserved = {
@@ -333,7 +330,4 @@ def test_matching_custom_record_is_not_migrated_or_backfilled(
 
     assert reused.directory == record.directory
     assert not (record.directory / "jaimini.json").exists()
-    assert {
-        path: path.read_bytes()
-        for path in preserved
-    } == preserved
+    assert {path: path.read_bytes() for path in preserved} == preserved
