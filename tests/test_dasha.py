@@ -97,6 +97,17 @@ def test_timeline_rejects_malformed_queries_and_boundaries() -> None:
         _ = DashaTimeline(periods)
 
 
+def test_timeline_parses_public_boundaries_once_at_construction() -> None:
+    periods = _timeline()
+    timeline = DashaTimeline(periods)
+    expected = timeline.current("01-01-2020")
+
+    periods[0]["start"] = "not-a-date"
+    periods[0]["antardashas"][0]["start"] = "not-a-date"
+
+    assert timeline.current("01-01-2020") == expected
+
+
 def test_vimshottari_timeline_has_nine_ordered_mahadashas(
     astrology: Ascendant,
 ) -> None:

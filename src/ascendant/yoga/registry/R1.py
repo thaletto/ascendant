@@ -11,34 +11,32 @@ from ascendant.types import (
     YogaType,
 )
 from ascendant.yoga.base import Yoga, register_yoga, register_yogas
+from ascendant.yoga.rules import (
+    KendraStrength,
+    PlanetInKendraFrom,
+    PlanetInSigns,
+    YogaRule,
+    register_rule,
+)
 
 
-@register_yoga("GajaKesari")
-def gaja_kesari(yoga: Yoga) -> YogaType:
-    """
-    Ju in kendra from Mo
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "GajaKesari",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
-    }
-
-    moon_house = yoga.get_house_of_planet("Moon")
-    jupiter_house = yoga.get_house_of_planet("Jupiter")
-
-    present = yoga.planet_in_kendra_from(moon_house, "Jupiter")
-    result["present"] = present
-    result["details"] = f"Jupiter in house {jupiter_house} and Moon is in {moon_house}"
-
-    kendra_strength = {0: 1.0, 4: 0.75, 10: 0.75, 7: 0.9}
-    distance = (jupiter_house - moon_house) % 12 + 1
-    result["strength"] = kendra_strength.get(distance, 0)
-
-    return result
+register_rule(
+    YogaRule(
+        name="GajaKesari",
+        classification="Positive",
+        conditions=(PlanetInKendraFrom("Jupiter", "Moon"),),
+        detail_template=(
+            "Jupiter in house {planet_house} and Moon is in {reference_house}"
+        ),
+        strength=KendraStrength(
+            planet="Jupiter",
+            reference="Moon",
+            scores=((0, 1.0), (4, 0.75), (10, 0.75), (7, 0.9)),
+            only_when_present=False,
+            default_score=0,
+        ),
+    )
+)
 
 
 @register_yoga("Sunapha")
@@ -751,230 +749,85 @@ def obhayachari(yoga: Yoga) -> YogaType:
     return result
 
 
-@register_yoga("Hamsa")
-def hamsa(yoga: Yoga) -> YogaType:
-    """
-    Ju must be in Sg, Pi or Cn and must be place in a Kendra from Asc.
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Hamsa",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
-    }
-
-    ju_house = yoga.get_house_of_planet("Jupiter")
-    if not ju_house:
-        result["details"] = "Jupiter not found."
-        return result
-
-    ju_rashi = yoga.get_rashi_of_house(ju_house)
-
-    own_signs: list[RASHIS] = ["Sagittarius", "Pisces"]
-    exaltation_sign: RASHIS = "Cancer"
-
-    in_own_or_exalted_sign = ju_rashi in own_signs or ju_rashi == exaltation_sign
-
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    in_kendra = False
-    if lagna_house:
-        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Jupiter")
-
-    result["present"] = in_own_or_exalted_sign and in_kendra
-
-    result["details"] = f"Jupiter is in {ju_rashi} (house {ju_house})."
-
-    if result["present"] and lagna_house:
-        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
-        kendra_pos = (ju_house - lagna_house + 12) % 12 + 1
-        strength = kendra_strength_map.get(kendra_pos, 0.5)
-        if ju_rashi == exaltation_sign:
-            strength *= 1.2
-        result["strength"] = min(1.0, strength)
-
-    return result
+_PANCHA_STRENGTH = ((1, 1.0), (10, 0.8), (7, 0.9), (4, 0.7))
 
 
-@register_yoga("Malavya")
-def malavya(yoga: Yoga) -> YogaType:
-    """
-    Ve must be in Ta, Li or Pi and must be place in a Kendra from Asc
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Malavya",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
-    }
-
-    ve_house = yoga.get_house_of_planet("Venus")
-    if not ve_house:
-        result["details"] = "Venus not found."
-        return result
-
-    ve_rashi = yoga.get_rashi_of_house(ve_house)
-
-    own_signs: list[RASHIS] = ["Taurus", "Libra"]
-    exaltation_sign: RASHIS = "Pisces"
-
-    in_own_or_exalted_sign = ve_rashi in own_signs or ve_rashi == exaltation_sign
-
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    in_kendra = False
-    if lagna_house:
-        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Venus")
-
-    result["present"] = in_own_or_exalted_sign and in_kendra
-
-    result["details"] = f"Venus is in {ve_rashi} (house {ve_house})."
-
-    if result["present"] and lagna_house:
-        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
-        kendra_pos = (ve_house - lagna_house + 12) % 12 + 1
-        strength = kendra_strength_map.get(kendra_pos, 0.5)
-        if ve_rashi == exaltation_sign:
-            strength *= 1.2
-        result["strength"] = min(1.0, strength)
-
-    return result
+def _pancha_rule(
+    name: str,
+    planet: PLANETS,
+    signs: frozenset[RASHIS],
+    exalted_sign: RASHIS,
+    classification: Literal["Positive", "Neutral"] = "Positive",
+) -> YogaRule:
+    return YogaRule(
+        name=name,
+        classification=classification,
+        conditions=(
+            PlanetInSigns(planet, signs),
+            PlanetInKendraFrom(planet, "Lagna"),
+        ),
+        detail_template=(
+            "{planet} is in {planet_sign} (house {planet_house})."
+        ),
+        strength=KendraStrength(
+            planet=planet,
+            reference="Lagna",
+            scores=_PANCHA_STRENGTH,
+            exalted_sign=exalted_sign,
+            exaltation_multiplier=1.2,
+        ),
+    )
 
 
-@register_yoga("Sasa")
-def sasa(yoga: Yoga) -> YogaType:
-    """
-    Sa must be in Li, Cp or Aq and must be place in a Kendra from Asc
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Sasa",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Neutral",
-    }
-
-    sa_house = yoga.get_house_of_planet("Saturn")
-    sa_rashi = yoga.get_rashi_of_house(sa_house)
-
-    own_signs: list[RASHIS] = ["Capricorn", "Aquarius"]
-    exaltation_sign: RASHIS = "Libra"
-
-    in_own_or_exalted_sign = sa_rashi in own_signs or sa_rashi == exaltation_sign
-
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    in_kendra = False
-    if lagna_house:
-        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Saturn")
-
-    result["present"] = in_own_or_exalted_sign and in_kendra
-
-    result["details"] = f"Saturn is in {sa_rashi} (house {sa_house})."
-
-    if result["present"] and lagna_house:
-        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
-        kendra_pos = (sa_house - lagna_house + 12) % 12 + 1
-        strength = kendra_strength_map.get(kendra_pos, 0.5)
-        if sa_rashi == exaltation_sign:
-            strength *= 1.2
-        result["strength"] = min(1.0, strength)
-
-    return result
+register_rule(
+    _pancha_rule(
+        "Hamsa",
+        "Jupiter",
+        frozenset(("Sagittarius", "Pisces", "Cancer")),
+        "Cancer",
+    )
+)
 
 
-@register_yoga("Ruchaka")
-def ruchaka(yoga: Yoga) -> YogaType:
-    """
-    Ma must be in Ar, Sc or Cp and must be place in a Kendra from Asc
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Ruchaka",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
-    }
-
-    ma_house = yoga.get_house_of_planet("Mars")
-    if not ma_house:
-        result["details"] = "Mars not found."
-        return result
-
-    ma_rashi = yoga.get_rashi_of_house(ma_house)
-
-    own_signs: list[RASHIS] = ["Aries", "Scorpio"]
-    exaltation_sign: RASHIS = "Capricorn"
-
-    in_own_or_exalted_sign = ma_rashi in own_signs or ma_rashi == exaltation_sign
-
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    in_kendra = False
-    if lagna_house:
-        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Mars")
-
-    result["present"] = in_own_or_exalted_sign and in_kendra
-
-    result["details"] = f"Mars is in {ma_rashi} (house {ma_house})."
-
-    if result["present"] and lagna_house:
-        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
-        kendra_pos = (ma_house - lagna_house + 12) % 12 + 1
-        strength = kendra_strength_map.get(kendra_pos, 0.5)
-        if ma_rashi == exaltation_sign:
-            strength *= 1.2
-        result["strength"] = min(1.0, strength)
-
-    return result
+register_rule(
+    _pancha_rule(
+        "Malavya",
+        "Venus",
+        frozenset(("Taurus", "Libra", "Pisces")),
+        "Pisces",
+    )
+)
 
 
-@register_yoga("Bhadra")
-def bhadra(yoga: Yoga) -> YogaType:
-    """
-    Ma must be in Ge or Vi and must be place in a Kendra from Asc
-    """
-    result: YogaType = {
-        "id": "",
-        "name": "Bhadra",
-        "present": False,
-        "strength": 0.0,
-        "details": "",
-        "type": "Positive",
-    }
+register_rule(
+    _pancha_rule(
+        "Sasa",
+        "Saturn",
+        frozenset(("Capricorn", "Aquarius", "Libra")),
+        "Libra",
+        "Neutral",
+    )
+)
 
-    me_house = yoga.get_house_of_planet("Mercury")
-    if not me_house:
-        result["details"] = "Mercury not found."
-        return result
 
-    me_rashi = yoga.get_rashi_of_house(me_house)
+register_rule(
+    _pancha_rule(
+        "Ruchaka",
+        "Mars",
+        frozenset(("Aries", "Scorpio", "Capricorn")),
+        "Capricorn",
+    )
+)
 
-    own_signs: list[RASHIS] = ["Gemini", "Virgo"]
-    exaltation_sign: RASHIS = "Virgo"
 
-    in_own_or_exalted_sign = me_rashi in own_signs or me_rashi == exaltation_sign
-
-    lagna_house = yoga.get_house_of_planet("Lagna")
-    in_kendra = False
-    if lagna_house:
-        in_kendra = yoga.planet_in_kendra_from(lagna_house, "Mercury")
-
-    result["present"] = in_own_or_exalted_sign and in_kendra
-
-    result["details"] = f"Mercury is in {me_rashi} (house {me_house})."
-
-    if result["present"] and lagna_house:
-        kendra_strength_map = {1: 1.0, 10: 0.8, 7: 0.9, 4: 0.7}
-        kendra_pos = (me_house - lagna_house + 12) % 12 + 1
-        strength = kendra_strength_map.get(kendra_pos, 0.5)
-        if me_rashi == exaltation_sign:
-            strength *= 1.2
-        result["strength"] = min(1.0, strength)
-
-    return result
+register_rule(
+    _pancha_rule(
+        "Bhadra",
+        "Mercury",
+        frozenset(("Gemini", "Virgo")),
+        "Virgo",
+    )
+)
 
 
 @register_yoga("Buddha Aditya")

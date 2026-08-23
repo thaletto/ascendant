@@ -3,32 +3,41 @@ title: Configuration
 description: Choose Ascendant's ayanamsa and house system with explicit, typed, reproducible defaults.
 ---
 
-`ascendant.configuration` owns the process-wide defaults used when a new
-`Ascendant` instance does not receive an explicit ayanamsa or house system. The
-configuration is one frozen `AscendantConfig`; calling `configure()` replaces
-that complete value.
+`AscendantConfig` groups the calculation settings used by one `Ascendant`
+instance. Configuration is explicit and immutable, so independent callers in
+the same process can calculate with different settings without changing shared
+module state.
 
-## Configure new instances
+## Configure an instance
 
 ```python
 from ascendant import (
     AscendantConfig,
     Ayanamsa,
     HouseSystem,
-    configure,
+    Ascendant,
 )
 
-config = AscendantConfig(
-    ayanamsa=Ayanamsa.RAMAN,
-    house_system=HouseSystem.PORPHYRY,
+astro = Ascendant(
+    year=1990,
+    month=1,
+    day=1,
+    hour=12,
+    minute=0,
+    second=0,
+    latitude=28.6139,
+    longitude=77.2090,
+    utc="+5:30",
+    config=AscendantConfig(
+        ayanamsa=Ayanamsa.RAMAN,
+        house_system=HouseSystem.PORPHYRY,
+    ),
 )
-configure(config)
 ```
 
 `AscendantConfig` is frozen and slotted. Its fields accept enum members, not
-arbitrary strings. Passing a dictionary or another object to `configure()`
-raises `TypeError`; passing strings into `AscendantConfig` also raises
-`TypeError`.
+arbitrary strings. Passing a dictionary or another object as `config` raises
+`TypeError`; passing strings into `AscendantConfig` also raises `TypeError`.
 
 The built-in value is equivalent to:
 
@@ -39,7 +48,7 @@ AscendantConfig(
 )
 ```
 
-## Read and reset the configuration
+## Built-in defaults and compatibility functions
 
 ```python
 from ascendant import get_config, reset_config
@@ -51,15 +60,15 @@ print(current.house_system)
 reset_config()
 ```
 
-`get_config()` returns the current immutable object. `reset_config()` replaces
-it with a new default `AscendantConfig`, restoring Lahiri and Whole Sign.
-Reads and replacements are protected by a lock, so callers do not observe a
-partially changed configuration.
+`get_config()` always returns the immutable built-in defaults. `reset_config()`
+remains as a compatibility no-op. The former process-wide `configure()` entry
+point now raises an actionable `RuntimeError`; migrate callers by passing its
+`AscendantConfig` value to `Ascendant(config=...)`.
 
 ## How an instance resolves its settings
 
-When you construct a chart without explicit calculation settings, it reads the
-current application configuration:
+When you construct a chart without explicit calculation settings, it uses the
+immutable built-in configuration:
 
 ```python
 from ascendant import Ascendant
@@ -80,12 +89,10 @@ astro = Ascendant(
 The effective precedence is:
 
 1. Explicit `Ascendant(...)` arguments
-2. The current value installed by `configure()`
+2. The instance's explicit `config`
 3. `AscendantConfig()` defaults
 
-An existing instance keeps the resolved values stored in its
-`horoscope_data`. Later calls to `configure()` affect only instances created
-after the replacement.
+Each instance keeps the resolved values stored in its `horoscope_data`.
 
 ## Override one instance
 

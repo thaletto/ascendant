@@ -49,8 +49,12 @@ class Ascendant:
         utc: str,
         ayanamsa: Ayanamsa | str | None = None,
         house_system: HouseSystem | str | None = None,
+        config: AscendantConfig | None = None,
     ):
-        config = get_config()
+        if config is None:
+            config = get_config()
+        elif not isinstance(config, AscendantConfig):
+            raise TypeError("config must be an AscendantConfig instance")
         self.horoscope_data: HoroscopeData = HoroscopeData(
             year=year,
             month=month,

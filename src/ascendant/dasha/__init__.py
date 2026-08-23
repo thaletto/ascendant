@@ -1,4 +1,5 @@
-from collections.abc import Sequence
+from copy import deepcopy
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from datetime import date as Date
 from typing import TypedDict
@@ -30,19 +31,53 @@ _ChartDate = tuple[int, int, int, int, int]
 _VimshottariData = dict[PLANETS, _VimshottariMahaDasha]
 
 
+@dataclass(frozen=True, slots=True)
+class _AntarPeriod:
+    output: AntarDashaType
+    start: Date
+    end: Date
+
+
+@dataclass(frozen=True, slots=True)
+class _MahaPeriod:
+    output: MahaDashaType
+    start: Date
+    end: Date
+    antardashas: tuple[_AntarPeriod, ...]
+
+
+_BoundedPeriod = _MahaPeriod | _AntarPeriod
+
+
 class DashaTimeline:
     """Select periods from an existing Vimshottari Dasha timeline."""
 
     timeline: DashasType
 
     def __init__(self, timeline: DashasType) -> None:
-        for period in timeline:
-            maha_start, maha_end = self._bounds(period)
+        self.timeline = deepcopy(timeline)
+        parsed: list[_MahaPeriod] = []
+        for period in self.timeline:
+            maha_start, maha_end = self._parse_bounds(period)
+            antardashas: list[_AntarPeriod] = []
             for subperiod in period["antardashas"]:
-                antar_start, antar_end = self._bounds(subperiod)
+                antar_start, antar_end = self._parse_bounds(subperiod)
                 if antar_start < maha_start or antar_end > maha_end:
-                    raise ValueError("antardasha boundaries must be within mahadasha")
-        self.timeline = timeline
+                    raise ValueError(
+                        "antardasha boundaries must be within mahadasha"
+                    )
+                antardashas.append(
+                    _AntarPeriod(subperiod, antar_start, antar_end)
+                )
+            parsed.append(
+                _MahaPeriod(
+                    period,
+                    maha_start,
+                    maha_end,
+                    tuple(antardashas),
+                )
+            )
+        self._periods = tuple(parsed)
 
     def current(
         self,
@@ -57,12 +92,12 @@ class DashaTimeline:
         target = self._normalize(when)
         mahadasha: MahaDashaType | None = None
         antardasha: AntarDashaType | None = None
-        for period in self.timeline:
+        for period in self._periods:
             if self._contains(period, target):
-                mahadasha = period
-                for subperiod in period["antardashas"]:
+                mahadasha = period.output
+                for subperiod in period.antardashas:
                     if self._contains(subperiod, target):
-                        antardasha = subperiod
+                        antardasha = subperiod.output
                         break
                 break
         return {
@@ -76,12 +111,12 @@ class DashaTimeline:
         when: str | Date | datetime | None = None,
     ) -> MahaDashaType | None:
         target = self._normalize(when)
-        current_index = self._index_containing(self.timeline, target)
+        current_index = self._index_containing(self._periods, target)
         if current_index is None:
             return None
         target_index = current_index + offset
-        if 0 <= target_index < len(self.timeline):
-            return self.timeline[target_index]
+        if 0 <= target_index < len(self._periods):
+            return self._periods[target_index].output
         return None
 
     def antardasha(
@@ -90,16 +125,16 @@ class DashaTimeline:
         when: str | Date | datetime | None = None,
     ) -> AntarDashaType | None:
         target = self._normalize(when)
-        mahadasha = self.mahadasha(0, target)
-        if mahadasha is None:
+        maha_index = self._index_containing(self._periods, target)
+        if maha_index is None:
             return None
-        periods = mahadasha["antardashas"]
+        periods = self._periods[maha_index].antardashas
         current_index = self._index_containing(periods, target)
         if current_index is None:
             return None
         target_index = current_index + offset
         if 0 <= target_index < len(periods):
-            return periods[target_index]
+            return periods[target_index].output
         return None
 
     @staticmethod
@@ -123,14 +158,13 @@ class DashaTimeline:
 
     @staticmethod
     def _contains(
-        period: MahaDashaType | AntarDashaType,
+        period: _BoundedPeriod,
         target: Date,
     ) -> bool:
-        start, end = DashaTimeline._bounds(period)
-        return start <= target <= end
+        return period.start <= target <= period.end
 
     @staticmethod
-    def _bounds(
+    def _parse_bounds(
         period: MahaDashaType | AntarDashaType,
     ) -> tuple[Date, Date]:
         try:
@@ -153,7 +187,7 @@ class DashaTimeline:
     @classmethod
     def _index_containing(
         cls,
-        periods: Sequence[MahaDashaType | AntarDashaType],
+        periods: tuple[_MahaPeriod, ...] | tuple[_AntarPeriod, ...],
         target: Date,
     ) -> int | None:
         for index, period in enumerate(periods):

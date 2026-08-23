@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 from typing import cast
 
 import pytest
@@ -18,37 +17,22 @@ from ascendant import (
 )
 
 
-@pytest.fixture(autouse=True)
-def isolated_configuration() -> Iterator[None]:
-    reset_config()
-    yield
-    reset_config()
-
-
-def test_application_configuration_can_be_replaced_and_reset() -> None:
+def test_process_default_is_immutable() -> None:
     configured = AscendantConfig(
         ayanamsa=Ayanamsa.RAMAN,
         house_system=HouseSystem.PLACIDUS,
     )
 
-    configure(configured)
-
-    assert get_config() is configured
+    with pytest.raises(RuntimeError, match="Pass config=.+Ascendant"):
+        configure(configured)
 
     reset_config()
 
     assert get_config() == AscendantConfig()
 
 
-def test_ascendant_uses_configured_calculation_defaults() -> None:
-    configure(
-        AscendantConfig(
-            ayanamsa=Ayanamsa.RAMAN,
-            house_system=HouseSystem.PLACIDUS,
-        )
-    )
-
-    astrology = Ascendant(
+def test_two_instances_can_use_different_configs_concurrently() -> None:
+    raman = Ascendant(
         year=1990,
         month=1,
         day=1,
@@ -58,20 +42,34 @@ def test_ascendant_uses_configured_calculation_defaults() -> None:
         utc="+5:30",
         latitude=28.6139,
         longitude=77.2090,
+        config=AscendantConfig(
+            ayanamsa=Ayanamsa.RAMAN,
+            house_system=HouseSystem.PLACIDUS,
+        ),
+    )
+    lahiri = Ascendant(
+        year=1990,
+        month=1,
+        day=1,
+        hour=12,
+        minute=0,
+        second=0,
+        utc="+5:30",
+        latitude=28.6139,
+        longitude=77.2090,
+        config=AscendantConfig(
+            ayanamsa=Ayanamsa.LAHIRI,
+            house_system=HouseSystem.EQUAL,
+        ),
     )
 
-    assert astrology.horoscope_data.ayanamsa == Ayanamsa.RAMAN
-    assert astrology.horoscope_data.house_system == HouseSystem.PLACIDUS
+    assert raman.horoscope_data.ayanamsa == Ayanamsa.RAMAN
+    assert raman.horoscope_data.house_system == HouseSystem.PLACIDUS
+    assert lahiri.horoscope_data.ayanamsa == Ayanamsa.LAHIRI
+    assert lahiri.horoscope_data.house_system == HouseSystem.EQUAL
 
 
 def test_constructor_values_override_configured_defaults() -> None:
-    configure(
-        AscendantConfig(
-            ayanamsa=Ayanamsa.RAMAN,
-            house_system=HouseSystem.PLACIDUS,
-        )
-    )
-
     astrology = Ascendant(
         year=1990,
         month=1,
@@ -82,6 +80,10 @@ def test_constructor_values_override_configured_defaults() -> None:
         utc="+5:30",
         latitude=28.6139,
         longitude=77.2090,
+        config=AscendantConfig(
+            ayanamsa=Ayanamsa.RAMAN,
+            house_system=HouseSystem.PLACIDUS,
+        ),
         ayanamsa="Krishnamurti",
         house_system="Equal",
     )
@@ -90,12 +92,10 @@ def test_constructor_values_override_configured_defaults() -> None:
     assert astrology.horoscope_data.house_system == "Equal"
 
 
-def test_existing_instance_keeps_its_configuration_snapshot() -> None:
-    configure(
-        AscendantConfig(
-            ayanamsa=Ayanamsa.RAMAN,
-            house_system=HouseSystem.PLACIDUS,
-        )
+def test_instance_keeps_its_configuration_snapshot() -> None:
+    config = AscendantConfig(
+        ayanamsa=Ayanamsa.RAMAN,
+        house_system=HouseSystem.PLACIDUS,
     )
     astrology = Ascendant(
         year=1990,
@@ -107,13 +107,7 @@ def test_existing_instance_keeps_its_configuration_snapshot() -> None:
         utc="+5:30",
         latitude=28.6139,
         longitude=77.2090,
-    )
-
-    configure(
-        AscendantConfig(
-            ayanamsa=Ayanamsa.LAHIRI,
-            house_system=HouseSystem.EQUAL,
-        )
+        config=config,
     )
 
     assert astrology.horoscope_data.ayanamsa == Ayanamsa.RAMAN
@@ -168,7 +162,6 @@ def test_configuration_requires_the_typed_immutable_value() -> None:
 
 
 def test_porphyry_configuration_calculates_porphyry_house_cusps() -> None:
-    configure(AscendantConfig(house_system=HouseSystem.PORPHYRY))
     astrology = Ascendant(
         year=1990,
         month=1,
@@ -179,6 +172,7 @@ def test_porphyry_configuration_calculates_porphyry_house_cusps() -> None:
         utc="+5:30",
         latitude=28.6139,
         longitude=77.2090,
+        config=AscendantConfig(house_system=HouseSystem.PORPHYRY),
     )
 
     chart = astrology.horoscope_data.generate_chart()

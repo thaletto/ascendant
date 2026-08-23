@@ -58,3 +58,50 @@ Each yoga result is a dictionary:
 ```
 
 When you discuss a detected yoga, cite `details` and the relevant chart placements. Treat `strength` as calculation output, not as a standalone prediction or certainty.
+
+## Extend the declarative rule registry
+
+Yoga rules that fit the shared evaluator are represented by immutable
+`YogaRule` data instead of bespoke control flow. A rule declares:
+
+- its stable name and Positive, Neutral, or Negative classification;
+- an ordered tuple of conditions;
+- a detail template populated from calculated placements; and
+- a Kendra-based strength table with optional exaltation adjustment.
+
+The initial condition rows are `PlanetInKendraFrom`, which compares one planet
+with a reference planet or the Lagna, and `PlanetInSigns`, which accepts a set
+of signs. The evaluator applies all rows as conjunctions and registers the
+result through the existing `YOGA_REGISTRY` interface. `YOGA_RULES` exposes a
+read-only map of the declarative definitions for inspection.
+
+```python
+from ascendant.yoga.rules import (
+    KendraStrength,
+    PlanetInKendraFrom,
+    YogaRule,
+    register_rule,
+)
+
+register_rule(
+    YogaRule(
+        name="Example",
+        classification="Positive",
+        conditions=(PlanetInKendraFrom("Jupiter", "Moon"),),
+        detail_template=(
+            "{planet} is in house {planet_house}; "
+            "{reference} is in house {reference_house}."
+        ),
+        strength=KendraStrength(
+            planet="Jupiter",
+            reference="Moon",
+            scores=((1, 1.0), (4, 0.75), (7, 0.9), (10, 0.75)),
+        ),
+    )
+)
+```
+
+GajaKesari and the five Pancha Mahapurusha Yogas are the first migrated rule
+set. Rules whose judgement needs richer operations remain callable registry
+entries until the declarative vocabulary can express them without weakening
+their existing results.

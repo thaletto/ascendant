@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from threading import RLock
 from typing import cast
 
 
@@ -67,26 +66,29 @@ class AscendantConfig:
             raise TypeError("house_system must be a HouseSystem value")
 
 
-_CONFIG_LOCK = RLock()
-_config = AscendantConfig()
+DEFAULT_CONFIG = AscendantConfig()
 
 
 def configure(config: AscendantConfig) -> None:
-    """Replace the defaults used by newly created Ascendant instances."""
+    """Reject the retired process-wide configuration mechanism.
+
+    Pass ``config=`` to each :class:`ascendant.Ascendant` instance instead.
+    The function remains available so existing callers receive an actionable
+    migration error instead of silently sharing mutable process state.
+    """
     candidate = cast(object, config)
     if not isinstance(candidate, AscendantConfig):
         raise TypeError("config must be an AscendantConfig instance")
-    global _config
-    with _CONFIG_LOCK:
-        _config = config
+    raise RuntimeError(
+        "Process-wide configuration is no longer supported. "
+        "Pass config= to each Ascendant instance."
+    )
 
 
 def get_config() -> AscendantConfig:
-    """Return the current immutable application defaults."""
-    with _CONFIG_LOCK:
-        return _config
+    """Return Ascendant's immutable built-in calculation defaults."""
+    return DEFAULT_CONFIG
 
 
 def reset_config() -> None:
-    """Restore Ascendant's built-in calculation defaults."""
-    configure(AscendantConfig())
+    """Compatibility no-op; the built-in defaults cannot be mutated."""

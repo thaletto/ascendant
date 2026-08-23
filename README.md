@@ -91,7 +91,7 @@ astro = Ascendant(
 )
 ```
 
-Or configure application-wide defaults:
+Or pass a typed configuration to one instance:
 
 ```python
 from ascendant import (
@@ -99,14 +99,6 @@ from ascendant import (
     AscendantConfig,
     Ayanamsa,
     HouseSystem,
-    configure,
-)
-
-configure(
-    AscendantConfig(
-        ayanamsa=Ayanamsa.LAHIRI,
-        house_system=HouseSystem.PORPHYRY,
-    )
 )
 
 astro = Ascendant(
@@ -119,16 +111,19 @@ astro = Ascendant(
     utc="+5:30",
     latitude=28.6139,
     longitude=77.2090,
+    config=AscendantConfig(
+        ayanamsa=Ayanamsa.LAHIRI,
+        house_system=HouseSystem.PORPHYRY,
+    ),
 )
 ```
 
-Explicit `Ascendant` arguments take precedence over configured defaults, which
-take precedence over the package defaults. Each instance captures an immutable
-configuration snapshot when it is created.
+Explicit `Ascendant` arguments take precedence over its typed configuration,
+which takes precedence over the package defaults. Each instance captures an
+immutable configuration snapshot when it is created.
 
-Use `get_config()` to inspect the configured defaults and `reset_config()` to
-restore Lahiri and Whole Sign. Unsupported constructor values raise
-`ValueError`.
+Use `get_config()` to inspect the immutable Lahiri and Whole Sign defaults.
+Unsupported constructor values raise `ValueError`.
 
 ### Supported ayanamsas
 
