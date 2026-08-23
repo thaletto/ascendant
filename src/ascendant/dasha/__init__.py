@@ -77,7 +77,7 @@ class DashaTimeline:
                     tuple(antardashas),
                 )
             )
-        self._periods = tuple(parsed)
+        self._periods: tuple[_MahaPeriod, ...] = tuple(parsed)
 
     def current(
         self,

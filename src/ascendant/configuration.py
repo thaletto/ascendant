@@ -80,7 +80,7 @@ def configure(config: AscendantConfig) -> None:
     if not isinstance(candidate, AscendantConfig):
         raise TypeError("config must be an AscendantConfig instance")
     raise RuntimeError(
-        "Process-wide configuration is no longer supported. "
+        "Process-wide configuration is no longer supported. ",
         "Pass config= to each Ascendant instance."
     )
 

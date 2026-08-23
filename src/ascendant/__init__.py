@@ -53,8 +53,6 @@ class Ascendant:
     ):
         if config is None:
             config = get_config()
-        elif not isinstance(config, AscendantConfig):
-            raise TypeError("config must be an AscendantConfig instance")
         self.horoscope_data: HoroscopeData = HoroscopeData(
             year=year,
             month=month,

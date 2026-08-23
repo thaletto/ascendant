@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from types import MappingProxyType
-from collections.abc import Callable
 from typing import Literal
 
 from ascendant.types import HOUSES, PLANETS, PLANETS_LAGNA, RASHIS, YogaType
@@ -83,8 +83,7 @@ def evaluate_rule(yoga: Yoga, rule: YogaRule) -> YogaType:
         return placements[body]
 
     present = all(
-        _condition_matches(condition, yoga, placement)
-        for condition in rule.conditions
+        _condition_matches(condition, yoga, placement) for condition in rule.conditions
     )
     strength_rule = rule.strength
     planet_house, planet_sign = placement(strength_rule.planet)
